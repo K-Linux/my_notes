@@ -40,12 +40,12 @@ ___
 |**04**|git reflog|显示本地repo的所有commit⽇志<br>（注：当返回到某版本时又想回去，可用来查看commit id）|
 |**05**|git reset [file]|将`file`从暂存区移除，且⼯作区不变<br>（注：无`file`则移除暂存区的所有文件）|
 |**05**|git reset --hard HEAD|HEAD即指针指向最近提交版本，HEAD^即指针指向第二个版本|
-|**06**|git reset --hard 1094a|指针指向`commit id`（注：`--hard`表示清除暂存区和工作区的修改）|
+|**06**|git reset --hard 1094a|指针指向`commit id`（注：`--hard`表示清除暂存区和工作区的修改，新增文件即未跟踪的文件不会被清除，故恢复后推荐使用`status`查看状态）|
 |**07**|git branch|列出所有本地分支|
 |**07**|git branch -r|列出所有远程分支|
 |**07**|git branch [name]|复制当前分支的文件到新建的分支|
 |**07**|git branch [name] df58|复制当前分支的`df58`哈希到新建的分支|
-|**07**|git branch -d [name]|删除分支|
+|**07**|git branch -d [name]|删除分支（注：`D`为强制删除）|
 |**07**|git branch -m [a] [b]|分支a重命名为b|
 |**07**|git checkout -b [name]|新建一个分支，并切换到该分支（注：无`-b`为切换到某分支）|
 |**07**|git switch -c [name]|新建一个分支，并切换到该分支（注：无`-c`为切换到某分支）|
