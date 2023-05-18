@@ -222,15 +222,21 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 
 <div align=center><img src="img/2023-05-04-00-07-33.png" width="45%"></div>
 .
-<div align=center><img src="img/2023-05-04-00-08-56.png" width="80%"></div>
+<div align=center><img src="img/2023-05-04-00-08-56.png" width="70%"></div>
 .
-<div align=center><img src="img/2023-05-04-00-09-59.png" width="80%"></div>
+<div align=center><img src="img/2023-05-04-00-09-59.png" width="70%"></div>
 
 ### 1.9 运算符重载 {#1.8}
 
 **没看**
 
-## 二、模版 {#2}
+## 二、模板template (mú bǎn) {#2}
+
+泛型程序设计（generic programming），指的是算法只要实现一遍，就能适用于多种数据类型。泛型程序设计最成功的应用就是 C++ 的标准模板库（STL）。在 C++ 中，模板分为函数模板和类模板两种
+
+所谓函数模板，实际上是建立一个通用函数，它所用到的数据的类型（包括返回值类型、形参类型、局部变量类型）可以不具体指定，而是用一个虚拟的类型来代替（实际上是用一个标识符来占位），等发生函数调用时再根据传入的实参来逆推出真正的类型。这个通用函数就称为<font color="yellow">函数模板</font>（Function Template）
+
+### 2.1 模板 {#2.1}
 
 ## 杂项
 
