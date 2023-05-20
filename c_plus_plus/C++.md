@@ -176,6 +176,9 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 <div align=center><img src="img/2023-05-16-21-24-44.png" width="50%"></div>
 .
 <div align=center><img src="img/2023-05-16-21-44-24.png" width="45%"></div>
+
+#### 虚析构和纯虚析构
+
 ### 1.5 命名空间 namespace {#1.4}
 
 1. 命名空间就是全局变量，命名空间A内的成员可以和命名空间B内的成员重名
@@ -212,7 +215,7 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 3. `this`的原型是`Person *const this`，在函数后面加`const`叫<font color="yellow">常函数</font>，则`this`变为`const Person *const this`
 4. `const Person t1`，在对象定义时加`const`叫<font color="yellow">常对象</font>。**常对象只能调用常函数**（注：[静态成员函数只能访问静态成员变量](#a1)）<a id="a2"></a>
 
-<div align=center><img src="img/2023-05-03-23-47-01.png" width="45%"></div>
+<div align=center><img src="img/2023-05-03-23-47-01.png" width="30%"></div>
 
 ### 1.8 友元 friend {#1.7}
 
@@ -220,7 +223,7 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 1. 类声明为友元，则友元类中的所有成员函数都是另外一个类的友元函数
 1. 类的成员函数声明为友元，则该函数可以访问该类的所有成员（包括private成员）
 
-<div align=center><img src="img/2023-05-04-00-07-33.png" width="45%"></div>
+<div align=center><img src="img/2023-05-04-00-07-33.png" width="35%"></div>
 .
 <div align=center><img src="img/2023-05-04-00-08-56.png" width="70%"></div>
 .
@@ -240,9 +243,16 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 
 - `typename`是另外一个关键字，用来声明具体的<font color="yellow">类型参数</font>（也可以说是虚拟的类型，或者说是类型占位符），这里的类型参数就是T。从整体上看，`template<typename T>` 被称为模板头
 
-<div align=center><img src="img/2023-05-19-21-11-38.png" width="50%"></div>
+### 2.1 函数模板
 
-### 2.1 模板 {#2.1}
+<div align=center><img src="img/2023-05-20-07-45-56.png" width="60%"></div>
+.
+<div align=center><img src="img/2023-05-20-08-28-35.png" width="60%"></div>
+
+### 2.2 类模板
+
+<div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
+<div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
 
 ## 杂项
 
