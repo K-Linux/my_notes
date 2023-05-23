@@ -153,7 +153,7 @@ ___
 ##### 满足条件为
 
 1. <font color="yellow">派生类要重写基类的虚函数（否则）</font>（注：重写即函数名和形参都要一样）
-2. <font color="yellow">基类的指针或引用执行派生类的对象</font>
+2. <font color="yellow">基类的指针或引用执行派生类的虚函数</font>
 
 >注：在函数前加`virtual`即为虚函数。例如：virtual void func()
 >构造函数不能是虚函数，因为派生类不能继承基类的构造函数，将构造函数声明为虚函数没有意义
@@ -174,10 +174,10 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 
 #### 纯虚函数和抽象类
 
-一般我们不实例化基类对象，所以将基类变为抽象类，抽象类不可实例化对象。只要类中有了纯虚函数，那么这个类就是抽象类
+一般我们不实例化基类对象，所以将基类变为抽象类，抽象类不可实例化对象（但可以实例化指针）。只要类中有了纯虚函数，那么这个类就是抽象类
 
 1. <font color="yellow">在虚函数后面加`= 0`即为纯虚函数；当类中有了纯虚函数，这个类就被称为抽象类</font>
-2. 抽象类无法实例化对象
+2. 抽象类无法实例化对象（Base t1；错误  ——  Base *t1；正确）
 3. 派生类必须重写抽象类（基类）的纯虚函数，否则派生类也是纯虚函数，无法实例化对象
 
 <div align=center><img src="img/2023-05-16-21-24-44.png" width="45%"></div>
@@ -246,11 +246,94 @@ int main(){
 在`Rec`类中，实现了`area()`的函数体。但没有实现继承来的 `volume()`的函数体，所以`Rec`也是抽象类，不能被实例化
 
 在实际开发中，你可以定义一个抽象基类，只完成部分功能，未完成的功能交给派生类去实现（谁派生谁实现）。这部分未完成的功能，往往是基类不需要的，或者在基类中无法实现的。虽然抽象基类没有完成，但是却强制要求派生类完成，这就是抽象基类的“霸王条款”。
+```C++
+
+#include <iostream>
+
+using namespace std;
+//CPU抽象类
+class CPU { 
+public:
+    virtual void calculate() = 0;
+};
+//内存条抽象类
+class Memory { 
+public:
+    virtual void storage() = 0;
+};
+//电脑派生类(作用是将基类指针指向派生类并执行派生类虚函数)
+class Computer {
+public:
+    Computer(CPU *cpu, Memory *mem);
+    ~Computer();
+    void work();
+private:
+    CPU *m_cpu;
+    Memory *m_mem;
+};
+//此处传入的形参应该是两种派生类
+Computer::Computer(CPU *cpu, Memory *mem):m_cpu(cpu),m_mem(mem){}
+//基类指针执行派生类的虚函数,即多态
+void Computer::work(){
+    m_cpu->calculate();
+    m_mem->storage();
+}
+Computer::~Computer(){
+    if (m_cpu != NULL) {
+        delete m_cpu;
+        m_cpu = NULL;
+    }
+    if (m_mem != NULL) {
+        delete m_mem;
+        m_mem = NULL;
+    }
+}
+//Intel厂商
+class Intel_cpu:public CPU {
+public:
+    virtual void calculate() {
+        cout << "CPU work of Intel" << endl;
+    }
+};
+class Intel_memory:public Memory {
+public:
+    virtual void storage() {
+        cout << "memory work of Intel" << endl;
+    }
+};
+//Lenovo厂商
+class Lenovo_cpu:public CPU {
+public:
+    virtual void calculate() {
+        cout << "CPU work of Lenovo" << endl;
+    }
+};
+class Lenovo_memory:public Memory {
+public:
+    virtual void storage() {
+        cout << "memory work of Lenovo" << endl;
+    }
+};
+
+int main()
+{
+    CPU *intel_cpu = new Intel_cpu;
+    Memory *intel_mem = new Intel_memory;
+    Computer *computer1 = new Computer(intel_cpu, intel_mem);
+    computer1->work();  //打印CPU/memory work of Intel
+    delete computer1;
+    cout << "---------------------" << endl;
+    Computer *computer2 = new Computer(new Lenovo_cpu, new Lenovo_memory);
+    computer2->work();  // 打印CPU/memory work of Lenovo
+    delete computer2;
+
+    return 0;
+}
 
 
-#### 虚析构和纯虚析构
+```
 
-##### 虚析构
+#### 虚析构
 
 当发生[向上转型](#向上转型)时，即派生类指针赋值给基类指针时，delete 释放基类并不会调用派生类的析构函数。因为这里的析构函数是非虚函数，通过指针访问非虚函数时，编译器会根据指针的类型来确定要调用的函数。例如`Base *p;`是基类的指针，所以不管它指向基类的对象还是派生类的对象，始终都是调用基类的析构函数。若`Derive *p;`是派生类的指针，编译器会根据它的类型匹配到派生类的析构函数，在执行派生类的析构函数时，又会调用基类的析构函数，这个过程是隐式完成的
 
@@ -261,9 +344,6 @@ int main(){
 在实际开发中，我们必须将最底层的基类的析构函数声明为虚函数，否则就有内存泄露的风险
 
 >注：多继承时，只要最底层基类的析构函数声明为虚函数即可
-
-##### 纯虚析构
-
 
 ### 1.5 命名空间 namespace {#1.4}
 
@@ -333,20 +413,20 @@ int main()
 {
     // string的结尾没有'\0'
     string t1 = "Linux";
-    // string定义的对象，可以互相赋值
+    // string定义的对象,可以互相赋值
     string t2 = t1;
     // 初始化构造函数。等价于 string t3 = "SSS"
     string t3(3, 'S');
-    // 调用成员函数length()，返回字符串长度(无'\0)
+    // 调用成员函数length(),返回字符串长度(无'\0)
     cout << t1.length() << endl;
-    // 为了使用C语言中的fopen()函数打开文件，必须调用成员函数c_str()，将string字符串转换为C风格的字符串
+    // 为了使用C语言中的fopen()函数打开文件,必须调用成员函数c_str(),将string字符串转换为C风格的字符串
     FILE *fp = fopen(t1.c_str(), "r+");
     // 按下标来访问string字符串
     t1[0] = 'C';
     // string可以用+运算符来和任意字符串拼接
     char char_str[] = "ABC";
     string t4 = t1 + "China" + char_str + 'T';
-    // 成员函数insert(n, str)，在第n个字符后面插入字符串str
+    // 成员函数insert(n, str),在第n个字符后面插入字符串str
     t1.insert(1, "bhlk");
     cout << t1 << endl;
 
