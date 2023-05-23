@@ -174,7 +174,7 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 
 #### 纯虚函数和抽象类
 
-一般我们不实例化基类对象，所以将基类变为抽象类，抽象类不可实例化对象
+一般我们不实例化基类对象，所以将基类变为抽象类，抽象类不可实例化对象。只要类中有了纯虚函数，那么这个类就是抽象类
 
 1. <font color="yellow">在虚函数后面加`= 0`即为纯虚函数；当类中有了纯虚函数，这个类就被称为抽象类</font>
 2. 抽象类无法实例化对象
@@ -183,6 +183,70 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 <div align=center><img src="img/2023-05-16-21-24-44.png" width="45%"></div>
 .
 <div align=center><img src="img/2023-05-16-21-44-24.png" width="45%"></div>
+
+```C++
+#include <iostream>
+using namespace std;
+//线
+class Line{
+public:
+    Line(float len);
+    virtual float area() = 0;
+    virtual float volume() = 0;
+protected:
+    float m_len;
+};
+Line::Line(float len): m_len(len){ }
+//矩形
+class Rec: public Line{
+public:
+    Rec(float len, float width);
+    float area();
+protected:
+    float m_width;
+};
+Rec::Rec(float len, float width): Line(len), m_width(width){ }
+float Rec::area(){ return m_len * m_width; }
+//长方体
+class Cuboid: public Rec{
+public:
+    Cuboid(float len, float width, float height);
+    float area();
+    float volume();
+protected:
+    float m_height;
+};
+Cuboid::Cuboid(float len, float width, float height): Rec(len, width), m_height(height){ }
+float Cuboid::area(){ return 2 * ( m_len*m_width + m_len*m_height + m_width*m_height); }
+float Cuboid::volume(){ return m_len * m_width * m_height; }
+//正方体
+class Cube: public Cuboid{
+public:
+    Cube(float len);
+    float area();
+    float volume();
+};
+Cube::Cube(float len): Cuboid(len, len, len){ }
+float Cube::area(){ return 6 * m_len * m_len; }
+float Cube::volume(){ return m_len * m_len * m_len; }
+int main(){
+    Line *p = new Cuboid(10, 20, 30);
+    cout<<"The area of Cuboid is "<<p->area()<<endl;
+    cout<<"The volume of Cuboid is "<<p->volume()<<endl;
+  
+    p = new Cube(15);
+    cout<<"The area of Cube is "<<p->area()<<endl;
+    cout<<"The volume of Cube is "<<p->volume()<<endl;
+    return 0;
+}
+```
+
+`Line`是一个抽象类，也是最底层的基类，在`Line`类中定义了两个纯虚函数 area() 和 volume()
+
+在`Rec`类中，实现了`area()`的函数体。但没有实现继承来的 `volume()`的函数体，所以`Rec`也是抽象类，不能被实例化
+
+在实际开发中，你可以定义一个抽象基类，只完成部分功能，未完成的功能交给派生类去实现（谁派生谁实现）。这部分未完成的功能，往往是基类不需要的，或者在基类中无法实现的。虽然抽象基类没有完成，但是却强制要求派生类完成，这就是抽象基类的“霸王条款”。
+
 
 #### 虚析构和纯虚析构
 
@@ -197,6 +261,9 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 在实际开发中，我们必须将最底层的基类的析构函数声明为虚函数，否则就有内存泄露的风险
 
 >注：多继承时，只要最底层基类的析构函数声明为虚函数即可
+
+##### 纯虚析构
+
 
 ### 1.5 命名空间 namespace {#1.4}
 
@@ -252,9 +319,43 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 
 **没看**
 
+### 2.0 string
+
+`string`类完全可以代替C语言中的字符串数组和字符串指针，使用`string`类需要包含头文件`<string>`
+
+```C++
+#include <string>
+#include <string.h>
+
+using namespace std;
+
+int main()
+{
+    // string的结尾没有'\0'
+    string t1 = "Linux";
+    // string定义的对象，可以互相赋值
+    string t2 = t1;
+    // 初始化构造函数。等价于 string t3 = "SSS"
+    string t3(3, 'S');
+    // 调用成员函数length()，返回字符串长度(无'\0)
+    cout << t1.length() << endl;
+    // 为了使用C语言中的fopen()函数打开文件，必须调用成员函数c_str()，将string字符串转换为C风格的字符串
+    FILE *fp = fopen(t1.c_str(), "r+");
+    // 按下标来访问string字符串
+    t1[0] = 'C';
+    // string可以用+运算符来和任意字符串拼接
+    char char_str[] = "ABC";
+    string t4 = t1 + "China" + char_str + 'T';
+    // 成员函数insert(n, str)，在第n个字符后面插入字符串str
+    t1.insert(1, "bhlk");
+    cout << t1 << endl;
+
+    return 0;
+}
+```
 ## 二、模板template (mú bǎn) {#2}
 
-泛型程序设计（generic programming），指的是算法只要实现一遍，就能适用于多种数据类型。泛型程序设计最成功的应用就是 C++ 的标准模板库（STL）。在 C++ 中，模板分为函数模板和类模板两种
+泛型程序设计（generic programming），指的是算法只要实现一遍，就能适用于多种数据类型。泛型程序设计最成功的应用就是 C++ 的标准模板库STL（Standard Template Library，标准模板库）。在 C++ 中，模板分为函数模板和类模板两种
 
 所谓函数模板，实际上是建立一个通用函数，它所用到的数据的类型（包括返回值类型、形参类型、局部变量类型）可以不具体指定，而是用一个虚拟的类型来代替（实际上是用一个标识符来占位），等发生函数调用时再根据传入的实参来逆推出真正的类型。这个通用函数就称为<font color="yellow">函数模板</font>（Function Template）
 
@@ -268,10 +369,59 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 .
 <div align=center><img src="img/2023-05-20-08-28-35.png" width="60%"></div>
 
+```C++
+// 函数模板重载示例
+
+#include <iostream>
+using namespace std;
+
+// 函数名相同，形参不同的成员函数，称为重载函数
+template<class T> void Swap(T &a, T &b);  //模板1：交换基本类型的值
+template<typename T> void Swap(T a[], T b[], int len);  //模板2：交换两个数组
+void printArray(int arr[], int len);  //打印每个数组元素
+int main(){
+    //交换基本类型的值
+    int m = 10, n = 99;
+    Swap(m, n);  //匹配模板1
+    cout<<m<<", "<<n<<endl;
+    //交换两个数组
+    int a[5] = { 1, 2, 3, 4, 5 };
+    int b[5] = { 10, 20, 30, 40, 50 };
+    int len = sizeof(a) / sizeof(int);  //数组长度
+    Swap(a, b, len);  //匹配模板2
+    printArray(a, len);
+    printArray(b, len);
+    return 0;
+}
+template<class T> void Swap(T &a, T &b){
+    T temp = a;
+    a = b;
+    b = temp;
+}
+template<typename T> void Swap(T a[], T b[], int len){
+    T temp;
+    for(int i = 0; i < len; i++){
+        temp = a[i];
+        a[i] = b[i];
+        b[i] = temp;
+    }
+}
+void printArray(int arr[], int len){
+    for(int i = 0; i < len; i++){
+        if(i == len-1) {
+            cout << arr[i] << endl;
+        } else {
+            cout << arr[i] << ", ";
+        }
+    }
+}
+```
+
 ### 2.2 类模板
 
 <div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
 <div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
+
 
 ## 杂项
 
