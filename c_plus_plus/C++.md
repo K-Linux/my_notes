@@ -461,7 +461,7 @@ int main()
 }
 ```
 
-## 二、模板template (mú bǎn) {#2}
+## 二、模板template (mú bǎn) {#模板}
 
 泛型程序设计（generic programming），指的是算法只要实现一遍，就能适用于多种数据类型。泛型程序设计最成功的应用就是 C++ 的标准模板库STL（Standard Template Library，标准模板库）。在 C++ 中，模板分为函数模板和类模板两种
 
@@ -529,6 +529,16 @@ void printArray(int arr[], int len){
 
 <div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
 <div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
+
+
+## 三、文件操作 {#文件操作}
+
+C++对文件操作需要包含头文件`<fstream>`。文件类型分为两种：
+
+1. 文本文件。文件以文本的ASCII码形式存储在计算机中
+1. 二进制文件。文件以文本的二进制形式存储在计算机中
+
+`ofstream`表示写操作；`ifstream`表示读操作；`fstream`表示读写操作（`f`表示file）
 
 
 ## 杂项
