@@ -495,6 +495,7 @@ int main(){
     //交换两个数组
     int a[5] = { 1, 2, 3, 4, 5 };
     int b[5] = { 10, 20, 30, 40, 50 };
+// sizeof只能通过数组名求得数组长度，不能通过数组指针求得数组长度
     int len = sizeof(a) / sizeof(int);  //数组长度
     Swap(a, b, len);  //匹配模板2
     printArray(a, len);
@@ -514,6 +515,7 @@ template<typename T> void Swap(T a[], T b[], int len){
         b[i] = temp;
     }
 }
+// sizeof只能通过数组名求得数组长度，不能通过转换后的数组指针求得数组长度
 void printArray(int arr[], int len){
     for(int i = 0; i < len; i++){
         if(i == len-1) {
@@ -530,6 +532,104 @@ void printArray(int arr[], int len){
 <div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
 <div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
 
+### 2.3 函数模板的实参推断
+
+通过函数实参来确定模板类型参数`T`的过程称为<font color="yellow">模板实参推断</font>
+
+函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
+
+当函数形参是引用类型时,数组不会转换为指针,依然是数组类型
+
+```C++
+#include <iostream>
+#include <string.h>
+using namespace std;
+class Base {};
+
+template<typename T> void func1(T *a);
+template<typename T> void func2(T a);
+template<typename T> void func3(const T &a);
+template<typename T> void func4(T &a);
+template<typename T> void func5(T &a, T &b);
+
+int main(void)
+{
+    int t1[20];
+    Base base;
+//函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
+//t1 的类型从 int[20] 转换为 int*,所以 T 的类型为 int
+    func1(t1);
+//t1 的类型从 int[20] 换转换为 int *,所以 T 的类型为 int *
+    func2(t1);
+
+//当函数形参是引用类型时,数组不会转换为指针,依然是数组类型
+//T 的真实类型为 Base
+    func3(base);
+//t1 的类型依然为 int[20],不会转换为 int *,所以 T 的真实类型为 int[20]
+    func4(t1);
+//以下两个实参类型分别是 int[10] 和 int[20], T 的类型不明确,所以会报错
+    int a[10], b[20];
+    func5(a, b);
+
+    return 0;
+}
+```
+
+### 2.4 指明函数模板实参
+
+```C++
+#include <iostream>
+#include <string.h>
+using namespace std;
+
+//T2无法确定具体数据类型，所以需要在调用该函数的时候指明数据类型
+template<typename T1, typename T2> void func(T1 a) {
+    T2 b;
+}
+int main(void)
+{
+    //给函数指明数据类型。T1的类型是int，T2的类型是string
+    func<int, string>(10);
+    return 0;
+}
+```
+
+### 2.5 模板中的非类型参数
+
+```C++
+#include <iostream>
+using namespace std;
+//一般情况下给函数传入数组时会转化为int *类型，此时还需要传入数组长度
+//使用非类型参数 + 引用的方式，给函数传入数组时形参还是int[]类型，N就是数组长度
+template<typename T, unsigned N> void Swap(T (&a)[N], T (&b)[N]);  //交换两个数组
+template<typename T, unsigned N> void printArray(T (&arr)[N]);  //打印数组元素
+int main(){
+    //交换两个数组
+    int a[5] = { 1, 2, 3, 4, 5 };
+    int b[5] = { 10, 20, 30, 40, 50 };
+    Swap(a, b);
+    printArray(a);
+    printArray(b);
+    return 0;
+}
+template<typename T, unsigned N> void Swap(T (&a)[N], T (&b)[N]){
+    T temp;
+    for(int i = 0; i < N; i++) {
+        temp = a[i];
+        a[i] = b[i];
+        b[i] = temp;
+    }
+}
+template<typename T, unsigned N> void printArray(T (&arr)[N]){
+    for(int i = 0; i < N; i++) {
+        if(i == N-1){
+            cout << arr[i] << endl;
+        }else{
+            cout << arr[i] << ", ";
+        }
+    }
+}
+```
 
 ## 三、文件操作 {#文件操作}
 
