@@ -125,6 +125,17 @@ int main(void)
     if (cjson_address_zipcode->type == cJSON_Number)
         printf("address-zipcode:%d\n", cjson_address_zipcode->valueint);
 
+// /* cJSON Types: */
+// #define cJSON_Invalid (0)
+// #define cJSON_False  (1 << 0)
+// #define cJSON_True   (1 << 1)
+// #define cJSON_NULL   (1 << 2)
+// #define cJSON_Number (1 << 3)
+// #define cJSON_String (1 << 4)
+// #define cJSON_Array  (1 << 5)    //判断是否为数组类型
+// #define cJSON_Object (1 << 6)    //(cJSON_Object用于判断是否为cJSON结构体即子对象)
+// #define cJSON_Raw    (1 << 7) /* raw json */
+
     /* 解析数组 */
     cjson_skill = cJSON_GetObjectItem(cjson_test, "skill");
     skill_array_size = cJSON_GetArraySize(cjson_skill);     //获取数组长度
@@ -134,7 +145,7 @@ int main(void)
         cjson_skill_item = cJSON_GetArrayItem(cjson_skill, i);
         printf("%s,", cjson_skill_item->valuestring);
     }
-    printf("\b]\n");    // \b表示backspace（与\n要有间隔）
+    printf("\b]\n");    // \b表示backspace（与\n要有空格或字符隔开）
     //可以使用 cJSON_ArrayForEach 遍历JSON数组
 
     /* 解析布尔型数据 */
@@ -172,45 +183,12 @@ int main(void)
 	free(buf2);
 	cJSON_Delete(json);
 }
-#elif (NUM = 4)
-#elif (NUM = 5)
-#elif (NUM = 6)
-#elif (NUM = 7)
-#elif (NUM = 8)
-#elif (NUM = 9)
-
 
 #endif
 
 
+// 学习网址：https://blog.csdn.net/cpp_learner/article/details/122155825
 
 
 
 
-
-
-
-
-
-
-
-
-#if 0
-	ON_AddNullToObject(cJSON * const object, const char * const name);
-	
-	cJSON_AddTrueToObject(cJSON * const object, const char * const name);
-	
-	cJSON_AddFalseToObject(cJSON * const object, const char * const name);
-	
-	cJSON_AddBoolToObject(cJSON * const object, const char * const name, const cJSON_bool boolean);
-	
-	cJSON_AddNumberToObject(cJSON * const object, const char * const name, const double number);
-	
-	cJSON_AddStringToObject(cJSON * const object, const char * const name, const char * const string);
-	
-	cJSON_AddRawToObject(cJSON * const object, const char * const name, const char * const raw);
-	
-	cJSON_AddObjectToObject(cJSON * const object, const char * const name);
-	
-	cJSON_AddArrayToObject(cJSON * const object, const char * const name);
-#endif

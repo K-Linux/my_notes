@@ -1,5 +1,5 @@
 
-# C++
+ <font size="7"><center>**C++**</center></font>
 
 ___
 
@@ -7,7 +7,7 @@ ___
 
 ___
 
-## 一、基础语法 {#1}
+## 一、基础语法 {#基础语法}
 
 #### 类class
 
@@ -119,12 +119,12 @@ ___
 
 <div align=center><img src="img/2023-05-07-20-36-03.png" width="60%"></div>
 
-#### 向上转型 {#向上转型}
+### 1.4 向上转型 {#向上转型}
 
 
 类是一种数据类型，也可以发生数据类型转换，不过这种转换只有在基类和派生类之间才有意义，并且只能将派生类赋值给基类，包括将派生类对象赋值给基类对象、将派生类指针赋值给基类指针、将派生类引用赋值给基类引用，这在 C++ 中称为向上转型（Upcasting）。相应地，将基类赋值给派生类称为向下转型（Downcasting）。
 
-##### 将派生类对象赋值给基类对象
+##### 将派生类对象赋值给基类对象 w
 
 将派生类对象`B`赋值给基类对象`A`时，只会将派生类对象`B`中的基类的成员变量赋值给基类对象`A`。且只能用派生类对象给基类对象赋值，而不能用基类对象给派生类对象赋值。
 
@@ -140,7 +140,7 @@ ___
 
 <div align=center><img src="img/2023-05-15-22-42-18.png" width="50%"></div>
 
-### 1.4 多态 {#多态}
+### 1.5 多态 {#多态}
 
 封装、继承和多态是C++面向对象三大特征。多态分为两类:
 
@@ -157,7 +157,7 @@ ___
 >注：在函数前加`virtual`即为虚函数。例如：virtual void func()
 >构造函数不能是虚函数，因为派生类不能继承基类的构造函数，将构造函数声明为虚函数没有意义
 
-#### 原理
+#### 动态多态的原理
 
 当基类创建虚函数的同时会创建一个占4字节的指针`vfptr`，指向虚函数表`vftable`，该虚函数表内记录着基类的虚函数地址`&Animal::speak`。当派生类继承基类时，指针`vfptr`和虚函数表`vftable`都会继承过来。当派生类重写虚函数时，虚函数表内由原来记录基类的虚函数地址`&Animal::speak`变为记录派生类的虚函数地址`&Cat::speak`
 所以向上转型后，当基类调用虚函数时，因为虚函数表记录着派生类的虚函数地址，所以总是会调用派生类的虚函数
@@ -172,7 +172,7 @@ ___
 上面的代码中，当`t1`指向不同的派生类对象`new Add;`或`new Mul;`时，`t1->get_result();`执行的结果是不一样的。<font color="yellow">同一条语句可以执行不同的操作，这就是多态</font>
 C++提供多态的目的是通过基类指针对所有派生类（包括直接派生和间接派生）的成员变量和成员函数进行全方位的访问，尤其是成员函数。如果没有多态，我们只能通过[向上转型](#向上转型)访问派生类的成员变量
 
-### 纯虚函数和抽象类
+#### 纯虚函数和抽象类
 
 一般我们不实例化基类对象，所以将基类变为抽象类，抽象类不可实例化对象（但可以实例化指针）。只要类中有了纯虚函数，那么这个类就是抽象类。抽象类的作用是防止我们实例化基类，以及提醒我们重写派生类的纯虚函数
 
@@ -334,7 +334,7 @@ int main()
 
 ```
 
-### 虚析构
+#### 虚析构
 
 当发生[向上转型](#向上转型)时，即派生类指针赋值给基类指针时，delete 释放基类并不会调用派生类的析构函数。因为这里的析构函数是非虚函数，通过指针访问非虚函数时，编译器会根据指针的类型来确定要调用的函数。例如`Base *p;`是基类的指针，所以不管它指向基类的对象还是派生类的对象，始终都是调用基类的析构函数。若`Derive *p;`是派生类的指针，编译器会根据它的类型匹配到派生类的析构函数，在执行派生类的析构函数时，又会调用基类的析构函数，这个过程是隐式完成的
 
@@ -346,7 +346,7 @@ int main()
 
 >注：多继承时，只要最底层基类的析构函数声明为虚函数即可
 
-### 1.5 命名空间 namespace {#1.4}
+### 1.6 命名空间 namespace {#1.4}
 
 1. 命名空间就是全局变量，命名空间A内的成员可以和命名空间B内的成员重名
 1. using的功能是永久展开命名空间，无using关键字则是临时展开某个成员
@@ -356,7 +356,7 @@ int main()
 <div align=center><img src="img/2023-05-03-22-46-12.png" width="50%"></div>
 
 
-### 1.6 静态成员变量和静态成员函数（static） {#1.5}
+### 1.7 静态成员变量和静态成员函数（static） {#1.5}
 
 1. <font color="yellow">静态成员函数</font>：**只能访问静态成员变量**（因为当有多个对象时静态函数能确定静态变量却不能确定动态变量）（注：[常对象只能调用常函数](#a2)）<a id="a1"></a>）
 1. <font color="yellow">静态成员变量</font>：必须在类内声明，类外初始化（静态成员函数随意）
@@ -371,9 +371,9 @@ int main()
 
 <div align=center><img src="img/2023-05-03-23-09-31.png" width="45%"></div>
 
-### 1.7 this 指针 {#1.6} 
+### 1.8 this 指针 {#1.6} 
 
-1. 任何非静态成员函数都默认有`this`指针，且`this`指向调用该非静态成员函数的对象。例如`Person t1; t1.func(10)`。`func`内部的`this`指针指向`&t1`，`*this`表示`t1`
+1. 任何非静态成员函数都默认有`this`指针，且`this`指向调用该非静态成员函数的对象。例如`Person t1; t7.func(10)`。`func`内部的`this`指针指向`&t1`，`*this`表示`t1`
 1. 空指针可以调用不含this的成员（因为空指针没有实体，就没有this）
 
 ```C++
@@ -396,11 +396,11 @@ public:
 <div align=center><img src="img/2023-05-03-23-44-05.png" width="45%"></div>
 
 3. `this`的原型是`Person *const this`，在函数后面加`const`叫<font color="yellow">常函数</font>，则`this`变为`const Person *const this`
-4. `const Person t1`，在对象定义时加`const`叫<font color="yellow">常对象</font>。**常对象只能调用常函数**（注：[静态成员函数只能访问静态成员变量](#a1)）<a id="a2"></a>
+4. `const Person t1`，在对象定义时加`const`叫<font color="yellow">常对象</font>。**常对象只能调用常函数**（注：[静态成员函数只能访问静态成员变量](#a1)）<a id="a2"></a>（const普通变量叫常变量）
 
 <div align=center><img src="img/2023-05-03-23-47-01.png" width="30%"></div>
 
-### 1.8 友元 friend {#1.7}
+### 1.9 友元 friend {#1.7}
 
 1. 全局函数声明为友元，则该全局函数就可以访问该类的所有成员（包括private成员）
 1. 类声明为友元，则友元类中的所有成员函数都是另外一个类的友元函数
@@ -412,11 +412,11 @@ public:
 .
 <div align=center><img src="img/2023-05-04-00-09-59.png" width="70%"></div>
 
-### 1.9 运算符重载 {#1.8}
+### 1.10 运算符重载 {#1.8}
 
 **没看**
 
-### 2.0 string
+### 1.11 string
 
 `string`类完全可以代替C语言中的字符串数组和字符串指针，使用`string`类需要包含头文件`<string>`
 
@@ -461,9 +461,60 @@ int main()
 }
 ```
 
-## 二、模板template (mú bǎn) {#模板}
+## 二、文件操作 {#文件操作}
 
-泛型程序设计（generic programming），指的是算法只要实现一遍，就能适用于多种数据类型。泛型程序设计最成功的应用就是 C++ 的标准模板库STL（Standard Template Library，标准模板库）。在 C++ 中，模板分为函数模板和类模板两种
+C++对文件操作需要包含头文件`<fstream>`。文件类型分为两种：
+
+1. 文本文件。文件以文本的ASCII码形式存储在计算机中
+1. 二进制文件。文件以文本的二进制形式存储在计算机中
+
+`ofstream`表示写操作；`ifstream`表示读操作；`fstream`表示读写操作（`f`表示file）
+
+<center>读写ASCII码文件示例</center>
+
+```C++
+#include <iostream>
+#include <string>
+#include <fstream> //文件操作头文件
+
+using namespace std;
+
+int main()
+{
+    //创建流对象
+    ofstream ofs;
+    //指定写入的文件路径，以及out方式打开
+    ofs.open("test.txt", ios::out);
+    //利用 << 向文件中写数据
+    ofs << "Linux" << endl;
+    ofs << "China" << endl;
+    //关闭文件
+    ofs.close();
+
+    string buf;
+    ifstream ifs;
+    //指定读取的文件路径，以及in方式打开
+    ifs.open("test.txt", ios::in);
+    //is_open() 返回0即文件打开失败，返回1即打开成功
+    if (!ifs.is_open()) {
+        cout << "file oepn failed" << endl;
+    }
+    //读取数据（getline()函数会将ifs读取到buf中）
+    while (getline(ifs, buf)) {
+        cout << buf << endl;
+    }
+    //关闭文件
+    ifs.close();
+
+    return 0;
+}
+```
+
+## 三、模板 template {#模板}
+
+C++ 除了面向对象的编程思想，还有一个泛型编程思想
+
+泛型程序设计（generic programming），指的是算法只要实现一遍，就能适用于多种数据类型。泛型程序设计最成功的应用就是 C++ 的标准模板库STL（Standard Template Library，标准模板库）。在 C++ 中，模板分为<font color="yellow">函数模板</font>和<font color="yellow">类模板</font>两种
 
 所谓函数模板，实际上是建立一个通用函数，它所用到的数据的类型（包括返回值类型、形参类型、局部变量类型）可以不具体指定，而是用一个虚拟的类型来代替（实际上是用一个标识符来占位），等发生函数调用时再根据传入的实参来逆推出真正的类型。这个通用函数就称为<font color="yellow">函数模板</font>（Function Template）
 
@@ -471,14 +522,55 @@ int main()
 
 - `typename`是另外一个关键字，用来声明具体的<font color="yellow">类型参数</font>（也可以说是虚拟的类型，或者说是类型占位符），这里的类型参数就是`T`。从整体上看，`template<typename T>` 被称为模板头
 
-### 2.1 函数模板
+<font color="yellow">即使整个模板中没有出现`T`，编译器也必须要知道模板函数和模板类的类型参数`T`的数据类型。无论是通过自动推断`T`的类型还是指明`T`的类型</font>
 
-<div align=center><img src="img/2023-05-20-07-45-56.png" width="60%"></div>
-.
-<div align=center><img src="img/2023-05-20-08-28-35.png" width="60%"></div>
+### 3.1 函数模板
+
+#### 函数模板基础
+
 
 ```C++
-// 函数模板重载示例
+#include <iostream>
+#include <string.h>
+using namespace std;
+
+//模板函数定义
+template<typename T> void func_swap(T &a, T &b) {
+    T temp = a;
+    a = b;
+    b = temp;
+}
+
+//若T2不在形参中，则需要在调用模板函数的时候指明数据类型
+template<typename T1, typename T2> void func2(T1 a) {
+    T2 b;
+}
+
+int main(void)
+{
+//1、自动推断T的数据类型
+    int a = 2, b = 8;
+    func_swap(a, b);    //形参是引用，需要传入变量，不能直接传入数字或字符串
+
+    string str1 = "Linux", str2 = "China";
+    func_swap(str1, str2);
+
+//2、指明T的数据类型
+    //给函数指明数据类型。T1的类型是int，T2的类型是string
+    func2<int, string>(10);
+
+    return 0;
+}
+```
+
+<div align=center><img src="img/2023-05-20-08-28-35.png" width="60%"></div>
+
+#### 函数模板重载
+
+```C++
+#include <iostream>
+#include <string.h>
+using namespace std;
 
 #include <iostream>
 using namespace std;
@@ -488,14 +580,16 @@ template<class T> void Swap(T &a, T &b);  //模板1：交换基本类型的值
 template<typename T> void Swap(T a[], T b[], int len);  //模板2：交换两个数组
 void printArray(int arr[], int len);  //打印每个数组元素
 int main(){
-    //交换基本类型的值
+//交换基本类型的值
     int m = 10, n = 99;
     Swap(m, n);  //匹配模板1
     cout<<m<<", "<<n<<endl;
-    //交换两个数组
+
+//交换两个数组
     int a[5] = { 1, 2, 3, 4, 5 };
     int b[5] = { 10, 20, 30, 40, 50 };
-// sizeof只能通过数组名求得数组长度，不能通过数组指针求得数组长度
+    //数组名作为实参为自动转化为数组指针
+    //sizeof只能通过数组名求得数组长度，不能通过数组指针求得数组长度
     int len = sizeof(a) / sizeof(int);  //数组长度
     Swap(a, b, len);  //匹配模板2
     printArray(a, len);
@@ -518,27 +612,21 @@ template<typename T> void Swap(T a[], T b[], int len){
 // sizeof只能通过数组名求得数组长度，不能通过转换后的数组指针求得数组长度
 void printArray(int arr[], int len){
     for(int i = 0; i < len; i++){
-        if(i == len-1) {
-            cout << arr[i] << endl;
-        } else {
-            cout << arr[i] << ", ";
-        }
+        cout << arr[i] << ", ";
     }
+    //2个\b后面加一个空格，表示bakcspace
+    cout << "\b\b " <<endl;
 }
 ```
 
-### 2.2 类模板
 
-<div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
-<div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
-
-### 2.3 函数模板的实参推断
+#### 函数模板的数组实参
 
 通过函数实参来确定模板类型参数`T`的过程称为<font color="yellow">模板实参推断</font>
 
 函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
 
-当函数形参是引用类型时,数组不会转换为指针,依然是数组类型
+当函数形参是引用类型时，数组不会转换为指针，依然是数组类型
 
 ```C++
 #include <iostream>
@@ -546,67 +634,84 @@ void printArray(int arr[], int len){
 using namespace std;
 class Base {};
 
-template<typename T> void func1(T *a);
-template<typename T> void func2(T a);
-template<typename T> void func3(const T &a);
-template<typename T> void func4(T &a);
-template<typename T> void func5(T &a, T &b);
+template<typename T> void func1(T *a) {
+    cout << "T1 size of func1 is " << sizeof(T) << endl;
+}
+template<typename T> void func2(T a) {
+    cout << "T2 size of func2 is " << sizeof(T) << endl;
+}
+template<typename T> void func3(const T &a) {
+    cout << "T3 size of func3 is " << sizeof(T) << endl;
+}
+template<typename T> void func4(T &a) {
+    cout << "T4 size of func4 is " << sizeof(T) << endl;
+}
 
 int main(void)
 {
+//函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
     int t1[20];
     Base base;
-//函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
-//t1 的类型从 int[20] 转换为 int*,所以 T 的类型为 int
-    func1(t1);
-//t1 的类型从 int[20] 换转换为 int *,所以 T 的类型为 int *
-    func2(t1);
 
-//当函数形参是引用类型时,数组不会转换为指针,依然是数组类型
+//t1 的类型从 int[20] 转换为 int*,所以 T 的类型为 int
+    func1(t1);      // 4
+
+//t1 的类型从 int[20] 换转换为 int *,所以 T 的类型为 int *
+    func2(t1);      // 8
+
 //T 的真实类型为 Base
-    func3(base);
-//t1 的类型依然为 int[20],不会转换为 int *,所以 T 的真实类型为 int[20]
-    func4(t1);
-//以下两个实参类型分别是 int[10] 和 int[20], T 的类型不明确,所以会报错
-    int a[10], b[20];
-    func5(a, b);
+    func3(base);    // 1
+
+//当函数形参是引用类型时，数组不会转换为指针，依然是数组类型
+//t1 的类型依然为 int[20]，不会转换为 int *，所以 T 的真实类型为 int[20]
+    func4(t1);      // 80
 
     return 0;
 }
 ```
 
-### 2.4 指明函数模板实参
+#### 函数模板的类型转换
+
+<font color="yellow">建议使用显示指定类型的方式调用函数模板</font>
+
+- 普通函数调用时会自动进行类型转换（隐式类型转换）
+- 函数模板显示指定类型参数`T`时，也会进行类型转换。例如，只有一个`T`且指明`T`的类型为`int`，当传入实参为`char`和`int`时，则都会转为`int`
+- 函数模板自动数据类型推导`T`时，不会进行类型转换。例如，只有一个`T`，当传入实参为`char`和`int`时，则会报错
 
 ```C++
 #include <iostream>
-#include <string.h>
 using namespace std;
 
-//T2无法确定具体数据类型，所以需要在调用该函数的时候指明数据类型
-template<typename T1, typename T2> void func(T1 a) {
-    T2 b;
+template<typename T> void func(T a, T b) {
+    cout << a + b << endl;
 }
-int main(void)
+int main()
 {
-    //给函数指明数据类型。T1的类型是int，T2的类型是string
-    func<int, string>(10);
+    int a = 5;
+    char b = '8';
+    func(a, a);        //正确，T能明确数据类型
+    func(a, b);        //错误，T的数据类型不明确
+    func<int>(a, b);   //正确，指明了T的数据类型，char会转为int
+
     return 0;
 }
 ```
 
-### 2.5 模板中的非类型参数
+#### 模板中的非类型参数
 
 ```C++
 #include <iostream>
 using namespace std;
 //一般情况下给函数传入数组时会转化为int *类型，此时还需要传入数组长度
-//使用非类型参数 + 引用的方式，给函数传入数组时形参还是int[]类型，N就是数组长度
+//使用非类型参数 + 引用的方式给函数传入数组时形参还是int[]类型,N就是长度
+//a是一个引用，类型是数组T[N]
 template<typename T, unsigned N> void Swap(T (&a)[N], T (&b)[N]);  //交换两个数组
 template<typename T, unsigned N> void printArray(T (&arr)[N]);  //打印数组元素
 int main(){
     //交换两个数组
     int a[5] = { 1, 2, 3, 4, 5 };
     int b[5] = { 10, 20, 30, 40, 50 };
+    //此时T是int类型，N的值是3
     Swap(a, b);
     printArray(a);
     printArray(b);
@@ -631,14 +736,40 @@ template<typename T, unsigned N> void printArray(T (&arr)[N]){
 }
 ```
 
-## 三、文件操作 {#文件操作}
+#### 函数模板与普通函数重名
 
-C++对文件操作需要包含头文件`<fstream>`。文件类型分为两种：
 
-1. 文本文件。文件以文本的ASCII码形式存储在计算机中
-1. 二进制文件。文件以文本的二进制形式存储在计算机中
+- 建议普通函数不要和函数模板重名
+- 当函数模板和普通函数的函数名相同且形参类型也相同时，会屏蔽函数模板
 
-`ofstream`表示写操作；`ifstream`表示读操作；`fstream`表示读写操作（`f`表示file）
+```C++
+#include <iostream>
+using namespace std;
+
+void func(int a) {
+    cout << "common" << endl;
+}
+template<typename T> void func(T a) {
+    cout << "template" << endl;
+}
+int main()
+{
+//当函数模板和普通函数的函数名相同且形参类型也相同时，会屏蔽函数模板
+    func(6);        // 打印common
+    func("Li");     // 打印template
+
+//可以通过空模板参数列表强制调用函数模板
+    func<>(6);      // 打印template
+    func<int>(6);   // 打印template
+
+    return 0;
+}
+```
+
+### 3.2 类模板
+
+<div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
+<div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
 
 
 ## 杂项
