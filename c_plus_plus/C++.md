@@ -808,11 +808,83 @@ int main()
 }
 ```
 
-
 ### 3.2 类模板
 
-<div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
-<div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
+- 类模板实例化对象时必须指明类型参数`T`，除非该类型参数设置了默认数据类型
+
+```C++
+#include <iostream>
+using namespace std;
+
+template<typename x_t, typename y_t>
+class Point {
+public:
+    Point(x_t x, y_t y):m_x(x), m_y(y){}
+    x_t get_x() const;
+    y_t get_y() const;
+    void set_xy(x_t x, y_t y);
+private:
+    x_t m_x;
+    y_t m_y;
+};
+//成员函数定义时，类名Point后面要加类型参数
+template<typename x_t, typename y_t>
+x_t Point<x_t, y_t>::get_x() const {
+    return m_x;
+}
+template<typename x_t, typename y_t>
+y_t Point<x_t, y_t>::get_y() const {
+    return m_y;
+}
+template<typename x_t, typename y_t>
+void Point<x_t, y_t>::set_xy(x_t x, y_t y) {
+    if (x != 0 || sizeof(x)) //sizeof判断空字符串
+        m_x = x;
+    if (y != 0 || sizeof(y))
+        m_y = y;
+}
+
+int main()
+{
+    //使用类模板创建对象时，需要指明数据类型
+    Point<int, float> p1(10, 23.5);
+    //打印10  23.5
+    cout << p1.get_x() << "  " << p1.get_y() << endl;
+    p1.set_xy(0, 99);
+
+    //使用类模板创建对象指针时，两边类型参数须保持一致
+    Point<string, string> *p2 = new Point<string, string>("Linux", "China");
+    //打印Linux  China
+    cout << p2->get_x() << "  " << p2->get_y() << endl;
+
+    return 0;
+}
+```
+
+```C++
+#include <iostream>
+using namespace std;
+
+//类型参数T可以设置默认数据类型
+template<typename name_t, typename age_t = int>
+class Base {
+public:
+    Base(name_t n, age_t a):m_name(n), m_age(a){}
+private:
+    name_t m_name;
+    age_t m_age;
+};
+
+int main()
+{
+
+    //类模板实例化对象时必须指明类型参数
+    //此处类型参数2存在默认类型，故可以不指明
+    Base<string> t1("Linux", 100);
+
+    return 0;
+}
+```
 
 ### 3.3 将模板应用于多文件编程
 
