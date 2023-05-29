@@ -522,6 +522,8 @@ C++ 除了面向对象的编程思想，还有一个泛型编程思想
 
 - `typename`是另外一个关键字，用来声明具体的<font color="yellow">类型参数</font>（也可以说是虚拟的类型，或者说是类型占位符），这里的类型参数就是`T`。从整体上看，`template<typename T>` 被称为模板头
 
+学习模板并不是为了写模板，而是在STL中能够用系统提供的模板
+
 <font color="yellow">即使整个模板中没有出现`T`，编译器也必须要知道模板函数和模板类的类型参数`T`的数据类型。无论是通过自动推断`T`的类型还是指明`T`的类型</font>
 
 ### 3.1 函数模板
@@ -619,6 +621,46 @@ void printArray(int arr[], int len){
 }
 ```
 
+#### 函数模板显示具体化
+
+- 函数模板无法进行类之间的比较，即判断`class1 == class2`。所以需要重载函数模板，进行类的显示具体化对比
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Base {
+public:
+    string m_name;
+    int m_age;
+    Base(string n, int a):m_name(n), m_age(a){}
+};
+
+template<typename T> void compare(T a, T b) {
+    if (a == b)
+        cout << "a == b" << endl;
+}
+//函数模板无法进行类之间的比较，即判断 class1 == class2
+//所以需要重载函数模板compare，进行类的显示具体化
+template<> void compare(Base b1, Base b2) {
+    if (b1.m_name == b2.m_name && b1.m_age == b2.m_age)
+        cout << "b1 == b2" << endl;
+    else
+        cout << "b1 != b2" << endl;
+}
+
+int main()
+{
+    Base base1("China", 5000);
+    Base base2("Linux", 100);
+
+    compare(5, 5);          
+    compare(base1, base2);  //调用具体化的模板
+
+    return 0;
+}
+```
 
 #### 函数模板的数组实参
 
@@ -766,11 +808,57 @@ int main()
 }
 ```
 
+
 ### 3.2 类模板
 
 <div align=center><img src="img/2023-05-20-14-36-11.png" width="60%"></div>
 <div align=center><img src="img/2023-05-20-14-37-11.png" width="70%"></div>
 
+### 3.3 将模板应用于多文件编程
+
+工程中一般会包含两个源文件和一个头文件，func.cpp中定义函数和类，func.h中声明函数和类，main.cpp中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的声明和定义都放到头文件 .h 中。</font>
+
+## 四、C++11
+
+### auto
+
+在`C++11`之前的版本`C++98`中，定义变量或者声明变量之前都必须指明它的类型，比如`int`、`char` 等；`auto`关键字用来指明变量的存储类型，它和 static 关键字是相对的。auto 表示变量是自动存储的，这也是编译器的默认规则，所以写不写都一样，这使得 auto 关键字的存在变得非常鸡肋。为了让编译器（或者解释器）自己去推导数据类型，让编码更加方便，在`C++11`中使用`auto`关键字后，编译器会在编译期间做自动类型推导
+
+#### auto的限制
+
+1. auto 不能在函数的参数中使用
+我们在定义函数的时候只是指明了参数的类型，但并没有给它赋值，只有在实际调用函数的时候才会给参数赋值；而 auto 要求必须对变量进行初始化，所以这是矛盾的。
+1. auto 不能作用于类的非静态成员变量（也就是没有 static 关键字修饰的成员变量）中
+1. auto 关键字不能定义数组，比如下面的例子就是错误的
+`char array[];`
+`auto  str[] = array;`  array是数组，所以不能使用 auto
+1. auto 不能作用于模板参数。例如，`func<auto>();`是错误的
+
+```C++
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    //关键字auto是在初始化时进行类型推导的
+    auto url = "192";   //"192"是const char*，auto是const char*类型  
+    auto a = 5;         //5是int类型，auto是int类型
+    auto b = 7.7;       //7.7是double类型，auto是double类型
+    auto p1 = &a;       //&a是int* 类型，auto是int *类型
+    auto *p2 = &a;      //&a是int* 类型，auto是int类型
+    auto &c = a;        //&a是int* 类型，auto是int类型（int *const c = &a）
+    auto d = c;         //c是int 类型，auto是int类型（c是解引用）
+
+    //当未用引用时，auto类型推导时不保留const属性
+    const auto e = a;   //auto是int类型
+    auto f = e;         //auto是int类型
+    //当使用引用时，auto类型推导时将保留const属性
+    const auto &g = a;  //auto是int类型
+    auto &h = g;        //g是cosnt int *const类型，auto是const int类型
+
+    return 0;
+}
+```
 
 ## 杂项
 
