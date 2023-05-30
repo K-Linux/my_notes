@@ -348,8 +348,11 @@ int main()
 
 ### 1.6 命名空间 namespace {#1.4}
 
+大型软件由多名程序员共同开发，不可避免地会出现变量或函数的命名冲突。为了解决合作开发时的命名冲突问题，C++ 引入了命名空间的概念
 1. 命名空间就是全局变量，命名空间A内的成员可以和命名空间B内的成员重名
-1. using的功能是永久展开命名空间，无using关键字则是临时展开某个成员
+1. 关键字`using`的功能是设置默认命名空间，无`using`关键字则是临时展开某个成员
+
+早期的 C++ 使用的是C语言的库。例如，stdio.h、stdlib.h、string.h 等头文件。后来 C++ 开发了一些新的库，增加了自己的头文件，例如，iostream.h，fstream.h 等。后来 C++ 引入了命名空间的概念，在原来库的基础上稍加修改后，将类、函数、宏等都纳入命名空间 std (standard 标准命名空间)中。在 std 中将C++旧头文件去掉后缀 .h ,例如，iostream，fstream。对于原来的C语言头文件去掉后缀 .h 且名字前添加 c 字母，例如 cstdio，cstdlib，cstring。可以发现，对于不带.h的头文件，所有的符号都位于命名空间 std 中，使用时需要声明命名空间 std。
 
 <div align=center><img src="img/2023-05-03-22-43-59.png" width="50%"></div>
 .
@@ -623,7 +626,7 @@ void printArray(int arr[], int len){
 
 #### 函数模板显示具体化
 
-- 函数模板无法进行类之间的比较，即判断`class1 == class2`。所以需要重载函数模板，进行类的显示具体化对比
+让模板针对某种具体的类型使用不同的算法（函数体或类体不同），这种技术称为模板的<font color="yellow">显示具体化</font>。例如，函数模板无法进行类之间的比较，即判断`class1 == class2`。所以需要重载函数模板，进行类的显示具体化对比
 
 ```C++
 #include <iostream>
@@ -664,11 +667,9 @@ int main()
 
 #### 函数模板的数组实参
 
-通过函数实参来确定模板类型参数`T`的过程称为<font color="yellow">模板实参推断</font>
-
-函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
-
-当函数形参是引用类型时，数组不会转换为指针，依然是数组类型
+- 通过函数实参来确定模板类型参数`T`的过程称为<font color="yellow">模板实参推断</font>
+- 函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
+- 当函数形参是引用类型时，数组不会转换为指针，依然是数组类型
 
 ```C++
 #include <iostream>
@@ -886,7 +887,112 @@ int main()
 }
 ```
 
-### 3.3 将模板应用于多文件编程
+
+### 3.3 类模板对象做函数参数
+
+```C++
+#include <iostream>
+using namespace std;
+
+template<typename T1, typename T2>
+class Base {
+public:
+    Base(T1 n, T2 a):m_name(n), m_age(a){}
+    void show() {
+        cout << m_name << " " << m_age << endl;
+    }
+private:
+    T1 m_name;
+    T2 m_age;
+};
+//当实参是类模板时，函数形参也要指定类型参数T的数据类型
+void func(Base<string, int> &p) {
+    p.show();
+}
+
+int main()
+{
+    Base<string, int> t("Linux", 200);
+    t.show();   //Linux  200
+
+    return 0;
+}
+```
+
+### 3.3 函数模板与类模板的区别
+
+1. 只有函数模板有自动类型推导，类模板必须指明类型参数`T`的数据类型
+2. 只有类模板在参数列表中可以有默认数据类型
+
+
+### 3.3 模板的实例化
+
+- 模板仅仅是编译器用来生成函数或类的一张"图纸"。模板不会占用内存，最终生成的函数或者类才会占用内存。由模板生成函数或类的过程叫做<font color="yellow">模板的实例化</font>（Instantiate）
+- 无论是函数模板，还是类模板中的成员函数，只要是模板，其中的函数都是在调用时在会实例化
+
+#### 函数模板的实例化
+
+```C++
+template<typename T> void Swap(T &a, T &b){
+    T temp = a;
+    a = b;
+    b = temp;
+}
+int main(){
+    int n1 = 1, n2 = 2, n3 = 3, n4 = 4;
+    string str1 = "Linux", str2 = "China";
+   
+    Swap(n1, n2);       //T为int，实例化出 void Swap(int &a, int &b);
+    Swap(str1, str2);   //T为string，实例化出 void Swap(string &a, string &b);
+    Swap(n3, n4);       //T为int，调用刚才生成的 void Swap(int &a, int &b);
+    return 0;
+}
+```
+
+#### 类模板的实例化
+
+通过类模板创建对象时并不会实例化所有的成员函数，只有等到真正调用它们时才会被实例化。一般只需要实例化成员变量和构造函数。成员变量被实例化后就能够知道对象的大小了（占用的字节数），构造函数被实例化后就能够知道如何初始化了
+
+```C++
+#include <iostream>
+using namespace std;
+
+class Base1 {
+public:
+    void base1_show() {
+        cout << "Base1" << endl;
+    }
+};
+class Base2 {
+public:
+    void base2_show() {
+        cout << "Base2" << endl;
+    }
+};
+template<typename T>
+class Derive {
+public:
+    T obj;
+    void func1(){ obj.base1_show(); }
+    void func2(){ obj.base2_show(); }
+};
+
+int main()
+{
+    //此时类模板只创建成员变量并不会创建成员函数
+    Derive<Base1> t;
+    cout << sizeof(t) << endl;  //打印80
+    //只有在调用func1时才会实例化成员函数func1（此时func2未实例化）
+    t.func1();
+    //只有在调用func2时才会实例化func2，但会报错
+    t.func2();
+
+    return 0;
+}
+```
+
+
+### 3.4 将模板应用于多文件编程
 
 工程中一般会包含两个源文件和一个头文件，func.cpp中定义函数和类，func.h中声明函数和类，main.cpp中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的声明和定义都放到头文件 .h 中。</font>
 
@@ -926,7 +1032,7 @@ int main()
     auto f = e;         //auto是int类型
     //当使用引用时，auto类型推导时将保留const属性
     const auto &g = a;  //auto是int类型
-    auto &h = g;        //g是cosnt int *const类型，auto是const int类型
+    auto &h = g;        //g是const int *const类型，auto是const int类型
 
     return 0;
 }
