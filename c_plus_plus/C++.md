@@ -241,11 +241,10 @@ int main(){
 }
 ```
 
-`Line`是一个抽象类，也是最底层的基类，在`Line`类中定义了两个纯虚函数 area() 和 volume()
+- `Line`是一个抽象类，也是最底层的基类，在`Line`类中定义了两个纯虚函数 area() 和 volume()
+- 在`Rec`类中，实现了`area()`的函数体。但没有实现继承来的 `volume()`的函数体，所以`Rec`也是抽象类，不能被实例化
+- 在实际开发中，你可以定义一个抽象基类，只完成部分功能，未完成的功能交给派生类去实现（谁派生谁实现）。这部分未完成的功能，往往是基类不需要的，或者在基类中无法实现的。虽然抽象基类没有完成，但是却强制要求派生类完成，这就是抽象基类的"霸王条款"
 
-在`Rec`类中，实现了`area()`的函数体。但没有实现继承来的 `volume()`的函数体，所以`Rec`也是抽象类，不能被实例化
-
-在实际开发中，你可以定义一个抽象基类，只完成部分功能，未完成的功能交给派生类去实现（谁派生谁实现）。这部分未完成的功能，往往是基类不需要的，或者在基类中无法实现的。虽然抽象基类没有完成，但是却强制要求派生类完成，这就是抽象基类的"霸王条款"
 ```C++
 
 #include <iostream>
@@ -355,6 +354,8 @@ int main()
 
 早期的 C++ 使用的是C语言的库。例如，`stdio.h` `stdlib.h` `string.h` 等头文件。后来 C++ 开发了一些新的库，增加了自己的头文件，例如，`iostream.h`，`fstream.h` 等。再后来 C++ 引入了命名空间的概念，在原来库的基础上稍加修改后，将类、函数、宏等都纳入命名空间`std`(standard 标准命名空间)中。在`std`中将 C++ 旧头文件去掉后缀`.h` 。例如，`iostream` `fstream`。对于原来的C语言头文件去掉后缀`.h`且名字前添加`c`字母，例如`cstdio` `cstdlib` `cstring`。可以发现，对于不带`.h`的头文件都位于命名空间`std`中，使用时需要声明命名空间`std`
 
+ <center>
+
 ```mermaid
 graph LR
 A(C语言头文件)
@@ -365,10 +366,64 @@ C --> D(std)
 
 ```
 
-<div align=center><img src="img/2023-05-03-22-43-59.png" width="50%"></div>
-.
-<div align=center><img src="img/2023-05-03-22-46-12.png" width="50%"></div>
+</center>
 
+```C++
+#include <iostream>
+
+//默认使用命名空间std中的所有库
+using namespace std;
+//默认使用命名空间std中的cout库
+using std::cout;
+
+namespace first {
+    void func(void) {
+        //特指使用std的endl成员
+        cout << "first" << std::endl;
+    }
+}
+namespace second {
+    namespace third {
+        void func(void) {}
+    }
+}
+
+//默认使用命名空间first中的所有库
+using namespace first;
+//特指使用命名空间first中的func()函数
+using first::func;
+int main()
+{
+    //默认调用first里的func()函数
+    func();
+    //特指使用second中third中的func()函数
+    second::third::func();
+
+    return 0;
+}
+```
+
+```C++
+#include <iostream>
+using namespace std;
+
+namespace my_space {
+    int global = 10;
+}
+
+int global = 20;
+using namespace my_space;
+int main()
+{
+    //局部变量>全局变量>命名空间
+    int global = 30;
+    cout << global << endl;             //30
+    cout << ::global << endl;           //20（全局变量）
+    cout << my_space::global << endl;   //10
+
+    return 0;
+}
+```
 
 ### 1.7 静态成员变量和静态成员函数（static） {#1.5}
 
@@ -544,21 +599,23 @@ C++ 除了面向对象的编程思想，还有一个泛型编程思想
 
 #### 函数模板基础
 
+- 函数模板的类型参数 T 有自动推导和指明类型两种模式
 
 ```C++
 #include <iostream>
 #include <string.h>
 using namespace std;
 
-//模板函数定义
+//函数模板定义
 template<typename T> void func_swap(T &a, T &b) {
     T temp = a;
     a = b;
     b = temp;
 }
 
-//若T2不在形参中，则需要在调用模板函数的时候指明数据类型
-template<typename T1, typename T2> void func2(T1 a) {
+//若T2不在形参中，则需要在调用函数模板的时候指明数据类型
+template<typename T1, typename T2> 
+void func2(T1 a) {
     T2 b;
 }
 
@@ -566,9 +623,11 @@ int main(void)
 {
 //1、自动推断T的数据类型
     int a = 2, b = 8;
+    //a和b交换
     func_swap(a, b);    //形参是引用，需要传入变量，不能直接传入数字或字符串
 
     string str1 = "Linux", str2 = "China";
+    //str1和str2交换
     func_swap(str1, str2);
 
 //2、指明T的数据类型
@@ -578,8 +637,6 @@ int main(void)
     return 0;
 }
 ```
-
-<div align=center><img src="img/2023-05-20-08-28-35.png" width="60%"></div>
 
 #### 函数模板重载
 
@@ -604,7 +661,7 @@ int main(){
 //交换两个数组
     int a[5] = { 1, 2, 3, 4, 5 };
     int b[5] = { 10, 20, 30, 40, 50 };
-    //数组名作为实参为自动转化为数组指针
+    //数组名作为实参会自动转化为数组指针
     //sizeof只能通过数组名求得数组长度，不能通过数组指针求得数组长度
     int len = sizeof(a) / sizeof(int);  //数组长度
     Swap(a, b, len);  //匹配模板2
@@ -637,7 +694,11 @@ void printArray(int arr[], int len){
 
 #### 函数模板显示具体化
 
-让模板针对某种具体的类型使用不同的算法（函数体或类体不同），这种技术称为模板的<font color="yellow">显示具体化</font>。例如，函数模板无法进行类之间的比较，即判断`class1 == class2`。所以需要重载函数模板，进行类的显示具体化对比
+- 让模板针对某种具体的类型使用不同的算法（函数体或类体不同），这种技术称为模板的<font color="yellow">显示具体化</font>。例如，函数模板无法进行类之间的比较，即判断`class1 == class2`。所以需要进行函数模板的显示具体化
+
+ - 函数模板的显示具体化与普通函数的区别在于多了个空模板头
+    - 普通函数：`void func(int a) { }`
+    - 函数模板显示具体化：`template<> void func(int a) { }`
 
 ```C++
 #include <iostream>
@@ -656,7 +717,8 @@ template<typename T> void compare(T a, T b) {
         cout << "a == b" << endl;
 }
 //函数模板无法进行类之间的比较，即判断 class1 == class2
-//所以需要重载函数模板compare，进行类的显示具体化
+//所以需要进行函数模板compare的显示具体化
+//函数模板的显示具体化与普通函数的区别在于多了个空模板头
 template<> void compare(Base b1, Base b2) {
     if (b1.m_name == b2.m_name && b1.m_age == b2.m_age)
         cout << "b1 == b2" << endl;
@@ -678,8 +740,8 @@ int main()
 
 #### 函数模板的数组实参
 
-- 通过函数实参来确定模板类型参数`T`的过程称为<font color="yellow">模板实参推断</font>
-- 函数传入实参时，数组会转化成 int * 类型，所以函数形参类型 T 要凑成 int * 类型
+通过函数实参来确定模板类型参数`T`的过程称为<font color="yellow">模板实参推断</font>
+- 函数传入实参时，数组会转化成`int *`类型，所以函数形参类型`T`要凑成`int *`类型
 - 当函数形参是引用类型时，数组不会转换为指针，依然是数组类型
 
 ```C++
@@ -717,20 +779,20 @@ int main(void)
     func3(base);    // 1
 
 //当函数形参是引用类型时，数组不会转换为指针，依然是数组类型
-//t1 的类型依然为 int[20]，不会转换为 int *，所以 T 的真实类型为 int[20]
+//t1 的类型依然为 int[20]，不会转换为 int *，所以 T 的真实类型为 int[20]（注意int[10]和int[20]类型是不同的）
     func4(t1);      // 80
 
     return 0;
 }
 ```
 
-#### 函数模板的类型转换
+#### 函数模板的实参类型转换
 
 <font color="yellow">建议使用显示指定类型的方式调用函数模板</font>
 
 - 普通函数调用时会自动进行类型转换（隐式类型转换）
-- 函数模板显示指定类型参数`T`时，也会进行类型转换。例如，只有一个`T`且指明`T`的类型为`int`，当传入实参为`char`和`int`时，则都会转为`int`
-- 函数模板自动数据类型推导`T`时，不会进行类型转换。例如，只有一个`T`，当传入实参为`char`和`int`时，则会报错
+- 函数模板显示指定类型参数`T`时，也会进行类型转换。例如，只有一个`T`且指明`T`的类型为`int`，当同时传入两个实参为`char`和`int`时，则都会转为`int`
+- 函数模板自动数据类型推导`T`时，不会进行类型转换。例如，只有一个`T`，当同时传入两个实参为`char`和`int`时，则会报错
 
 ```C++
 #include <iostream>
@@ -751,7 +813,7 @@ int main()
 }
 ```
 
-#### 模板中的非类型参数
+#### 函数模板中的非类型参数
 
 ```C++
 #include <iostream>
@@ -822,7 +884,10 @@ int main()
 
 ### 3.2 类模板
 
-- 类模板实例化对象时必须指明类型参数`T`，除非该类型参数设置了默认数据类型
+#### 类模板基础
+
+- 类模板实例化对象时必须指明类型参数`T`的数据类型（除非该类型参数设置了默认数据类型）
+- 类模板的成员函数在类外实现时需要加模板的类型参数
 
 ```C++
 #include <iostream>
@@ -839,7 +904,7 @@ private:
     x_t m_x;
     y_t m_y;
 };
-//成员函数定义时，类名Point后面要加类型参数
+//类模板成员函数在类外定义时，类名Point后面要加类型参数
 template<typename x_t, typename y_t>
 x_t Point<x_t, y_t>::get_x() const {
     return m_x;
@@ -873,33 +938,9 @@ int main()
 }
 ```
 
-```C++
-#include <iostream>
-using namespace std;
-
-//类型参数T可以设置默认数据类型
-template<typename name_t, typename age_t = int>
-class Base {
-public:
-    Base(name_t n, age_t a):m_name(n), m_age(a){}
-private:
-    name_t m_name;
-    age_t m_age;
-};
-
-int main()
-{
-
-    //类模板实例化对象时必须指明类型参数
-    //此处类型参数2存在默认类型，故可以不指明
-    Base<string> t1("Linux", 100);
-
-    return 0;
-}
-```
 
 
-### 3.3 类模板对象做函数参数
+#### 类模板对象做函数参数
 
 ```C++
 #include <iostream>
@@ -930,13 +971,67 @@ int main()
 }
 ```
 
+#### 类模板的继承
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+template<typename T>
+class Base {
+    T m;
+};
+//当基类是一个类模板时，派生类要指定基类T的类型
+class Derive1:public Base<int> {
+};
+
+//当基类是一个类模板时，若派生类不指定基类T的类型，则派生类也必须是类模板
+template<typename T1, typename T2>
+class Derive2:public Base<T2> {
+    T1 obj;
+};
+
+int main()
+{
+    Derive2<int, string> t;
+
+    return 0;
+}
+```
+
 ### 3.3 函数模板与类模板的区别
 
 1. 只有函数模板有自动类型推导，类模板必须指明类型参数`T`的数据类型
 2. 只有类模板在参数列表中可以有默认数据类型
 
+```C++
+#include <iostream>
+using namespace std;
 
-### 3.3 模板的实例化
+//类型参数T可以设置默认数据类型
+template<typename name_t, typename age_t = int>
+class Base {
+public:
+    Base(name_t n, age_t a):m_name(n), m_age(a){}
+private:
+    name_t m_name;
+    age_t m_age;
+};
+
+int main()
+{
+
+    //类模板实例化对象时必须指明类型参数
+    //此处类型参数2存在默认类型，故可以不指明
+    Base<string> t1("Linux", 100);
+
+    return 0;
+}
+```
+
+
+### 3.4 模板的实例化
 
 - 模板仅仅是编译器用来生成函数或类的一张"图纸"。模板不会占用内存，最终生成的函数或者类才会占用内存。由模板生成函数或类的过程叫做<font color="yellow">模板的实例化</font>（Instantiate）
 - 无论是函数模板，还是类模板中的成员函数，只要是模板，其中的函数都是在调用时在会实例化
@@ -1003,7 +1098,7 @@ int main()
 ```
 
 
-### 3.4 将模板应用于多文件编程
+### 3.5 将模板应用于多文件编程
 
 工程中一般会包含两个源文件和一个头文件，func.cpp中定义函数和类，func.h中声明函数和类，main.cpp中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的声明和定义都放到头文件 .h 中。</font>
 
