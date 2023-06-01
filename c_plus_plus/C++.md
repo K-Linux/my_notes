@@ -481,9 +481,80 @@ public:
 .
 <div align=center><img src="img/2023-05-04-00-09-59.png" width="70%"></div>
 
-### 1.10 运算符重载 {#1.8}
+### 1.10 运算符重载 {#运算符重载}
 
-**没看**
+当运算符不仅可以实现`int`类型运算，还可以实现类对象的运算，则被称为<font color="yellow">运算符重载</font>。运算符重载其实就是定义一个函数，在函数体内实现想要的功能，当用到该运算符时，编译器会自动调用这个函数。也就是说，运算符重载本质上是函数重载
+
+运算符重载的格式为：
+>返回值类型 operator 运算符名称 (形参表列){
+>  TODO
+>}
+
+运算符重载用于类对象之间的运算，`operator`是关键字，用于定义重载运算符的函数
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person {
+public:
+    Person();
+    Person(string n, int a, int h);
+
+    //operator是运算符重载关键字
+    Person operator+(const Person &a) const;
+    Person operator-(Person &a);
+    void display() const;
+private:
+    string m_name;
+    int m_age;
+    int m_height;
+};
+
+Person::Person() { }
+Person::Person(string n, int a, int h): m_name(n), m_age(a), m_height(h) { }
+
+//重载加运算符
+Person Person::operator+(const Person &a) const{
+    Pacerson b;
+    b.m_name = this->m_name;
+    b.m_age = this->m_age + a.m_age;
+    b.m_height = this->m_height + a.m_height;
+    return b;
+}
+//重载减运算符
+Person Person::operator-(Person &a) {
+    Person b;
+    b.m_name = this->m_name;
+    b.m_age = this->m_age - a.m_age;
+    b.m_height = this->m_height - a.m_height;
+    return b;
+}
+
+void Person::display() const{
+    cout << m_name;
+    cout << "--> age: " << m_age;
+    cout << " height: " << m_height <<endl;
+}
+
+int main(){
+    Person t1("Li", 20, 150);
+    Person t2("Hong", 30, 160);
+    Person t3;
+//80%的运算符都是自左向右运算
+//编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()，将+号右边的t2作为实参，也就是转换为t3 = t1.operator+(t2);
+    t3 = t1 + t2;
+    t3.display();   //Li--> age: 50 height: 310
+    t3 = t2 - t1;
+    t3.display();   //Hong--> age: 10 height: 10
+
+    return 0;
+}
+```
+
+
+
 
 ### 1.11 string
 
@@ -983,12 +1054,12 @@ class Base {
     T m;
 };
 //当基类是一个类模板时，派生类要指定基类T的类型
-class Derive1:public Base<int> {
+class Derive1:public Base<int> {    //此时m是int类型
 };
 
 //当基类是一个类模板时，若派生类不指定基类T的类型，则派生类也必须是类模板
 template<typename T1, typename T2>
-class Derive2:public Base<T2> {
+class Derive2:public Base<T2> {     //此时m是T2类型
     T1 obj;
 };
 
@@ -1034,7 +1105,7 @@ int main()
 ### 3.4 模板的实例化
 
 - 模板仅仅是编译器用来生成函数或类的一张"图纸"。模板不会占用内存，最终生成的函数或者类才会占用内存。由模板生成函数或类的过程叫做<font color="yellow">模板的实例化</font>（Instantiate）
-- 无论是函数模板，还是类模板中的成员函数，只要是模板，其中的函数都是在调用时在会实例化
+- 无论是函数模板，还是类模板中的成员函数，只要是模板，其中的函数都是在调用时才会实例化
 
 #### 函数模板的实例化
 
@@ -1087,7 +1158,6 @@ int main()
 {
     //此时类模板只创建成员变量并不会创建成员函数
     Derive<Base1> t;
-    cout << sizeof(t) << endl;  //打印80
     //只有在调用func1时才会实例化成员函数func1（此时func2未实例化）
     t.func1();
     //只有在调用func2时才会实例化func2，但会报错
@@ -1100,7 +1170,7 @@ int main()
 
 ### 3.5 将模板应用于多文件编程
 
-工程中一般会包含两个源文件和一个头文件，func.cpp中定义函数和类，func.h中声明函数和类，main.cpp中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的声明和定义都放到头文件 .h 中。</font>
+工程中一般会包含两个源文件和一个头文件，`func.cpp`中定义函数和类，`func.h`中声明函数和类，`main.cpp`中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，如果`main.cpp`只声明了`func.h`文件，则在编译的时候不会生成模板函数和模板类的实体，这样在链接的时候就会链接报错，只有将`func.cpp`包含到`main.cpp`中才正确。所以我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的定义`func.cpp`和声明`func.h`都放到头文件`.hpp`中。</font>`.hpp`默认表示的是模板的头文件
 
 ## 四、C++11
 
@@ -1124,7 +1194,7 @@ using namespace std;
 
 int main()
 {
-    //关键字auto是在初始化时进行类型推导的
+    //关键字auto是在初始化时才进行数据类型推导的
     auto url = "192";   //"192"是const char*，auto是const char*类型  
     auto a = 5;         //5是int类型，auto是int类型
     auto b = 7.7;       //7.7是double类型，auto是double类型
