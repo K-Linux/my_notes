@@ -469,16 +469,78 @@ public:
 
 <div align=center><img src="img/2023-05-03-23-47-01.png" width="30%"></div>
 
-### 1.9 友元 friend {#1.7}
+### 1.9 友元 friend {#友元}
 
-1. 全局函数声明为友元，则该全局函数就可以访问该类的所有成员（包括private成员）
-1. 类声明为友元，则友元类中的所有成员函数都是另外一个类的友元函数
-1. 类的成员函数声明为友元，则该函数可以访问该类的所有成员（包括private成员）
+1. 全局函数声明为友元，则该全局函数就可以访问该类的所有成员变量和函数（包括private成员）
+1. 类A声明为类B的友元，则类A的全部成员函数可以访问类B的所有成员变量和函数（包括private成员）
+1. 类A的成员函数声明为类B的友元，则该函数可以访问类B的所有成员变量和函数（包括private成员）
+1. 类或者函数A需要调用类B的 private 成员，则要在类B中将A声明为友元。一般不建议把整个类声明为友元类，而只将某些成员函数声明为友元函数，这样更安全一些。
 
-<div align=center><img src="img/2023-05-04-00-07-33.png" width="35%"></div>
-.
-<div align=center><img src="img/2023-05-04-00-08-56.png" width="70%"></div>
-.
+<center>全局函数声明为友元</center>
+
+```C++
+class Base {
+//全局函数声明为友元
+friend void func(Base &p);
+private:
+    int m_a;
+};
+//全局函数形参为类的指针或引用
+//p可修改类Base的private成员
+void func(Base &p) {
+    p.m_a = 200;
+}
+```
+
+<center>类声明为友元</center>
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+//给Base声明声明Derive
+class Derive;
+
+class Base {
+//类声明为友元
+friend class Derive;
+public:
+    Base();
+private:
+    string m_name;
+};
+Base::Base() {
+    this->m_name = "Linux";
+}
+
+class Derive {
+public:
+    void show(Base *b);
+};
+//友元类的成员函数可修改Base的成员变量
+void Derive::show(Base *b) {
+    b->m_name = "China";
+    cout << b->m_name << endl;
+}
+
+int main()
+{
+    Base *t1 = new Base;
+    Derive *t2 = new Derive;
+    t2->show(t1);
+
+    delete t1;
+    delete t2;
+    return  0;
+}
+```
+
+<center>成员函数声明为友元</center>
+
+```C++
+```
+
 <div align=center><img src="img/2023-05-04-00-09-59.png" width="70%"></div>
 
 ### 1.10 运算符重载 {#运算符重载}
@@ -1070,6 +1132,46 @@ int main()
     return 0;
 }
 ```
+
+#### 类模板的友元
+
+全局函数作友元，类内实现
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+template<typename T1, typename T2>
+class Base {
+    //全局函数作友元（类内实现）
+    friend void print(Base<T1, T2> *p) {
+        cout << "name: " << p->m_name << endl;
+        cout << "age: " << p->m_age << endl;
+        delete p;
+    }
+public:
+    Base(T1 n, T2 a);
+private:
+    T1 m_name;
+    T2 m_age;
+};
+template<typename T1, typename T2>
+Base<T1, T2>::Base(T1 n, T2 a):m_name(n), m_age(a) {
+    this->m_name = n;
+    this->m_age = a;
+}
+
+int main()
+{
+    Base<string, int> *t1 = new Base<string, int>("linux", 200);
+    print(t1);
+
+    return 0;
+}
+```
+
+全局函数作友元，类外实现
+
 
 ### 3.3 函数模板与类模板的区别
 
