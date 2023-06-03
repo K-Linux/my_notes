@@ -464,7 +464,7 @@ public:
 
 <div align=center><img src="img/2023-05-03-23-44-05.png" width="45%"></div>
 
-3. `this`的原型是`Person *const this`，在函数后面加`const`叫<font color="yellow">常函数</font>，则`this`变为`const Person *const this`
+3. `this`的原型是`Person *const this`，在函数后面加`const`叫<font color="yellow">常函数</font>，则`this`变为`const Person *const this`，常函数仅仅是用来描述`this`指针的
 4. `const Person t1`，在对象定义时加`const`叫<font color="yellow">常对象</font>。**常对象只能调用常函数**（注：[静态成员函数只能访问静态成员变量](#a1)）<a id="a2"></a>（const普通变量叫常变量）
 
 <div align=center><img src="img/2023-05-03-23-47-01.png" width="30%"></div>
@@ -554,6 +554,8 @@ int main()
 
 运算符重载用于类对象之间的运算，`operator`是关键字，用于定义重载运算符的函数
 
+#### 成员函数重载运算符
+
 ```C++
 #include <iostream>
 #include <string>
@@ -579,7 +581,7 @@ Person::Person(string n, int a, int h): m_name(n), m_age(a), m_height(h) { }
 
 //重载加运算符
 Person Person::operator+(const Person &a) const{
-    Pacerson b;
+    Person b;
     b.m_name = this->m_name;
     b.m_age = this->m_age + a.m_age;
     b.m_height = this->m_height + a.m_height;
@@ -600,21 +602,71 @@ void Person::display() const{
     cout << " height: " << m_height <<endl;
 }
 
-int main(){
+int main()
+{
     Person t1("Li", 20, 150);
     Person t2("Hong", 30, 160);
     Person t3;
-//80%的运算符都是自左向右运算
-//编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()，将+号右边的t2作为实参，也就是转换为t3 = t1.operator+(t2);
-    t3 = t1 + t2;
+// 80%的运算符都是自左向右运算
+// 编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将+号右边的t2作为实参
+    t3 = t1 + t2;   //转换为 t3 = t1.operator+(t2);
     t3.display();   //Li--> age: 50 height: 310
-    t3 = t2 - t1;
+    t3 = t2 - t1;   //转换为 t3 = t2.operator-(t1);
     t3.display();   //Hong--> age: 10 height: 10
 
     return 0;
 }
 ```
 
+#### 全局函数重载运算符
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Person {
+public:
+    Person();
+    Person(string n, int h);
+
+    //operator是运算符重载关键字
+    friend Person operator+(const Person &a, const Person &b);
+    void display() const;
+private:
+    string m_name;
+    int m_height;
+};
+
+Person::Person() { }
+Person::Person(string n, int h): m_name(n), m_height(h) { }
+
+//重载加+运算符（用到了private成员，故需要声明为友元）
+Person operator+(const Person &a, const Person &b) {
+    Person c;
+    c.m_name = a.m_name + b.m_name;
+    c.m_height = a.m_height + b.m_height;
+    return c;
+}
+
+void Person::display() const{
+    cout << m_name;
+    cout << " --> height: " << m_height << endl;
+}
+
+int main()
+{
+    Person t1("Li", 150);
+    Person t2("Hong", 150);
+    Person t3;
+// 80%的运算符都是自左向右运算
+// 编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将+号右边的t2作为实参
+    t3 = t1 + t2;   //转换为 t3 = t1.operator+(t2);
+    t3.display();   //LiHong --> height: 300
+
+    return 0;
+}
+```
 
 
 
