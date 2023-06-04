@@ -539,6 +539,7 @@ int main()
 <center>成员函数声明为友元</center>
 
 ```C++
+自己写的示例，编译器总报错，不懂
 ```
 
 <div align=center><img src="img/2023-05-04-00-09-59.png" width="70%"></div>
@@ -548,11 +549,11 @@ int main()
 当运算符不仅可以实现`int`类型运算，还可以实现类对象的运算，则被称为<font color="yellow">运算符重载</font>。运算符重载其实就是定义一个函数，在函数体内实现想要的功能，当用到该运算符时，编译器会自动调用这个函数。也就是说，运算符重载本质上是函数重载
 
 运算符重载的格式为：
->返回值类型 operator 运算符名称 (形参表列){
+>返回值类型`operator`运算符号 (形参表列) {
 >  TODO
 >}
 
-运算符重载用于类对象之间的运算，`operator`是关键字，用于定义重载运算符的函数
+运算符重载一般用于类对象之间的运算，`operator`是关键字，用于定义重载运算符的函数
 
 #### 成员函数重载运算符
 
@@ -564,55 +565,54 @@ using namespace std;
 class Person {
 public:
     Person();
-    Person(string n, int a, int h);
+    Person(string n, int h);
 
     //operator是运算符重载关键字
+    //成员函数有this指针，所以只传一个实参
     Person operator+(const Person &a) const;
-    Person operator-(Person &a);
+    //重载运算符的重载函数
+    Person operator+(int b);
     void display() const;
 private:
     string m_name;
-    int m_age;
     int m_height;
 };
 
 Person::Person() { }
-Person::Person(string n, int a, int h): m_name(n), m_age(a), m_height(h) { }
+Person::Person(string n, int h): m_name(n), m_height(h) {}
 
 //重载加运算符
 Person Person::operator+(const Person &a) const{
     Person b;
     b.m_name = this->m_name;
-    b.m_age = this->m_age + a.m_age;
     b.m_height = this->m_height + a.m_height;
     return b;
 }
-//重载减运算符
-Person Person::operator-(Person &a) {
-    Person b;
-    b.m_name = this->m_name;
-    b.m_age = this->m_age - a.m_age;
-    b.m_height = this->m_height - a.m_height;
-    return b;
+//重载运算符的重载函数
+Person Person::operator+(int b) {
+    Person temp;
+    temp.m_name = this->m_name;
+    temp.m_height = this->m_height + b;
+    return temp;
 }
 
 void Person::display() const{
     cout << m_name;
-    cout << "--> age: " << m_age;
-    cout << " height: " << m_height <<endl;
+    cout << "--> height: " << m_height <<endl;
 }
 
 int main()
 {
-    Person t1("Li", 20, 150);
-    Person t2("Hong", 30, 160);
+    Person t1("Li", 150);
+    Person t2("Hong", 160);
     Person t3;
-// 80%的运算符都是自左向右运算
-// 编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将+号右边的t2作为实参
-    t3 = t1 + t2;   //转换为 t3 = t1.operator+(t2);
-    t3.display();   //Li--> age: 50 height: 310
-    t3 = t2 - t1;   //转换为 t3 = t2.operator-(t1);
-    t3.display();   //Hong--> age: 10 height: 10
+//80%的运算符都是自左向右运算
+//编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将+号右边的t2作为实参
+    t3 = t1 + t2;   //自动转换为 t3 = t1.operator+(t2);
+    t3.display();   //Li--> height: 310
+//编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将+号右边的int作为实参
+    t3 = t1 + 10;   //自动转换为 t3 = t1.operator+(10);
+    t3.display();   //Li--> height: 160
 
     return 0;
 }
@@ -631,7 +631,9 @@ public:
     Person(string n, int h);
 
     //operator是运算符重载关键字
+    //全局函数无this指针，需要传2个实参
     friend Person operator+(const Person &a, const Person &b);
+    friend Person operator+(Person &a, int num);
     void display() const;
 private:
     string m_name;
@@ -648,6 +650,12 @@ Person operator+(const Person &a, const Person &b) {
     c.m_height = a.m_height + b.m_height;
     return c;
 }
+Person operator+(Person &a, int num) {
+    Person temp;
+    temp.m_name = a.m_name;
+    temp.m_height = a.m_height + num;
+    return temp;
+}
 
 void Person::display() const{
     cout << m_name;
@@ -659,15 +667,65 @@ int main()
     Person t1("Li", 150);
     Person t2("Hong", 150);
     Person t3;
-// 80%的运算符都是自左向右运算
-// 编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将+号右边的t2作为实参
-    t3 = t1 + t2;   //转换为 t3 = t1.operator+(t2);
+//80%的运算符都是自左向右运算
+//编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将t1和t2作为实参
+    t3 = t1 + t2;   //自动转换为 t3 = operator+(t1, t2);
     t3.display();   //LiHong --> height: 300
+//编译器检测到+号左边t1是一个Person对象，就会调用t1的成员函数operator+()将t1和10作为实参
+    t3 = t1 + 10;   //自动转换为 t3 = operator+(t1, 10);
+    t3.display();   //LiHong --> height: 160
 
     return 0;
 }
 ```
 
+#### 左移运算符重载
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+#if 0
+//如果用成员函数定义重载左移运算符<<
+void Base::operator<<(ostream &out) {
+    TODO
+}
+//调用时会转化为 a.operator<<(out)，最终是 a << out，显然是错误的
+cout << t1;
+//所以左移运算符只能用全局函数重载
+#endif
+
+
+class Person {
+public:
+    Person(int h);
+    friend ostream& operator<<(ostream &out, Person &p);
+private:
+    int m_height;
+};
+Person::Person(int h): m_height(h) {}
+
+//左移运算符只能用全局函数重载
+ostream& operator<<(ostream &out, Person &p) {
+    out << p.m_height;
+    //若不返回cout，则无法再接endl
+    return cout;
+}
+
+int main()
+{
+    Person t1(165);
+    cout << t1 << endl; //165
+    return 0;
+}
+```
+
+#### 递增运算符重载
+
+```C++
+
+```
 
 
 ### 1.11 string
@@ -1196,6 +1254,7 @@ using namespace std;
 template<typename T1, typename T2>
 class Base {
     //全局函数作友元（类内实现）
+    //注意这个函数是全局函数哦
     friend void print(Base<T1, T2> *p) {
         cout << "name: " << p->m_name << endl;
         cout << "age: " << p->m_age << endl;
@@ -1208,21 +1267,62 @@ private:
     T2 m_age;
 };
 template<typename T1, typename T2>
-Base<T1, T2>::Base(T1 n, T2 a):m_name(n), m_age(a) {
-    this->m_name = n;
-    this->m_age = a;
-}
+Base<T1, T2>::Base(T1 n, T2 a):m_name(n), m_age(a) {}
 
 int main()
 {
     Base<string, int> *t1 = new Base<string, int>("linux", 200);
+    //注意这个函数是全局函数哦
     print(t1);
 
     return 0;
 }
 ```
 
-全局函数作友元，类外实现
+全局模板函数作友元，类外实现
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+//声明类模板
+template<typename T1, typename T2>
+class Base;
+
+//声明全局函数模板
+template<typename T1, typename T2>
+void print(Base<T1, T2> *p);
+
+template<typename T1, typename T2>
+class Base {
+//声明全局函数做友元（类外实现）
+//需要加空模板参数列表 <>
+friend void print<>(Base<T1, T2> *p);
+public:
+    Base(T1 n, T2 a);
+private:
+    T1 m_name;
+    T2 m_age;
+};
+template<typename T1, typename T2>
+Base<T1, T2>::Base(T1 n, T2 a):m_name(n), m_age(a) {}
+
+template<typename T1, typename T2>
+void print(Base<T1, T2> *p) {
+    cout << "name: " << p->m_name << endl;
+    cout << "age: " << p->m_age << endl;
+    delete p;
+}
+
+int main()
+{
+    Base<string, int> *t1 = new Base<string, int>("linux", 200);
+    print(t1);
+    return 0;
+}
+
+```
 
 
 ### 3.3 函数模板与类模板的区别

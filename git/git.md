@@ -37,6 +37,7 @@ ___
 |**04**|git log -p [file]|显示`file`的所有提交记录。用来查看文件随时间的演变|
 |**04**|git log -n [num]|仅显示`num`行提交记录|
 |**04**|git log --oneline|提交记录显示在一行上|
+|**04**|git log --pretty=oneline|详细显示提交记录显示在一行上|
 |**04**|git reflog|显示本地repo的所有commit⽇志<br>（注：当返回到某版本时又想回去，可用来查看commit id）|
 |**05**|git reset [file]|将`file`从暂存区移除，且⼯作区不变<br>（注：无`file`则移除暂存区的所有文件）|
 |**05**|git reset --hard HEAD|HEAD即指针指向最近提交版本，HEAD^即指针指向第二个版本|
