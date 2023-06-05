@@ -17,6 +17,9 @@ ___
 1. 用关键字`public` `protected` `private`修饰的函数和变量在自身类里可以相互调用，无区别，对于派生类和对象则有区别
 1. 在类里(或者在同一作用域里)函数名相同，但是形参不同的函数叫做<font color="yellow">重载函数</font>。对象调用重载函数时，会根据形参的不同来判断调用的是哪个重载函数；析构函数不可被重载，构造函数可以被重载
 
+> 函数重载条件：①同一作用域 ②函数名相同 ③形参不同
+> 注意，返回值不能作为重载的条件
+
 #### new分配堆内存
 
 1. `int *a = new int(6);`其中`new int(6)`会返回6的地址。`delete a;`释放。指针a的地址在栈区，6的地址在堆区
@@ -710,7 +713,7 @@ Person::Person(int h): m_height(h) {}
 ostream& operator<<(ostream &out, Person &p) {
     out << p.m_height;
     //若不返回cout，则无法再接endl
-    return cout;
+    return out;
 }
 
 int main()
@@ -723,8 +726,52 @@ int main()
 
 #### 递增运算符重载
 
-```C++
+左加加返回引用，右加加返回数值
 
+```C++
+#include <iostream>
+using namespace std;
+
+class Base {
+friend ostream& operator<<(ostream &out, Base b);
+public:
+    Base(int n);
+    //重载前置++
+    Base& operator++();
+    //重载后置++
+    //int代表占位参数，用来区分后置++
+    Base operator++(int);
+private:
+    int m_num;
+};
+Base::Base(int n):m_num(n) {}
+
+//成员函数重载前置++
+Base& Base::operator++() {
+    m_num++;
+    return *this;
+}
+//成员函数重载后置++
+Base Base::operator++(int) {
+    Base temp = *this;
+    m_num++;
+    return temp;
+}
+//标准的左移运算符不能运算类对象，故需重载
+//全局函数重载左移运算符<<
+ostream& operator<<(ostream &out, Base b) {
+    out << b.m_num;
+    return out;
+}
+
+int main()
+{
+    Base t1(1);
+    //t1是类对象，故需重载 <<
+    cout << ++t1 << endl; //2
+
+    return 0;
+}
 ```
 
 
