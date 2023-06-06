@@ -980,6 +980,82 @@ int main()
 }
 ```
 
+#### 关系运算符重载
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Base {
+public:
+    Base(string n);
+    bool operator==(Base &b);
+    bool operator!=(Base &b);
+private:
+    string m_name;
+};
+Base::Base(string n):m_name(n) {}
+//重载关系运算符 ==
+bool Base::operator==(Base &b) {
+    if (this->m_name == b.m_name)
+        return true;
+    return false;
+}
+//重载关系运算符 !=
+bool Base::operator!=(Base &b) {
+    if (this->m_name != b.m_name)
+        return true;
+    return false;
+}
+
+int main()
+{
+    Base t1("linux");
+    Base t2("linux");
+    Base t3("China");
+    if (t1 == t2)
+        cout << "t1 == t2" << endl;
+    if (t1 != t3)
+        cout << "t1 != t3" << endl;
+}
+```
+
+#### 函数调用运算符重载
+
+由于函数调用运算符重载后的使用方式和普通函数很像，因此称为仿函数
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Base {
+public:
+    void operator()(string s);
+    int operator()(int num1, int num2);
+};
+//重载函数调用运算符
+void Base::operator()(string s) {
+    cout << s << endl;
+}
+//重载函数调用运算符
+int Base::operator()(int num1, int num2) {
+    return num1 + num2;
+}
+
+int main()
+{
+    Base t1;
+    //函数调用运算符重载和普通函数用法相同，因此又称仿函数
+    t1("linux");                    //linux
+    cout << t1(3, 6) << endl;       //9
+    //匿名函数对象。相当于临时创建一个对象并调用其重载函数调用运算符，然后释放
+    cout << Base()(5, 6) << endl;   //11
+    return 0;
+}
+```
+
 ### 1.11 string
 
 `string`类完全可以代替C语言中的字符串数组和字符串指针，使用`string`类需要包含头文件`<string>`
