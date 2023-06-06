@@ -45,6 +45,17 @@ ___
 1. 调用函数时，占位形参和普通形参一样，必须填写
 1. 默认形参就是占位形参(当函数内部没有用到默认形参时)
 
+#### 类的默认函数
+
+C++ 编译器至少给一个类添加4个函数：
+
+1. 默认构造函数（无参，空函数体）
+1. 默认拷贝构造函数（浅拷贝）
+1. 默认析构函数（无参，空函数体）
+1. 默认重载赋值运算符函数 operator=（浅拷贝）
+
+> 默认重载赋值运算符函数就是用在类与类之间的赋值
+
   
 ### 1.1 构造函数和析构函数 {#1.1}
 
@@ -56,7 +67,29 @@ ___
 1. 定义对象后再传参给构造重载函数。①dog1.dog1_func(4)；②dog2->dog2_func(5.5)
 1. 构造函数可以初始化类的成员变量，即<font color="yellow">初始化列表</font>。注意初始化与赋值不同，这意味着const修饰的成员也可以初始化
 
-<div align=center><img src="img/2023-05-03-22-57-34.png" width="50%"></div>
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Base {
+public:
+    Base(string n, int a);
+private:
+    string m_name;
+    int m_age;
+};
+Base::Base(string n, int a):m_name(n), m_age(a) {
+    cout << m_name << endl;
+    cout << m_age << endl;
+}
+
+int main()
+{
+    Base t1("linux", 200);
+    return 0;
+}
+```
 
 8. 实例化对象时会先调用基类的构造函数，再调用派生类的构造函数；结束对象时先析构派生类再析构基类
 
@@ -96,8 +129,64 @@ ___
 8. 若派生类成员与基类成员同名，派生类优先级高。会屏蔽基类<font color="yellow">所有同名成员</font>(包括所有同名重载函数和同名静态成员)。只能使用作用域符号特指才能调用基类成员
 9. 当静态成员同名时，既可以通过对象访问基类的静态成员，也可以通过类名访问基类的静态成员。使用类名访问可以不用实例化对象
 
-<div align=center><img src="img/2023-05-08-20-03-58.png" width="60%"></div>
-<div align=center><img src="img/2023-05-08-20-04-38.png" width="60%"></div>
+```C++
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    int m_a;
+    static int m_b;
+    Base();
+    void func();
+
+};
+//类外初始化静态成员变量
+int Base::m_b = 100;
+Base::Base() {
+    m_a = 10;
+}
+void Base::func() {
+    cout << "Base_func" << endl;
+}
+
+class Derive:public Base {
+public:
+    //派生类成员与基类同名
+    int m_a;
+    static int m_b;
+    Derive();
+    void func();
+};
+int Derive::m_b = 200;
+Derive::Derive() {
+    m_a = 20;
+}
+void Derive::func() {
+    cout << "Derive_func" << endl;
+}
+
+int main()
+{
+    Derive t1;
+    //若派生类成员与基类成员同名，则屏蔽基类成员
+    cout << t1.m_a << endl;                 //20
+    //使用作用域符号特指调用基类成员变量
+    cout << t1.Base::m_a << endl;           //10
+
+    //若派生类成员与基类成员同名，则屏蔽基类成员（包括重载函数和静态成员）
+    t1.func();                              //Derive_func
+    //使用作用域符号特指调用基类成员函数
+    t1.Base::func();                        //Base_func
+
+    //静态成员可以通过类名直接访问，可以不定义对象
+    cout << Derive::m_b << endl;            //200
+    cout << Derive::Base::m_b << endl;      //100
+    cout << Base::m_b << endl;              //100
+
+    return 0;
+}
+```
 
 #### 多继承
 
@@ -125,13 +214,13 @@ ___
 ### 1.4 向上转型 {#向上转型}
 
 
-类是一种数据类型，也可以发生数据类型转换，不过这种转换只有在基类和派生类之间才有意义，并且只能将派生类赋值给基类，包括将派生类对象赋值给基类对象、将派生类指针赋值给基类指针、将派生类引用赋值给基类引用，这在 C++ 中称为向上转型（Upcasting）。相应地，将基类赋值给派生类称为向下转型（Downcasting）。
+类是一种数据类型，也可以发生数据类型转换，不过这种转换只有在基类和派生类之间才有意义，并且只能将派生类赋值给基类，包括将派生类对象赋值给基类对象、将派生类指针赋值给基类指针、将派生类引用赋值给基类引用，称为<font color="yellow">向上转型</font>（Upcasting）。相应地，将基类赋值给派生类称为向下转型（Downcasting）。
 
-##### 将派生类对象赋值给基类对象 w
+##### 将派生类对象赋值给基类对象
 
 将派生类对象`B`赋值给基类对象`A`时，只会将派生类对象`B`中的基类的成员变量赋值给基类对象`A`。且只能用派生类对象给基类对象赋值，而不能用基类对象给派生类对象赋值。
 
-赋值的本质是将现有的数据写入已分配好的内存中，对象的内存只包含了成员变量，不包含成员函数，所以对象之间的赋值仅仅是成员变量的赋值。虽然有 `基类 = 派生类` 这样的赋值过程，但是<font color="yellow">基类调用的始终是基类的自身的函数</font>
+赋值的本质是将现有的数据写入已分配好的内存中，对象的内存只包含了成员变量，不包含成员函数，所以<font color="yellow">对象之间的赋值仅仅是成员变量的赋值，不包括成员函数</font>。虽然有 `基类 = 派生类` 这样的赋值过程，但是<font color="yellow">基类调用的始终是基类的自身的函数</font>
 
 <div align=center><img src="img/2023-05-13-12-39-53.png" width="70%"></div>
 .
@@ -139,7 +228,7 @@ ___
 
 ##### 将派生类指针赋值给基类指针
 
-将派生类指针`B`赋值给基类指针`A`时，此时基类指针`A`指向派生类`B`内的基类地址（实际是A == B）。相当于限制派生类只能调用基类的成员（注：只有使用虚函数时（即[多态](#多态)），基类才可以调用派生类的成员函数）
+将派生类指针`B`赋值给基类指针`A`时，此时基类指针`A`指向派生类`B`内的基类地址（实际是A == B）。相当于限制该指针只能调用派生类中基类的成员（注：只有使用虚函数时（即[多态](#多态)），基类才可以调用派生类的成员函数）
 
 <div align=center><img src="img/2023-05-15-22-42-18.png" width="50%"></div>
 
@@ -147,7 +236,7 @@ ___
 
 封装、继承和多态是C++面向对象三大特征。多态分为两类:
 
-- 静态多态：函数重载和运算符重载属于静态多态，复用函数名
+- 静态多态：函数重载（函数重载和运算符重载）属于静态多态，复用函数名
 - 动态多态：派生类和虚函数实现运行时多态
 
 静态多态的函数地址在编译阶段确定，动态多态的函数地址在运行阶段确定
@@ -162,11 +251,40 @@ ___
 
 #### 动态多态的原理
 
-当基类创建虚函数的同时会创建一个占4字节的指针`vfptr`，指向虚函数表`vftable`，该虚函数表内记录着基类的虚函数地址`&Animal::speak`。当派生类继承基类时，指针`vfptr`和虚函数表`vftable`都会继承过来。当派生类重写虚函数时，虚函数表内由原来记录基类的虚函数地址`&Animal::speak`变为记录派生类的虚函数地址`&Cat::speak`
-所以向上转型后，当基类调用虚函数时，因为虚函数表记录着派生类的虚函数地址，所以总是会调用派生类的虚函数
+当基类创建虚函数的同时会创建一个占4字节的指针`vfptr`，指向虚函数表`vftable`，该虚函数表内记录着基类的虚函数地址`&Animal::speak`。当派生类继承基类时，指针`vfptr`和虚函数表`vftable`都会继承过来。当派生类重写虚函数时，虚函数表内由原来记录基类的虚函数地址`&Animal::speak`变为记录派生类的虚函数地址`&Cat::speak`。所以向上转型后，当基类调用虚函数时，因为虚函数表记录着派生类的虚函数地址，所以总是会调用派生类的虚函数
 > 注：当实例化一个对象时，有一个派生类，派生类里面包含着一个基类
 
-<div align=center><img src="img/2023-05-09-22-22-50.png" width="50%"></div>
+```C++
+#include <iostream>
+using namespace std;
+
+class Animal {
+public:
+    // 加virtual关键字变为虚函数
+    virtual void speak() {
+        cout << "Animal speak" << endl;
+    }
+};
+class Cat:public Animal {
+public:
+    // 派生类重写虚函数
+    virtual void speak() {
+        cout << "Cat speak" << endl;
+    }
+};
+
+void do_speak(Animal &animal) {
+    // 基类执行派生类的虚函数
+    animal.speak();
+}
+
+int main()
+{
+    Cat cat;
+    do_speak(cat);  //打印cat speak
+    return 0;
+}
+```
 
 #### 使用多态创建计算器案例
 
@@ -183,9 +301,47 @@ C++提供多态的目的是通过基类指针对所有派生类（包括直接�
 2. 抽象类无法实例化对象（Base t1；错误  ——  Base *t1；正确）
 3. 派生类必须重写抽象类（基类）的纯虚函数，否则派生类也是纯虚函数，无法实例化对象
 
-<div align=center><img src="img/2023-05-16-21-24-44.png" width="45%"></div>
+```C++
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    //纯虚函数
+    virtual void display() = 0;
+/* 此时Base为抽象类，即Base无法实例化对象
+ * 且派生类必须重写Base的纯虚函数 */
+};
+
+class Derive1:public Base {
+public:
+    void display();
+};
+void Derive1::display() {
+    cout << "Derive1" << endl;
+}
+
+class Derive2:public Base {
+public:
+    void display();
+};
+void Derive2::display() {
+    cout << "Derive2" << endl;
+}
+
+int main()
+{
+    Base *t1 = new Derive1;
+    t1->display();      //Derive1
+
+    t1 = new Derive2;
+    t1->display();      //Derive2
+
+    return 0;
+}
+```
 .
-<div align=center><img src="img/2023-05-16-21-44-24.png" width="45%"></div>
+<div align=center><img src="img/2023-05-16-21-44-24.png" width="35%"></div>
 
 ```C++
 #include <iostream>
@@ -774,6 +930,55 @@ int main()
 }
 ```
 
+#### 赋值运算符重载
+
+
+默认重载赋值运算符函数就是用在类与类之间的赋值，是浅拷贝。我们需要手动重载赋值运算符进行深拷贝
+
+```C++
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+//当成员变量有指针时，重载赋值运算符需要深拷贝（默认的是浅拷贝）
+    int *m_age;
+    Base(int a);
+    Base& operator=(Base &b);
+    ~Base();
+};
+Base::Base(int a) {
+    m_age = new int(a);
+}
+Base::~Base() {
+    if (m_age != NULL) {
+        delete m_age;
+        m_age = NULL;
+    }
+}
+
+//重载赋值运算符（深拷贝）
+//this就是t1
+Base& Base::operator=(Base &b) {
+    if (m_age != NULL) {
+        delete m_age;
+        m_age = NULL;
+    }
+    m_age = new int(*b.m_age);
+    return *this;
+}
+
+int main()
+{
+    Base t1(10);
+    Base t2(20);
+    Base t3(30);
+    t1 = t2 = t3;
+    cout << *t1.m_age << endl;  //30
+
+    return 0;
+}
+```
 
 ### 1.11 string
 
@@ -1573,16 +1778,23 @@ int main()
 ### 4.1 容器
 
 
-简单来说，<font color="yellow">容器</font>就是一些类模板的集合，但和普通类模板不同的是，容器中封装的是组织数据的方法（也就是数据结构）。STL 提供有 3 类标准容器，分别是<font color="yellow">序列容器</font>、<font color="yellow">排序容器</font>和<font color="yellow">哈希容器</font>，其中后两类容器有时也统称为关联容器。它们各自的含义如表 1 所示。
+简单来说，<font color="yellow">容器</font>就是一些类模板的集合，但和普通类模板不同的是，容器中封装的是组织数据的方法（也就是数据结构）。STL 提供有 3 类标准容器，分别是<font color="yellow">序列容器</font>、<font color="yellow">排序容器</font>和<font color="yellow">哈希容器</font>，其中后两类容器有时也统称为关联容器
+
+<center>STL容积种类和功能</center>
+
+|容器种类 |<div style="width:715px">功能</div>|
+|:---|:---|
+|序列容器 |一些封装数据结构的模板类，例如 vector 向量容器、list 列表容器等|
+|排序容器 | 包括 set 集合容器、multiset多重集合容器、map映射容器以及 multimap 多重映射容器。排序容器中的元素默认是由小到大排序好的，即便是插入元素，元素也会插入到适当位置。所以关联容器在查找时具有非常好的性能|
+|哈希容器 |C++ 11 新加入 4 种关联式容器，分别是 unordered_set 哈希集合、unordered_multiset 哈希多重集合、unordered_map 哈希映射以及 unordered_multimap 哈希多重映射。和排序容器不同，哈希容器中的元素是未排序的，元素的位置由哈希函数确定|
 
 
 
 
 #### STL序列式容器
 
-STL 标准库中所有的序列式容器包括 array、vector、deque、list 和 forward_list 容器。
-
-STL序列式容器的共同的特点是不会对存储的元素进行排序，元素排列的顺序取决于存储它们的顺序。
+STL 标准库中所有的序列式容器包括 array、vector、deque、list 和 forward_list 容器
+STL序列式容器的共同的特点是不会对存储的元素进行排序，元素排列的顺序取决于存储它们的顺序
 
 ## 杂项
 
