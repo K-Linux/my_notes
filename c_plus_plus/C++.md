@@ -49,9 +49,9 @@ ___
 
 C++ 编译器至少给一个类添加4个函数：
 
-1. 默认构造函数（无参，空函数体）
+1. 默认无参构造函数（空函数体）
 1. 默认拷贝构造函数（浅拷贝）
-1. 默认析构函数（无参，空函数体）
+1. 默认析构函数（空函数体）
 1. 默认重载赋值运算符函数 operator=（浅拷贝）
 
 > 默认重载赋值运算符函数就是用在类与类之间的赋值
@@ -340,7 +340,7 @@ int main()
     return 0;
 }
 ```
-.
+
 <div align=center><img src="img/2023-05-16-21-44-24.png" width="35%"></div>
 
 ```C++
@@ -356,7 +356,8 @@ protected:
     float m_len;
 };
 Line::Line(float len): m_len(len){ }
-//矩形（未重写纯虚函数volume()，所以Rec也是抽象类）
+
+//矩形（虽然重写了area()，但未重写纯虚函数volume()，所以Rec也是抽象类）
 class Rec: public Line{
 public:
     Rec(float len, float width);
@@ -366,6 +367,7 @@ protected:
 };
 Rec::Rec(float len, float width): Line(len), m_width(width){ }
 float Rec::area(){ return m_len * m_width; }
+
 //长方体
 class Cuboid: public Rec{
 public:
@@ -378,6 +380,7 @@ protected:
 Cuboid::Cuboid(float len, float width, float height): Rec(len, width), m_height(height){ }
 float Cuboid::area(){ return 2 * ( m_len*m_width + m_len*m_height + m_width*m_height); }
 float Cuboid::volume(){ return m_len * m_width * m_height; }
+
 //正方体
 class Cube: public Cuboid{
 public:
@@ -419,7 +422,7 @@ class Memory {
 public:
     virtual void storage() = 0;
 };
-//电脑派生类(作用是将基类指针指向派生类并执行派生类虚函数)
+//电脑派生类(作用是让基类执行派生类的虚函数)
 class Computer {
 public:
     Computer(CPU *cpu, Memory *mem);
@@ -429,7 +432,7 @@ private:
     CPU *m_cpu;
     Memory *m_mem;
 };
-//此处传入的形参应该是两种派生类
+//此处传入的形参应该是指向派生类的基类指针
 Computer::Computer(CPU *cpu, Memory *mem):m_cpu(cpu),m_mem(mem){}
 //基类指针执行派生类的虚函数,即多态
 void Computer::work(){
@@ -549,7 +552,7 @@ namespace second {
 
 //默认使用命名空间first中的所有库
 using namespace first;
-//特指使用命名空间first中的func()函数
+//默认使用命名空间first中的func()函数
 using first::func;
 int main()
 {
@@ -592,14 +595,71 @@ int main()
 1. 类的成员变量存储在栈区，类的静态成员变量、函数都存储在全局区
 1. 静态成员变量和函数在全局区，仅有一份，所有实例化出的对象共享这一份
 
-<div align=center><img src="img/2023-05-03-23-02-51.png" width="45%"></div>
+```C++
+#include <iostream>
+using namespace std;
+
+class Base {
+public:
+    static int m_a;
+    //静态函数只能访问静态变量
+    static void func(); 
+};
+void Base::func() {
+    m_a = 6;
+    cout << m_a << endl;
+}
+//类内声明，类外初始化
+int Base::m_a = 9;
+
+int main()
+{
+    Base t1;
+
+    //通过对象访问静态变量和函数
+    cout << t1.m_a << endl;     //9
+    t1.func();                  //6
+
+    //通过类名访问静态变量和函数
+    cout << Base::m_a << endl;  //6
+    Base::func();               //6
+
+    return 0;
+}
+```
 
 6. 空类在栈区仅占一个字节
 7. 静态成员变量、静态成员函数和普通函数都不属于类的对象，即不增加类的对象的内存大小
 
-<div align=center><img src="img/2023-05-03-23-09-31.png" width="45%"></div>
+```C++
+#include <iostream>
+using namespace std;
 
-### 1.8 this 指针 {#1.6} 
+class Base {
+public:
+    //静态变量不属于类的对象
+    static int m_a;
+    //任何函数不属于类的对象
+    void func(); 
+};
+void Base::func() {
+    m_a = 6;
+    cout << m_a << endl;
+}
+//类内声明，类外初始化
+int Base::m_a = 9;
+
+int main()
+{
+    Base t1;
+    //空类在栈区仅占1字节
+    cout << sizeof(t1) << endl;     //1
+
+    return 0;
+}
+```
+
+### 1.8 this 指针 {#this指针} 
 
 1. 任何非静态成员函数都默认有`this`指针，且`this`指向调用该非静态成员函数的对象。例如`Person t1; t7.func(10)`。`func`内部的`this`指针指向`&t1`，`*this`表示`t1`
 1. 空指针可以调用不含this的成员（因为空指针没有实体，就没有this）
@@ -624,16 +684,29 @@ public:
 <div align=center><img src="img/2023-05-03-23-44-05.png" width="45%"></div>
 
 3. `this`的原型是`Person *const this`，在函数后面加`const`叫<font color="yellow">常函数</font>，则`this`变为`const Person *const this`，常函数仅仅是用来描述`this`指针的
-4. `const Person t1`，在对象定义时加`const`叫<font color="yellow">常对象</font>。**常对象只能调用常函数**（注：[静态成员函数只能访问静态成员变量](#a1)）<a id="a2"></a>（const普通变量叫常变量）
+4. `const Person t1`，在对象定义时加`const`叫<font color="yellow">常对象</font>。**常对象只能调用常函数**（注：[静态成员函数只能访问静态成员变量](#a1)）<a id="a2"></a>（const 修饰普通变量叫常变量）
 
-<div align=center><img src="img/2023-05-03-23-47-01.png" width="30%"></div>
+```C++
+class Base {
+public:
+    int a;
+    mutable int b;
+    //常函数
+    void func() const {
+        //不可修改常函数中this指向的数据
+        this->a = 100;
+        //除非该数据加了mutable关键字
+        this->b = 100;
+    }
+};
+```
 
 ### 1.9 友元 friend {#友元}
 
 1. 全局函数声明为友元，则该全局函数就可以访问该类的所有成员变量和函数（包括private成员）
 1. 类A声明为类B的友元，则类A的全部成员函数可以访问类B的所有成员变量和函数（包括private成员）
 1. 类A的成员函数声明为类B的友元，则该函数可以访问类B的所有成员变量和函数（包括private成员）
-1. 类或者函数A需要调用类B的 private 成员，则要在类B中将A声明为友元。一般不建议把整个类声明为友元类，而只将某些成员函数声明为友元函数，这样更安全一些。
+1. 类或者函数A需要调用类B的 private 成员，则要在类B中将A声明为友元。一般不建议把整个类声明为友元类，而只将某些成员函数声明为友元函数，这样更安全一些
 
 <center>全局函数声明为友元</center>
 
