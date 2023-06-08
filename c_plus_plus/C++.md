@@ -771,10 +771,42 @@ int main()
 <center>成员函数声明为友元</center>
 
 ```C++
-自己写的示例，编译器总报错，不懂
-```
+#include <iostream>
+using namespace std;
 
-<div align=center><img src="img/2023-05-04-00-09-59.png" width="70%"></div>
+class Info;
+
+//友元成员函数的类要放在前面
+class Student {
+public:
+    void show(Info *info);
+};
+
+class Info {
+//成员函数声明为友元
+friend void Student::show(Info *info);
+public:
+    Info(string n, int a);
+private:
+    string m_name;
+    int m_age;
+};
+/*----------所有类的成员函数放在后面实现-----------*/
+Info::Info(string n, int a):m_name(n), m_age(a) {}
+
+void Student::show(Info *info) {
+    cout << info->m_name << " is " << info->m_age << endl;
+}
+
+int main()
+{
+    Student t1;
+    Info t2("linus", 200);
+    t1.show(&t2);   //linus is 200
+
+    return 0;
+}
+```
 
 ### 1.10 运算符重载 {#运算符重载}
 
@@ -862,7 +894,7 @@ public:
     Person();
     Person(string n, int h);
 
-    //operator是运算符重载关键字
+    //将全局函数声明为友元
     //全局函数无this指针，需要传2个实参
     friend Person operator+(const Person &a, const Person &b);
     friend Person operator+(Person &a, int num);
@@ -913,6 +945,8 @@ int main()
 
 #### 左移运算符重载
 
+左移运算符只能用全局函数重载
+
 ```C++
 #include <iostream>
 #include <string>
@@ -955,7 +989,7 @@ int main()
 
 #### 递增运算符重载
 
-左加加返回引用，右加加返回数值
+左加加返回引用（自身），右加加返回数值
 
 ```C++
 #include <iostream>
@@ -986,7 +1020,7 @@ Base Base::operator++(int) {
     m_num++;
     return temp;
 }
-//标准的左移运算符不能运算类对象，故需重载
+//标准的左移运算符不能运算类对象，故需重载左移运算符
 //全局函数重载左移运算符<<
 ostream& operator<<(ostream &out, Base b) {
     out << b.m_num;
@@ -1233,9 +1267,8 @@ C++ 除了面向对象的编程思想，还有一个泛型编程思想
 
 所谓函数模板，实际上是建立一个通用函数，它所用到的数据的类型（包括返回值类型、形参类型、局部变量类型）可以不具体指定，而是用一个虚拟的类型来代替（实际上是用一个标识符来占位），等发生函数调用时再根据传入的实参来逆推出真正的类型。这个通用函数就称为<font color="yellow">函数模板</font>（Function Template）
 
-- `template`是定义函数模板的关键字（可以使用`class`替代关键字`template`）
-
-- `typename`是另外一个关键字，用来声明具体的<font color="yellow">类型参数</font>（也可以说是虚拟的类型，或者说是类型占位符），这里的类型参数就是`T`。从整体上看，`template<typename T>` 被称为模板头
+- `template`是定义函数模板的关键字
+- `typename`是另外一个关键字（可以使用`class`替代关键字`typename`），用来声明具体的<font color="yellow">类型参数</font>，类型参数一般是`T`。从整体上看，`template<typename T>` 被称为模板头
 
 学习模板并不是为了写模板，而是在STL中能够用系统提供的模板
 
@@ -1245,7 +1278,7 @@ C++ 除了面向对象的编程思想，还有一个泛型编程思想
 
 #### 函数模板基础
 
-- 函数模板的类型参数 T 有自动推导和指明类型两种模式
+函数模板的类型参数 T 有自动类型推导和指明类型两种模式
 
 ```C++
 #include <iostream>
@@ -1340,7 +1373,7 @@ void printArray(int arr[], int len){
 
 #### 函数模板显示具体化
 
-- 让模板针对某种具体的类型使用不同的算法（函数体或类体不同），这种技术称为模板的<font color="yellow">显示具体化</font>。例如，函数模板无法进行类之间的比较，即判断`class1 == class2`。所以需要进行函数模板的显示具体化
+- 让模板针对某种具体的类型使用不同的算法（函数体或类体不同），这种技术称为<font color="yellow">模板的显示具体化</font>。一个函数模板只能有一个显示具体化，这个显示具体化就是这个函数模板的特定
 
  - 函数模板的显示具体化与普通函数的区别在于多了个空模板头
     - 普通函数：`void func(int a) { }`
@@ -1358,12 +1391,12 @@ public:
     Base(string n, int a):m_name(n), m_age(a){}
 };
 
+//先定义一个函数模板
 template<typename T> void compare(T a, T b) {
     if (a == b)
         cout << "a == b" << endl;
 }
-//函数模板无法进行类之间的比较，即判断 class1 == class2
-//所以需要进行函数模板compare的显示具体化
+//定义函数模板的显示具体化
 //函数模板的显示具体化与普通函数的区别在于多了个空模板头
 template<> void compare(Base b1, Base b2) {
     if (b1.m_name == b2.m_name && b1.m_age == b2.m_age)
