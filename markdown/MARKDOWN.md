@@ -99,15 +99,18 @@ int main(int argc, char *argv[]) {
 - !["企鹅"](./img/linux2.png)
 - [![图片链接](./img/linux2.png)](https://markdown.com.cn)
 
-- 图片缩放
-
+图片缩放
   <img src="./img/linux.png" width="10%" height="10%">
 
-- 使用`HTML`的`div`标签居中图片
+<center>使用`HTML`的`div`标签居中图片</center>
 
   <div align=center>
   <img src="./img/linux.png">
   </div>
+
+<center>图片居中&缩放</center>
+
+<div align=center><img src="./img/linux.png" width="7%"></div>
 
 ## 12.转义字符
 
@@ -234,6 +237,10 @@ A[方形] -->B(圆角)
 ```mermaid
 graph LR
 A[方形]-->B(圆角)-->C(dfasf)-->E{条件}
+```
 
 
+```mermaid
+graph TD
+A[方形]-->B(圆角)-->C(dfasf)-->E{条件}
 ```
