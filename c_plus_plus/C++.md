@@ -1261,7 +1261,7 @@ ___
 
 ## 二、模板 template {#模板}
 
-C++ 除了面向对象的编程思想，还有一个泛型编程思想
+<font color="yellow">C++ 除了面向对象的编程思想，还有一个泛型编程思想</font>
 
 泛型程序设计（generic programming），指的是算法只要实现一遍，就能适用于多种数据类型。泛型程序设计最成功的应用就是 C++ 的标准模板库STL（Standard Template Library，标准模板库）。在 C++ 中，模板分为<font color="yellow">函数模板</font>和<font color="yellow">类模板</font>两种
 
@@ -1867,7 +1867,108 @@ int main()
 
 ___
 
-## 三、C++11
+## 三、STL
+
+STL（standard template library），称为标准模板库或者泛型库，其包含有大量的类模板和函数模板。如今 STL 已完全内置到 C++ 的编译器中，无需额外安装。STL 就位于各个 C++ 的头文件中，即它并非以二进制代码的形式提供，而是以源代码的形式提供。从根本上说，STL 是一些容器、算法和其他一些组件的集合，所有容器和算法都是总结了几十年来算法和数据结构的研究成果，汇集了许多计算机专家学者经验的基础上实现的，因此可以说，STL 基本上达到了各种存储方法和相关算法的高度优化。
+
+>注意，这里提到的容器，本质上就是封装有数据结构的类模板，例如 list、vector、set、map 等
+
+
+STL 就是借助模板把常用的数据结构及其算法都实现了一遍，并且做到了数据结构和算法的分离。例如，vector 的底层为顺序表（数组），list 的底层为双向链表，deque 的底层为循环队列，set 的底层为红黑树，hash_set 的底层为哈希表。在 C++ 标准中，STL 被组织为 13 个头文件，分别为 `<iterator>` `<functional>` `<vector>` `<deque>` `<list>` `<queue>` `<stack>` `<set>` `<map>` `<algorithm>` `<numeric>` `<memory>` `<utility>`
+
+```C++
+#include <iostream>
+#include<vector>
+using namespace std;
+
+int main()
+{
+    //定义数组str，当前数组长度为0
+    vector <int> str; 
+
+    //向数组str中添加10个元素
+    for (int i = 0; i < 10 ; i++)
+        str.push_back(i);
+
+    //手动调整数组str的元素个数为100
+    str.resize(100);
+
+    //删除数组str中所有的元素，此时str的长度变为0
+    str.clear();
+
+    //重新调整str的大小为20，并存储20个-1
+    str.resize(20, -1);
+
+    return 0;
+}
+```
+
+<center>STL组成结构</center>
+
+|组成 |<div style="width:715px">含义</div>|
+|:---|:---|
+|容器      |一些封装数据结构的模板类，例如 vector 向量容器、list 列表容器等|
+|算法      |STL 提供了非常多（大约 100 个）的数据结构算法，它们都被设计成一个个的模板函数，这些算法在 std 命名空间中定义，其中大部分算法都包含在头文件`<algorithm>`中，少部分位于头文件`<numeric>`中|
+|迭代器    |在 C++ STL 中，对容器中数据的读和写，是通过迭代器完成的，扮演着容器和算法之间的胶合剂。常用的迭代器种类为双向迭代器和随机访问迭代器|
+|函数对象  |如果一个类将 () 运算符重载为成员函数，这个类就称为函数对象类，这个类的对象就是函数对象（又称仿函数）|
+|适配器    |可以使一个类的接口（模板的参数）适配成用户指定的形式，从而让原本不能在一起工作的两个类工作在一起。值得一提的是，容器、迭代器和函数都有适配器|
+|内存分配器|为容器类模板提供自定义的内存申请和释放功能，由于往往只有高级用户才有改变内存分配策略的需求，因此内存分配器对于一般用户来说，并不常用|
+
+>上表简单了解即可
+
+### 4.1 容器
+
+
+简单来说，<font color="yellow">容器</font>就是一些类模板的集合，但和普通类模板不同的是，容器中封装的是组织数据的方法（也就是数据结构）。STL 提供有 3 类标准容器，分别是<font color="yellow">序列容器</font>、<font color="yellow">排序容器</font>和<font color="yellow">哈希容器</font>，后两类容器统称为<font color="yellow">关联容器</font>
+
+<center>STL容积种类和功能</center>
+
+|容器种类 |<div style="width:715px">功能</div>|
+|:---|:---|
+|序列容器 |一些封装数据结构的模板类，例如 vector 向量容器、list 列表容器等|
+|排序容器 | 包括 set 集合容器、multiset多重集合容器、map映射容器以及 multimap 多重映射容器。排序容器中的元素默认是由小到大排序好的，即便是插入元素，元素也会插入到适当位置。所以关联容器在查找时具有非常好的性能|
+|哈希容器 |C++ 11 新加入 4 种关联式容器，分别是 unordered_set 哈希集合、unordered_multiset 哈希多重集合、unordered_map 哈希映射以及 unordered_multimap 哈希多重映射。和排序容器不同，哈希容器中的元素是未排序的，元素的位置由哈希函数确定|
+
+#### STL序列式容器
+
+STL 标准库中所有的序列式容器包括 array、vector、deque、list 和 forward_list 容器
+STL序列式容器的特点是不会对存储的元素进行排序，元素排列的顺序取决于存储它们的顺序
+
+```C++
+#include <iostream>
+#include <vector>       //vecotr容器头文件
+#include <algorithm>    //标准算法头文件
+using namespace std;
+
+void print(int val) {
+    cout << val << endl;
+}
+
+int main()
+{
+    //创建vector容器（相当于数组）
+    vector<int> v;
+    //向容器中插入数据
+    v.push_back(9);
+    v.push_back(3);
+
+    //创建一个迭代器。每个容器都有自己的迭代器，通过迭代器访问容器中的数据
+    //begin()指向容器第一个元素，v.end()指向容器最后一个元素的下一个位置
+    //利用for循环遍历容器
+    for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+        cout << *it << endl;
+    }
+
+    //利用for_each算法遍历容器。实质是将容器中每个元素依次作为实参传给print()函数执行
+    for_each(v.begin(), v.end(), print);
+
+    return 0;
+}
+```
+
+___
+
+## 四、C++11
 
 ### 3.1 auto
 
@@ -1911,75 +2012,6 @@ int main()
 
 ___
 
-## 四、STL
-
-STL（standard template library），称为标准模板库或者泛型库，其包含有大量的类模板和函数模板。如今 STL 已完全内置到 C++ 的编译器中，无需额外安装。STL 就位于各个 C++ 的头文件中，即它并非以二进制代码的形式提供，而是以源代码的形式提供。从根本上说，STL 是一些容器、算法和其他一些组件的集合，所有容器和算法都是总结了几十年来算法和数据结构的研究成果，汇集了许多计算机专家学者经验的基础上实现的，因此可以说，STL 基本上达到了各种存储方法和相关算法的高度优化。
-
->注意，这里提到的容器，本质上就是封装有数据结构的类模板，例如 list、vector、set、map 等
-
-
-STL 就是借助模板把常用的数据结构及其算法都实现了一遍，并且做到了数据结构和算法的分离。例如，vector 的底层为顺序表（数组），list 的底层为双向链表，deque 的底层为循环队列，set 的底层为红黑树，hash_set 的底层为哈希表。在 C++ 标准中，STL 被组织为 13 个头文件，分别为 `<iterator>` `<functional>` `<vector>` `<deque>` `<list>` `<queue>` `<stack>` `<set>` `<map>` `<algorithm>` `<numeric>` `<memory>` `<utility>`
-
-```C++
-#include <iostream>
-#include<vector>
-using namespace std;
-
-int main()
-{
-    //定义数组str，当前数组长度为0
-    vector <int> str; 
-
-    //向数组str中添加10个元素
-    for (int i = 0; i < 10 ; i++)
-        str.push_back(i);
-
-    //手动调整数组str的元素个数为100
-    str.resize(100);
-
-    //删除数组str中所有的元素，此时str的长度变为0
-    str.clear();
-
-    //重新调整str的大小为20，并存储20个-1
-    str.resize(20, -1);
-
-    return 0;
-}
-```
-
-<center>STL组成结构</center>
-
-|组成 |<div style="width:715px">含义</div>|
-|:---|:---|
-|容器      |一些封装数据结构的模板类，例如 vector 向量容器、list 列表容器等。|
-|算法      |STL 提供了非常多（大约 100 个）的数据结构算法，它们都被设计成一个个的模板函数，这些算法在 std 命名空间中定义，其中大部分算法都包含在头文件 <algorithm> 中，少部分位于头文件 <numeric> 中。|
-|迭代器    |在 C++ STL 中，对容器中数据的读和写，是通过迭代器完成的，扮演着容器和算法之间的胶合剂。|
-|函数对象  |如果一个类将 () 运算符重载为成员函数，这个类就称为函数对象类，这个类的对象就是函数对象（又称仿函数）。|
-|适配器    |可以使一个类的接口（模板的参数）适配成用户指定的形式，从而让原本不能在一起工作的两个类工作在一起。值得一提的是，容器、迭代器和函数都有适配器。|
-|内存分配器|为容器类模板提供自定义的内存申请和释放功能，由于往往只有高级用户才有改变内存分配策略的需求，因此内存分配器对于一般用户来说，并不常用。|
-
->上表简单了解即可
-
-### 4.1 容器
-
-
-简单来说，<font color="yellow">容器</font>就是一些类模板的集合，但和普通类模板不同的是，容器中封装的是组织数据的方法（也就是数据结构）。STL 提供有 3 类标准容器，分别是<font color="yellow">序列容器</font>、<font color="yellow">排序容器</font>和<font color="yellow">哈希容器</font>，其中后两类容器有时也统称为关联容器
-
-<center>STL容积种类和功能</center>
-
-|容器种类 |<div style="width:715px">功能</div>|
-|:---|:---|
-|序列容器 |一些封装数据结构的模板类，例如 vector 向量容器、list 列表容器等|
-|排序容器 | 包括 set 集合容器、multiset多重集合容器、map映射容器以及 multimap 多重映射容器。排序容器中的元素默认是由小到大排序好的，即便是插入元素，元素也会插入到适当位置。所以关联容器在查找时具有非常好的性能|
-|哈希容器 |C++ 11 新加入 4 种关联式容器，分别是 unordered_set 哈希集合、unordered_multiset 哈希多重集合、unordered_map 哈希映射以及 unordered_multimap 哈希多重映射。和排序容器不同，哈希容器中的元素是未排序的，元素的位置由哈希函数确定|
-
-
-
-
-#### STL序列式容器
-
-STL 标准库中所有的序列式容器包括 array、vector、deque、list 和 forward_list 容器
-STL序列式容器的共同的特点是不会对存储的元素进行排序，元素排列的顺序取决于存储它们的顺序
 
 ## 杂项
 
