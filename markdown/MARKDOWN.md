@@ -20,7 +20,9 @@ ___
 
 ## 02.锚点
 
-<a id="01">jump to here</a>
+[点击跳转至锚点 jump2](#jump2)  
+
+<a id="jump1">我是 jump1 锚点</a>
 
 ## 03.回车
 
@@ -80,7 +82,7 @@ int main(int argc, char *argv[]) {
 2. 为了兼容性，请在分隔线的前后均添加空白行
 3. <font color="yellow">分割线推荐使用下划线</font>。因为连续的三个等号代表一级标题，连续的三个减号代表二级标题
 
-## 10.可点击链接 {#10}
+## <font color="00B050">10.可点击链接</font> {#可点击链接}
 
 1. 链接格式：[链接名] (链接地址 "链接提示")
 2. 这是 [Markdown官网](https://markdown.com.cn) 链接
@@ -127,11 +129,8 @@ int main(int argc, char *argv[]) {
 |**1**|数学|英语|数学|语文|思想品德|
 |**2**|美术|数学|品德|数学|语文|
 
-## 14.跳至锚点
 
-[点击跳转至锚点](#01)  
-
-## 15.隐藏代码
+## 14.隐藏代码
 
 <details>
 <summary>点击展示代码</summary>
@@ -142,7 +141,7 @@ printf("Linux\n");
 ```
 </details>
 
-## 16.自定义列表
+## 15.自定义列表
 
 第一行为标题。下一行开头为冒号，后跟一个空格和定义
 
@@ -153,28 +152,28 @@ printf("Linux\n");
 : This is one definition of the second term.
 : This is another definition of the second term.
 
-## 17.任务列表
+## 16.任务列表
 
 - [x] Write the press release
 - [ ] Update the website
 - [ ] Contact the media
 
-## 18.删除线
+## 17.删除线
 
 ~~世界是平坦的。~~ 我们现在知道世界是圆的。
 
-## 19.纯字符串链接
+## 18.纯字符串链接
 
 `http://www.example.com`
 
-## 20.Markdown Preview Enhanced插件打印PDF {#20}
+## 19.Markdown Preview Enhanced插件打印PDF {#20}
 
 1. 用`Markdown Preview Enhanced`打开预览  
 2. 在预览界面右键点击`Open in Browser`  
 3. 用浏览器导出PDF文件
 (用== ==可以高亮字符。例如：==高亮==)
 
-## 21.Paste Image插件粘贴图片 {#21}
+## 20.Paste Image插件粘贴图片 {#21}
 
 图片会默认保存在当前编辑文档的所在目录，也可以自定义路径
 
@@ -183,12 +182,16 @@ printf("Linux\n");
 ![](img/2023-04-16-20-43-08.png)
 3. `ctrl+alt+v`粘贴图片
 
-## 22.页内跳转 {#22}
+## 21.标题跳转 {#标题跳转}
 
-1. [跳转到`10.可点击链接`](#10)
-2. 不能有大写，不能有空格
-3. 如果有`.`符号，则要省略
-[跳转到22](#22)
+1. [跳转到`10.可点击链接`](#可点击链接)
+2. 跳转不能有大写，不能有空格
+
+## 22.锚点间跳转
+
+[点击跳转至 jump1 锚点](#jump1)  
+
+<a id="jump2">我是 jump2 锚点</a>
 
 ## 23.使用`<font>`标签修改字号和前景色 {#23}
 

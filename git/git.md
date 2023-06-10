@@ -6,7 +6,7 @@ ______
 
 ___
 
-## 01.简介 {#01}
+## <font color="00B050">01.简介</font> {#简介}
 
 - 工作区(Workspace)：平时存放项目代码的地方
 - 暂存区(Index/Stage)：用于临时存放改动信息
@@ -20,7 +20,7 @@ ___
 
 <div align=center><img src="img/2023-04-20-20-10-05.png"></div>
 
-## 02.Git命令 {#02}
+## <font color="00B050">02.Git命令</font>  {#Git命令}
 
 |   |<div style="width:229px">命令</div>|<div style="width:521px">解释</div>|
 |---|:---|:---|
@@ -75,7 +75,7 @@ ___
 2. 由于疏忽，本应该在dev分支开发的内容，却在master上进行了开发，可以用`git stash`将内容保存至堆栈中，切回到dev分支后，再次恢复内容即可
 3. 在dev中暂时把文件stash起来然后push到远程，过段时间再pull拉取然后stash pop继续使用（注：stash的内容每个分支都可以使用）（也可以直接提交最后完成项目再合并多个提交）
 
-## 03.Gitbub远程仓库 {#03}
+## <font color="00B050">03.Gitbub远程仓库</font> {#Gitbub远程仓库}
 
 由于本地Git仓库和GitHub仓库之间的传输是通过SSH加密的，故要先将本地秘钥给远程仓库才能正确连接：
 
@@ -107,7 +107,7 @@ ___
 1. 从远程库clone时，只能看到本地的master分支，这时`git switch -c dev origin/dev`拉取远程origin的dev分支到本地，这时dev分支的push会推送到远程
 2. origin/master是一个本地分支，也叫"远程跟踪分支"，指向远程仓库且无"实体"，相当于指针。当使用`git fetch origin master`时，本地的origin/master分支会更新至最新，但是master分支无变化，此时再用`git merge origin/master`即可将最新代码合并至master，master也就是最新代码了，也可使用git pull origin master直接代替git fetch+git merge
 
-## 04.标签 {#04}
+## <font color="00B050">04.标签</font> {#04}
 
 | 序号|<div style="width:130px">命令</div>|<div style="width:500px">解释</div>|
 |:---:|:---|:---|
@@ -121,7 +121,7 @@ ___
 |**08**|git push origin :refs/tags/v1.0|删除远程标签`v1.0`（实质是删除.git/refs/tags/v1.0）|
 > 注：Git的标签虽然是版本库的快照，但其实它就是指向某个commit的指针
 
-## 05.忽略文件 {#05}
+## <font color="00B050">05.忽略文件</font> {#05}
 
 在Git工作区的根目录下创建`.gitignore`文件，然后将不想被git追踪的文件名填入即可
 
@@ -135,7 +135,7 @@ ___
 <center>示例</center>
 <div align=center><img src="img/2023-04-20-20-33-49.png"></div>
 
-## 06.配置别名 {#06}
+## <font color="00B050">06.配置别名</font> {#配置别名}
 
 暂无笔记
 
@@ -143,14 +143,14 @@ ___
 
 
 
-## 参考网址
+## <font color="00B050">参考网址</font>
 
 - [廖雪峰Git](https://www.liaoxuefeng.com/wiki/896043488029600)
 - [极客笔记](https://deepinout.com/git/git-tutorial/10_git_amend_command_a_comprehensive_guide.html)
 
 ___
 
-## 临时文档
+## <font color="00B050">临时文档</font>
 
 **<font color="yellow">使用基变返回到某提交并订正该提交</font>**
 1. git rebase -i df58 //将HEAD移动到需要修改的commit id的前一个commit id
