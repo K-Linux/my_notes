@@ -7,9 +7,9 @@ ___
 
 ___
 
-## <font color="00B050">一、基础语法</font> {#基础语法}
+## <font color="1E90FF">一、基础语法</font> {#基础语法}
 
-#### <font color="00B050">类class</font>
+#### <font color="1E90FF">类class</font>
 
 1. 关键字`class`类是一种构造类型，其成员可以是变量或者函数；函数可以在类里面定义，也可以在类外面定义；通过类定义出来的变量叫作对象；创建对象的过程叫作实例化
 1. `::`表示作用域运算符或解引用；`:` 使用在类的继承，和构造函数初始化
@@ -20,32 +20,32 @@ ___
 > 函数重载条件：①同一作用域 ②函数名相同 ③形参不同
 > 注意，返回值不能作为重载的条件
 
-#### <font color="00B050">new分配堆内存</font>
+#### <font color="1E90FF">new分配堆内存</font>
 
 1. `int *a = new int(6);`其中`new int(6)`会返回6的地址。`delete a;`释放。指针a的地址在栈区，6的地址在堆区
 1. `int *arr = new int[6];` `new int[6]`会返回数组首地址。`delete[] arr;`释放。
 1. `char *str = new char[10];` `new char[10]`会返回数组首地址。`delete[] str;`释放数组。
 >注：释放数组要加 [ ]
 
-#### <font color="00B050">引用&</font>
+#### <font color="1E90FF">引用&</font>
 
 1. `int &b = a;`这时进行`b = 10`操作，就相当于`a = 10`操作。`int &b=a`相当于`int *const b = &a`
 1. 引用在定义时必须初始化，且初始化后不可更改指向，但可以赋值(因为 * const 修饰禁止修改指针)
 1. 函数`void swap(&a，&b)`，调用时写法为`swap(c，d)`，此时`a`和`b`修改值会反馈给`c`和`d`
 
-#### <font color="00B050">函数默认形参</font>
+#### <font color="1E90FF">函数默认形参</font>
 
 1. 函数形参可以设置默认值，例如`void func(int a, int b=10)`，调用时为`func(30)`或`func(30，50)`（覆盖）
 1. 某个形参设置默认值后，该形参后面的形参都必须要有默认值（默认形参是从右边开始初始化的）
 1. 函数声明中的形参和函数定义中的形参，只能其中一个写默认形参（防止声明和定义的默认形参不相同）
 
-#### <font color="00B050">函数占位形参</font>
+#### <font color="1E90FF">函数占位形参</font>
 
 1. 例如void func(int a，int)；调用时为func(30，1)；
 1. 调用函数时，占位形参和普通形参一样，必须填写
 1. 默认形参就是占位形参(当函数内部没有用到默认形参时)
 
-#### <font color="00B050">类的默认函数</font>
+#### <font color="1E90FF">类的默认函数</font>
 
 C++ 编译器至少给一个类添加4个函数：
 
@@ -57,7 +57,7 @@ C++ 编译器至少给一个类添加4个函数：
 > 默认重载赋值运算符函数就是用在类与类之间的赋值
 
   
-### <font color="00B050">1.1 构造函数和析构函数</font>
+### <font color="1E90FF">1.1 构造函数和析构函数</font>
 
 1. 构造函数和~析构函数是名称与类名相同，且没有返回值的函数。在实例化对象时若没有定义构造函数和析构函数，则会默认定义一个空的构造函数和析构函数
 1. 构造函数有形参，可以被重载；析构函数无形参，不可被重载
@@ -93,7 +93,7 @@ int main()
 
 8. 实例化对象时会先调用基类的构造函数，再调用派生类的构造函数；结束对象时先析构派生类再析构基类
 
-### <font color="00B050">1.2 拷贝构造函数</font>
+### <font color="1E90FF">1.2 拷贝构造函数</font>
 
 1. 构造函数中，若形参为本类引用，则为拷贝构造函数
 1. 编译器会自动给一个类添加无参构造函数、有参构造函数、拷贝构造函数。当手动添加拷贝构造函数时，编译器不再添加默认无参和有参构造函数。当手动添加有参构造函数时，编译器不再添加默认无参构造函数
@@ -105,9 +105,9 @@ int main()
 .
 <div align=center><img src="img/2023-05-03-18-33-32.png" width="50%"></div>
 
-### <font color="00B050">1.3 继承</font>
+### <font color="1E90FF">1.3 继承</font>
 
-#### <font color="00B050">单继承</font>
+#### <font color="1E90FF">单继承</font>
 
 1. 对象只能访问`public`成员
 1. `public`继承时，派生类的成员只能访问基类中的`public`和`protected`，派生类的对象只能访问基类中的`public`成员
@@ -188,19 +188,19 @@ int main()
 }
 ```
 
-#### <font color="00B050">多继承</font>
+#### <font color="1E90FF">多继承</font>
 
 - 不推荐使用多继承
 
 <div align=center><img src="img/2023-05-07-18-51-59.png" width="60%"></div>
 
-#### <font color="00B050">菱形继承</font>
+#### <font color="1E90FF">菱形继承</font>
 
 - 当`D`多继承了`B`和`C`，且`B`和`C`都继承了`A`，这时就形成了菱形继承
 
 <div align=center><img src="img/2023-05-07-19-07-35.png" width="50%"></div>
 
-#### <font color="00B050">虚继承 virtual</font>
+#### <font color="1E90FF">虚继承 virtual</font>
 
 在菱形继承中，`A`是相同的一份，`D`可以通过`B`或者`C`来反问`A`，没有一个标准。虚继承则可以使`B` `C` `D`指向相同的一份`A`，则`A`叫做虚基类
 
@@ -211,12 +211,12 @@ int main()
 
 <div align=center><img src="img/2023-05-07-20-36-03.png" width="60%"></div>
 
-### <font color="00B050">1.4 向上转型</font> {#向上转型}
+### <font color="1E90FF">1.4 向上转型</font> {#向上转型}
 
 
 类是一种数据类型，也可以发生数据类型转换，不过这种转换只有在基类和派生类之间才有意义，并且只能将派生类赋值给基类，包括将派生类对象赋值给基类对象、将派生类指针赋值给基类指针、将派生类引用赋值给基类引用，称为<font color="yellow">向上转型</font>（Upcasting）。相应地，将基类赋值给派生类称为向下转型（Downcasting）。
 
-#### <font color="00B050">将派生类对象赋值给基类对象</font>
+#### <font color="1E90FF">将派生类对象赋值给基类对象</font>
 
 将派生类对象`B`赋值给基类对象`A`时，只会将派生类对象`B`中的基类的成员变量赋值给基类对象`A`。且只能用派生类对象给基类对象赋值，而不能用基类对象给派生类对象赋值。
 
@@ -226,13 +226,13 @@ int main()
 .
 <div align=center><img src="img/2023-05-15-12-31-38.png" width="50%"></div>
 
-#### <font color="00B050">将派生类指针赋值给基类指针</font>
+#### <font color="1E90FF">将派生类指针赋值给基类指针</font>
 
 将派生类指针`B`赋值给基类指针`A`时，此时基类指针`A`指向派生类`B`内的基类地址（实际是A == B）。相当于限制该指针只能调用派生类中基类的成员（注：只有使用虚函数时（即[多态](#多态)），基类才可以调用派生类的成员函数）
 
 <div align=center><img src="img/2023-05-15-22-42-18.png" width="50%"></div>
 
-### <font color="00B050">1.5 多态</font> {#多态}
+### <font color="1E90FF">1.5 多态</font> {#多态}
 
 封装、继承和多态是C++面向对象三大特征。多态分为两类:
 
@@ -241,7 +241,7 @@ int main()
 
 静态多态的函数地址在编译阶段确定，动态多态的函数地址在运行阶段确定
 
-#### <font color="00B050">动态多态满足条件为</font>
+#### <font color="1E90FF">动态多态满足条件为</font>
 
 1. <font color="yellow">派生类要重写基类的虚函数</font>（注：重写即函数名和形参都要一样）
 2. <font color="yellow">基类的指针或引用执行派生类的虚函数</font>
@@ -249,7 +249,7 @@ int main()
 >注：在函数前加`virtual`即为虚函数。例如：virtual void func()
 >构造函数不能是虚函数，因为派生类不能继承基类的构造函数，将构造函数声明为虚函数没有意义
 
-#### <font color="00B050">动态多态的原理</font>
+#### <font color="1E90FF">动态多态的原理</font>
 
 当基类创建虚函数的同时会创建一个占4字节的指针`vfptr`，指向虚函数表`vftable`，该虚函数表内记录着基类的虚函数地址`&Animal::speak`。当派生类继承基类时，指针`vfptr`和虚函数表`vftable`都会继承过来。当派生类重写虚函数时，虚函数表内由原来记录基类的虚函数地址`&Animal::speak`变为记录派生类的虚函数地址`&Cat::speak`。所以向上转型后，当基类调用虚函数时，因为虚函数表记录着派生类的虚函数地址，所以总是会调用派生类的虚函数
 > 注：当实例化一个对象时，有一个派生类，派生类里面包含着一个基类
@@ -286,14 +286,14 @@ int main()
 }
 ```
 
-#### <font color="00B050">使用多态创建计算器案例</font>
+#### <font color="1E90FF">使用多态创建计算器案例</font>
 
 <div align=center><img src="img/2023-05-11-22-01-57.png" width="50%"></div>
 
 上面的代码中，当`t1`指向不同的派生类对象`new Add;`或`new Mul;`时，`t1->get_result();`执行的结果是不一样的。<font color="yellow">同一条语句可以执行不同的操作，这就是多态</font>
 C++提供多态的目的是通过基类指针对所有派生类（包括直接派生和间接派生）的成员变量和成员函数进行全方位的访问，尤其是成员函数。如果没有多态，我们只能通过[向上转型](#向上转型)访问派生类的成员变量
 
-#### <font color="00B050">纯虚函数和抽象类</font>
+#### <font color="1E90FF">纯虚函数和抽象类</font>
 
 一般我们不实例化基类对象，所以将基类变为抽象类，抽象类不可实例化对象（但可以实例化指针）。只要类中有了纯虚函数，那么这个类就是抽象类。抽象类的作用是防止我们实例化基类，以及提醒我们重写派生类的纯虚函数
 
@@ -491,11 +491,9 @@ int main()
 
     return 0;
 }
-
-
 ```
 
-#### <font color="00B050">虚析构</font>
+#### <font color="1E90FF">虚析构</font>
 
 当发生[向上转型](#向上转型)时，即派生类指针赋值给基类指针时，delete 释放基类并不会调用派生类的析构函数。因为这里的析构函数是非虚函数，通过指针访问非虚函数时，编译器会根据指针的类型来确定要调用的函数。例如`Base *p;`是基类的指针，所以不管它指向基类的对象还是派生类的对象，始终都是调用基类的析构函数。若`Derive *p;`是派生类的指针，编译器会根据它的类型匹配到派生类的析构函数，在执行派生类的析构函数时，又会调用基类的析构函数，这个过程是隐式完成的
 
@@ -507,7 +505,7 @@ int main()
 
 >注：多继承时，只要最底层基类的析构函数声明为虚函数即可
 
-### <font color="00B050">1.6 命名空间 namespace</font> {#1.4}
+### <font color="1E90FF">1.6 命名空间 namespace</font> {#1.4}
 
 大型软件由多名程序员共同开发，不可避免地会出现变量或函数的命名冲突。为了解决合作开发时的命名冲突问题，C++ 引入了命名空间的概念
 
@@ -587,7 +585,7 @@ int main()
 }
 ```
 
-### <font color="00B050">1.7 静态成员变量和静态成员函数（static）</font> {#1.5}
+### <font color="1E90FF">1.7 静态成员变量和静态成员函数（static）</font> {#1.5}
 
 1. <font color="yellow">静态成员函数</font>：**只能访问静态成员变量**（因为当有多个对象时静态函数能确定静态变量却不能确定动态变量）（注：[常对象只能调用常函数](#a2)）<a id="a1"></a>）
 1. <font color="yellow">静态成员变量</font>：必须在类内声明，类外初始化（静态成员函数随意）
@@ -659,7 +657,7 @@ int main()
 }
 ```
 
-### <font color="00B050">1.8 this 指针</font> {#this指针}
+### <font color="1E90FF">1.8 this 指针</font> {#this指针}
 
 1. 任何非静态成员函数都默认有`this`指针，且`this`指向调用该非静态成员函数的对象。例如`Person t1; t7.func(10)`。`func`内部的`this`指针指向`&t1`，`*this`表示`t1`
 1. 空指针可以调用不含this的成员（因为空指针没有实体，就没有this）
@@ -701,7 +699,7 @@ public:
 };
 ```
 
-### <font color="00B050">1.9 友元 friend</font> {#友元}
+### <font color="1E90FF">1.9 友元 friend</font> {#友元}
 
 1. 全局函数声明为友元，则该全局函数就可以访问该类的所有成员变量和函数（包括private成员）
 1. 类A声明为类B的友元，则类A的全部成员函数可以访问类B的所有成员变量和函数（包括private成员）
@@ -808,7 +806,7 @@ int main()
 }
 ```
 
-### <font color="00B050">1.10 运算符重载</font> {#运算符重载}
+### <font color="1E90FF">1.10 运算符重载</font> {#运算符重载}
 
 当运算符不仅可以实现`int`类型运算，还可以实现类对象的运算，则被称为<font color="yellow">运算符重载</font>。运算符重载其实就是定义一个函数，在函数体内实现想要的功能，当用到该运算符时，编译器会自动调用这个函数。也就是说，运算符重载本质上是函数重载
 
@@ -819,7 +817,7 @@ int main()
 
 运算符重载一般用于类对象之间的运算，`operator`是关键字，用于定义重载运算符的函数
 
-#### <font color="00B050">成员函数重载运算符</font>
+#### <font color="1E90FF">成员函数重载运算符</font>
 
 ```C++
 #include <iostream>
@@ -882,7 +880,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">全局函数重载运算符</font>
+#### <font color="1E90FF">全局函数重载运算符</font>
 
 ```C++
 #include <iostream>
@@ -943,7 +941,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">左移运算符重载</font>
+#### <font color="1E90FF">左移运算符重载</font>
 
 左移运算符只能用全局函数重载
 
@@ -987,7 +985,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">递增运算符重载</font>
+#### <font color="1E90FF">递增运算符重载</font>
 
 左加加返回引用（自身），右加加返回数值
 
@@ -1037,7 +1035,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">赋值运算符重载</font>
+#### <font color="1E90FF">赋值运算符重载</font>
 
 
 默认重载赋值运算符函数就是用在类与类之间的赋值，是浅拷贝。我们需要手动重载赋值运算符进行深拷贝
@@ -1087,7 +1085,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">关系运算符重载</font>
+#### <font color="1E90FF">关系运算符重载</font>
 
 ```C++
 #include <iostream>
@@ -1128,7 +1126,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">函数调用运算符重载</font>
+#### <font color="1E90FF">函数调用运算符重载</font>
 
 由于函数调用运算符重载后的使用方式和普通函数很像，因此称为仿函数
 
@@ -1163,7 +1161,7 @@ int main()
 }
 ```
 
-### <font color="00B050">1.11 string</font>
+### <font color="1E90FF">1.11 string</font>
 
 `string`类完全可以代替C语言中的字符串数组和字符串指针，使用`string`类需要包含头文件`<string>`
 
@@ -1178,17 +1176,23 @@ int main()
 {
     // string的结尾没有'\0'
     string t1 = "Linux";
+
     // string定义的对象可以直接相互赋值,不需要使用strcpy函数
     string t2 = t1;
-    // 初始化string类的构造函数。等价于 string t3 = "SSS"
-    string t3(3, 'S');
-    // 按下标来访问string字符串
+    // 初始化string类的构造函数
+    string t3(3, 'S');          // 3个S
+    string t3("China");         // China
+    string t3(t1);              // Linux    
+    // 按数组下标来访问string字符串
     t1[0] = 'C';
-    // string可以用 + 运算符来和任意字符串拼接
+    // string可以用 + 运算符和append()成员函数来任意字符串拼接
     char char_str[] = "ABC";
     string t4 = t1 + "China" + char_str + 'T';
-    // 调用成员函数length(),返回字符串长度(无'\0)
+    t4 += "bhlk";
+    t4.append("C++");
+    // 调用成员函数length()和size(),返回字符串长度(无'\0)
     cout << t1.length() << endl;
+    cout << t1.size() << endl;
     // 为了使用C语言中的fopen()函数打开文件,必须调用成员函数c_str(),将string字符串转换为C风格的字符串
     FILE *fp = fopen(t1.c_str(), "r+");
     // 成员函数insert(n, str),表示插入字符串str,从string的下标 n 前面
@@ -1199,16 +1203,21 @@ int main()
     // 成员函数substr(n, m),表示提取返回 m 个字符,从string的下标 n 开始(若 m 大于string则提取 n 后所有)
     // 成员函数substr(n),表示提取返回所有字符,从string的下标 n 开始
     cout << t1.substr(2, 1) << endl;
-    // 成员函数find(str, n),表示查找并返回第1次出现字符串 str 的下标,从string的下标 n 开始
-    // 成员函数find(str),表示查找并返回第1次出现字符串 str 的下标,从头开始
+    // 成员函数find(str, n)，表示查找并返回第1次出现字符串 str 的下标值,从string的下标 n 开始
+    // 成员函数find(str)，表示查找并返回第1次出现字符串 str 的下标值，从头开始
     t1 = "Linux China";
     cout << t1.find("Ch") << endl;  // 结果返回6
+    cout << t1.find("Ca") << endl;  // 未找到则返回-1
+    cout << t1.rfind("n") << endl;  // rfind表示从右往左查找，结果返回2
+    // 成员函数replace(n, m, str)，表示从n号元素开始的m个字符，替换为str
+    t1 = "Linux";
+    str1.replace(0, 2, "China");    // 结果为Chinanux
 
     return 0;
 }
 ```
 
-### <font color="00B050">1.12 文件操作</font> {#文件操作}
+### <font color="1E90FF">1.12 文件操作</font> {#文件操作}
 
 C++对文件操作需要包含头文件`<fstream>`。文件类型分为两种：
 
@@ -1259,7 +1268,7 @@ int main()
 
 ___
 
-## <font color="00B050">二、模板 template</font> {#模板}
+## <font color="1E90FF">二、模板 template</font> {#模板}
 
 <font color="yellow">C++ 除了面向对象的编程思想，还有一个泛型编程思想</font>
 
@@ -1274,9 +1283,9 @@ ___
 
 <font color="yellow">即使整个模板中没有出现`T`，编译器也必须要知道模板函数和模板类的类型参数`T`的数据类型。无论是通过自动推断`T`的类型还是指明`T`的类型</font>
 
-### <font color="00B050">2.1 函数模板</font>
+### <font color="1E90FF">2.1 函数模板</font>
 
-#### <font color="00B050">函数模板基础</font>
+#### <font color="1E90FF">函数模板基础</font>
 
 函数模板的类型参数 T 有自动类型推导和指明类型两种模式
 
@@ -1317,7 +1326,7 @@ int main(void)
 }
 ```
 
-#### <font color="00B050">函数模板重载</font>
+#### <font color="1E90FF">函数模板重载</font>
 
 ```C++
 #include <iostream>
@@ -1371,7 +1380,7 @@ void printArray(int arr[], int len){
 }
 ```
 
-#### <font color="00B050">函数模板显示具体化</font>
+#### <font color="1E90FF">函数模板显示具体化</font>
 
 - 让模板针对某种具体的类型使用不同的算法（函数体或类体不同），这种技术称为<font color="yellow">模板的显示具体化</font>。一个函数模板只能有一个显示具体化，这个显示具体化就是这个函数模板的特定
 
@@ -1417,7 +1426,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">函数模板的数组实参</font>
+#### <font color="1E90FF">函数模板的数组实参</font>
 
 通过函数实参来确定模板类型参数`T`的过程称为<font color="yellow">模板实参推断</font>
 - 函数传入实参时，数组会转化成`int *`类型，所以函数形参类型`T`要凑成`int *`类型
@@ -1465,7 +1474,7 @@ int main(void)
 }
 ```
 
-#### <font color="00B050">函数模板的实参类型转换</font>
+#### <font color="1E90FF">函数模板的实参类型转换</font>
 
 <font color="yellow">建议使用显示指定类型的方式调用函数模板</font>
 
@@ -1492,7 +1501,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">函数模板中的非类型参数</font>
+#### <font color="1E90FF">函数模板中的非类型参数</font>
 
 ```C++
 #include <iostream>
@@ -1531,7 +1540,7 @@ template<typename T, unsigned N> void printArray(T (&arr)[N]){
 }
 ```
 
-#### <font color="00B050">函数模板与普通函数重名</font>
+#### <font color="1E90FF">函数模板与普通函数重名</font>
 
 
 - 建议普通函数不要和函数模板重名
@@ -1561,9 +1570,9 @@ int main()
 }
 ```
 
-### <font color="00B050">2.2 类模板</font>
+### <font color="1E90FF">2.2 类模板</font>
 
-#### <font color="00B050">类模板基础</font>
+#### <font color="1E90FF">类模板基础</font>
 
 - 类模板实例化对象时必须指明类型参数`T`的数据类型（除非该类型参数设置了默认数据类型）
 - 类模板的成员函数在类外实现时需要加模板的类型参数
@@ -1619,7 +1628,7 @@ int main()
 
 
 
-#### <font color="00B050">类模板对象做函数参数</font>
+#### <font color="1E90FF">类模板对象做函数参数</font>
 
 ```C++
 #include <iostream>
@@ -1650,7 +1659,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">类模板的继承</font>
+#### <font color="1E90FF">类模板的继承</font>
 
 当基类是一个模板时，则不管派生类是否为类模板，必须指明基类T的类型。无论是指明具体的数据类型还是指明派生类的类型参数T
 
@@ -1681,7 +1690,7 @@ int main()
 }
 ```
 
-#### <font color="00B050">类模板的友元</font>
+#### <font color="1E90FF">类模板的友元</font>
 
 全局函数作友元，类内实现
 
@@ -1764,7 +1773,7 @@ int main()
 ```
 
 
-### <font color="00B050">2.3 函数模板与类模板的区别</font>
+### <font color="1E90FF">2.3 函数模板与类模板的区别</font>
 
 1. 只有函数模板有自动类型推导，类模板必须指明类型参数`T`的数据类型
 2. 只有类模板在参数列表中可以有默认数据类型
@@ -1795,12 +1804,12 @@ int main()
 ```
 
 
-### <font color="00B050">2.4 模板的实例化</font>
+### <font color="1E90FF">2.4 模板的实例化</font>
 
 - 模板仅仅是编译器用来生成函数或类的一张"图纸"。模板不会占用内存，最终生成的函数或者类才会占用内存。由模板生成函数或类的过程叫做<font color="yellow">模板的实例化</font>（Instantiate）
 - 无论是函数模板，还是类模板中的成员函数，只要是模板，其中的函数都是编译器在检测到调用时才会实例化
 
-#### <font color="00B050">函数模板的实例化</font>
+#### <font color="1E90FF">函数模板的实例化</font>
 
 ```C++
 template<typename T> void Swap(T &a, T &b){
@@ -1819,7 +1828,7 @@ int main(){
 }
 ```
 
-#### <font color="00B050">类模板的实例化</font>
+#### <font color="1E90FF">类模板的实例化</font>
 
 通过类模板创建对象时并不会实例化所有的成员函数，只有等到真正调用它们时才会被实例化。一般只需要实例化成员变量和构造函数。成员变量被实例化后就能够知道对象的大小了（占用的字节数），构造函数被实例化后就能够知道如何初始化了
 
@@ -1861,13 +1870,13 @@ int main()
 ```
 
 
-### <font color="00B050">2.5 将模板应用于多文件编程</font>
+### <font color="1E90FF">2.5 将模板应用于多文件编程</font>
 
 工程中一般会包含两个源文件和一个头文件，`func.cpp`中定义函数和类，`func.h`中声明函数和类，`main.cpp`中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，如果`main.cpp`只声明了`func.h`文件，则在编译的时候不会生成模板函数和模板类的实体，这样在链接的时候就会链接报错，只有将`func.cpp`包含到`main.cpp`中才正确。所以我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的定义`func.cpp`和声明`func.h`都放到头文件`.hpp`中。</font>`.hpp`默认表示的是模板的头文件
 
 ___
 
-## <font color="00B050">三、STL</font>
+## <font color="1E90FF">三、STL</font>
 
 STL（standard template library），称为标准模板库或者泛型库，其包含有大量的类模板和函数模板。如今 STL 已完全内置到 C++ 的编译器中，无需额外安装。STL 就位于各个 C++ 的头文件中，即它并非以二进制代码的形式提供，而是以源代码的形式提供。从根本上说，STL 是一些容器、算法和其他一些组件的集合，所有容器和算法都是总结了几十年来算法和数据结构的研究成果，汇集了许多计算机专家学者经验的基础上实现的，因此可以说，STL 基本上达到了各种存储方法和相关算法的高度优化
 
@@ -1885,6 +1894,11 @@ int main()
 {
     //定义数组str，当前数组长度为0
     vector <int> str; 
+
+    //想容器中添加3个6
+    vector<int> v2(3, 6);
+    //容器v3拷贝容器v2
+    vector<int> v3(v2);
 
     //向数组str中添加10个元素
     for (int i = 0; i < 10 ; i++)
@@ -1916,7 +1930,7 @@ int main()
 
 >上表简单了解即可
 
-### <font color="00B050">3.1 容器</font>
+### <font color="1E90FF">3.1 容器</font>
 
 简单来说，<font color="yellow">容器</font>就是一些类模板的集合，但和普通类模板不同的是，容器中封装的是组织数据的方法（也就是数据结构）。STL 提供有 3 类标准容器，分别是<font color="yellow">序列容器</font>、<font color="yellow">排序容器</font>和<font color="yellow">哈希容器</font>，后两类容器统称为<font color="yellow">关联容器</font>
 
@@ -1928,14 +1942,16 @@ int main()
 |排序容器 | 包括 set 集合容器、multiset多重集合容器、map映射容器以及 multimap 多重映射容器。排序容器中的元素默认是由小到大排序好的，即便是插入元素，元素也会插入到适当位置。所以关联容器在查找时具有非常好的性能|
 |哈希容器 |C++ 11 新加入 4 种关联式容器，分别是 unordered_set 哈希集合、unordered_multiset 哈希多重集合、unordered_map 哈希映射以及 unordered_multimap 哈希多重映射。和排序容器不同，哈希容器中的元素是未排序的，元素的位置由哈希函数确定|
 
-#### <font color="00B050">STL序列式容器</font>
+#### <font color="1E90FF">STL序列式容器</font>
 
 STL 标准库中所有的序列式容器包括 array、vector、deque、list 和 forward_list 容器
 STL序列式容器的特点是不会对存储的元素进行排序，元素排列的顺序取决于存储它们的顺序
 
+vector容器的迭代器是支持随机访问的迭代器
+
 ```C++
 #include <iostream>
-#include <vector>       //vecotr容器头文件
+#include <vector>       //vector容器头文件
 #include <algorithm>    //标准算法头文件
 using namespace std;
 
@@ -1955,6 +1971,7 @@ int main()
     //迭代器相当于指针
     //begin()指向容器第一个元素，v.end()指向容器最后一个元素的下一个位置
     //利用for循环遍历容器
+    //迭代器 it 相当于指针，*it 就表示尖括号里的类型 int
     for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
         cout << *it << endl;        // 9   3
     }
@@ -1966,7 +1983,7 @@ int main()
 }
 ```
 
-vector容器中存放自定义类型（类）
+#### <font color="1E90FF">vector容器中存放自定义类型（类）</font>
 
 ```C++
 #include <iostream>
@@ -1994,7 +2011,7 @@ int main()
     v1.push_back(t1);
     v1.push_back(t2);
     //创建一个迭代器。每个容器都有自己的迭代器，通过迭代器访问容器中的数据
-    //类型参数是<Base>，则迭代器it相当于指针
+    //迭代器 it 相当于指针，*it 就表示尖括号里的类型 Base
     for (vector<Base>::iterator it = v1.begin(); it != v1.end(); it++) {
         cout << it->m_name << " is " << it->m_age << endl;  //linux is 200 \n china is 5000
     }
@@ -2006,7 +2023,7 @@ int main()
     //向容器中插入数据
     v2.push_back(t3);
     v2.push_back(t4);
-    //类型参数是<Base *>，则迭代器it相当于二重指针
+    //迭代器 it 相当于指针，*it 就表示尖括号里的类型 Base *
     for (vector<Base *>::iterator it = v2.begin(); it != v2.end(); it++) {
         cout << (*it)->m_name << " is " << (*it)->m_age << endl;  //Q is 10 \n K is 20
     }
@@ -2015,15 +2032,58 @@ int main()
 }
 ```
 
+#### <font color="1E90FF">vector容器中存放容器</font>
+
+```C++
+#include <iostream>
+#include <string>
+#include <vector>       //vecotr容器头文件
+#include <algorithm>    //标准算法头文件
+using namespace std;
+
+
+//容器嵌套容器
+int main()
+{
+    vector<vector<int>> v;
+
+    //创建小容器
+    vector<int> v1;
+    vector<int> v2;
+    vector<int> v3;
+    //重新调整str的大小为5，并存储5个n
+    v1.resize(5, 1);
+    v2.resize(5, 2);
+    v3.resize(5, 3);
+
+    //将小容器插入到大容器中
+    v.push_back(v1);
+    v.push_back(v2);
+    v.push_back(v3);
+
+    //迭代器 it1 相当于指针，*it1 就表示尖括号里的类型 vector<int>，是容器类型
+    //(*it1).begin 指向容器v1首地址
+    //it++后，(*it1).begin 指向容器v2首地址
+    for (vector<vector<int>>::iterator it1 = v.begin(); it1 != v.end(); it1++) {
+        for (vector<int>::iterator it2 = (*it1).begin(); it2 != (*it1).end(); it2++) {
+            cout << *it2 << " ";
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
+```
+
 ___
 
-## <font color="00B050">四、C++11</font>
+## <font color="1E90FF">四、C++11</font>
 
-### <font color="00B050">4.1 auto</font>
+### <font color="1E90FF">4.1 auto</font>
 
 在`C++11`之前的版本`C++98`中，定义变量或者声明变量之前都必须指明它的类型，比如`int`、`char` 等；`auto`关键字用来指明变量的存储类型，它和 static 关键字是相对的。auto 表示变量是自动存储的，这也是编译器的默认规则，所以写不写都一样，这使得 auto 关键字的存在变得非常鸡肋。为了让编译器（或者解释器）自己去推导数据类型，让编码更加方便，在`C++11`中使用`auto`关键字后，编译器会在编译期间做自动类型推导
 
-#### <font color="00B050">auto的限制</font>
+#### <font color="1E90FF">auto的限制</font>
 
 1. auto 不能在函数的参数中使用
 我们在定义函数的时候只是指明了参数的类型，但并没有给它赋值，只有在实际调用函数的时候才会给参数赋值；而 auto 要求必须对变量进行初始化，所以这是矛盾的。
@@ -2061,7 +2121,7 @@ int main()
 
 ___
 
-## <font color="00B050">杂项</font>
+## <font color="1E90FF">杂项</font>
 
 1. `string str;`相当于`char str[9];`
 1. `srand(time(NULL));rand()%100;`生成一个随机数，范围0~99

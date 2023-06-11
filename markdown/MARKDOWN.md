@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
 2. 为了兼容性，请在分隔线的前后均添加空白行
 3. <font color="yellow">分割线推荐使用下划线</font>。因为连续的三个等号代表一级标题，连续的三个减号代表二级标题
 
-## <font color="00B050">10.可点击链接</font> {#可点击链接}
+## <font color="1E90FF">10.可点击链接</font> {#可点击链接}
 
 1. 链接格式：[链接名] (链接地址 "链接提示")
 2. 这是 [Markdown官网](https://markdown.com.cn) 链接
