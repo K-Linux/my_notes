@@ -1885,38 +1885,6 @@ STL（standard template library），称为标准模板库或者泛型库，其�
 
 STL 就是借助模板把常用的数据结构及其算法都实现了一遍，并且做到了数据结构和算法的分离。例如，vector 的底层为顺序表（数组），list 的底层为双向链表，deque 的底层为循环队列，set 的底层为红黑树，hash_set 的底层为哈希表。在 C++ 标准中，STL 被组织为 13 个头文件，分别为 `<iterator>` `<functional>` `<vector>` `<deque>` `<list>` `<queue>` `<stack>` `<set>` `<map>` `<algorithm>` `<numeric>` `<memory>` `<utility>`
 
-```C++
-#include <iostream>
-#include<vector>
-using namespace std;
-
-int main()
-{
-    //定义数组str，当前数组长度为0
-    vector <int> str; 
-
-    //想容器中添加3个6
-    vector<int> v2(3, 6);
-    //容器v3拷贝容器v2
-    vector<int> v3(v2);
-
-    //向数组str中添加10个元素
-    for (int i = 0; i < 10 ; i++)
-        str.push_back(i);
-
-    //手动调整数组str的元素个数为100
-    str.resize(100);
-
-    //删除数组str中所有的元素，此时str的长度变为0
-    str.clear();
-
-    //重新调整str的大小为20，并存储20个-1
-    str.resize(20, -1);
-
-    return 0;
-}
-```
-
 <center>STL组成结构</center>
 
 |组成 |<div style="width:715px">含义</div>|
@@ -1961,29 +1929,48 @@ void print(int val) {
 
 int main()
 {
-    //创建vector容器（相当于数组）
-    vector<int> v;
-    //向容器中插入数据
-    v.push_back(9);
-    v.push_back(3);
+//一、容器定义
+    //定义容器v1，当前数组长度为0
+    vector <int> v1; 
 
-    //创建一个迭代器。每个容器都有自己的迭代器，通过迭代器访问容器中的数据
-    //迭代器相当于指针
-    //begin()指向容器第一个元素，v.end()指向容器最后一个元素的下一个位置
+//二、容器赋值（容器间赋值用拷贝构造和赋值号，其它类型赋值都用push_back）
+    //使用成员函数push_back()向容器插入数据
+    int a = 3;
+    v1.push_back(9);
+    v1.push_back(a);
+    //利用构造函数容器v2拷贝容器v1
+    vector<int> v2(v1);
+    //使用 = 号赋值
+    v2 = v1;
+    //利用构造函数向容器v3中添加3个6
+    vector<int> v3(3, 6);
+
+
+//三、容器数据读取
+    //创建一个迭代器，迭代器相当于指针。每个容器都有自己的迭代器，通过迭代器访问容器中的数据
+    //v1.begin()指向容器第一个元素，v1.end()指向容器最后一个元素的下一个位置
+    //迭代器 it 相当于指针，指向尖括号里的类型 int
     //利用for循环遍历容器
-    //迭代器 it 相当于指针，*it 就表示尖括号里的类型 int
-    for (vector<int>::iterator it = v.begin(); it != v.end(); it++) {
+    for (vector<int>::iterator it = v1.begin(); it != v1.end(); it++)
         cout << *it << endl;        // 9   3
-    }
-
     //利用for_each算法遍历容器。实质是将容器中每个元素依次作为实参传给print()函数执行
-    for_each(v.begin(), v.end(), print);    //9   3
+    for_each(v1.begin(), v1.end(), print);    //9   3
+
+//四、容器其它属性
+    //手动调整v1的元素个数为100
+    v1.resize(100);
+
+    //删除v1中所有的元素，此时v1的长度变为0
+    v1.clear();
+
+    //重新调整v1的大小为20，并存储20个-1
+    v1.resize(20, -1);
 
     return 0;
 }
 ```
 
-#### <font color="1E90FF">vector容器中存放自定义类型（类）</font>
+#### <font color="1E90FF">vector容器中存放类（自定义类型）</font>
 
 ```C++
 #include <iostream>
@@ -2011,7 +1998,7 @@ int main()
     v1.push_back(t1);
     v1.push_back(t2);
     //创建一个迭代器。每个容器都有自己的迭代器，通过迭代器访问容器中的数据
-    //迭代器 it 相当于指针，*it 就表示尖括号里的类型 Base
+    //迭代器 it 相当于指针，指向尖括号里的类型 Base
     for (vector<Base>::iterator it = v1.begin(); it != v1.end(); it++) {
         cout << it->m_name << " is " << it->m_age << endl;  //linux is 200 \n china is 5000
     }
@@ -2023,7 +2010,7 @@ int main()
     //向容器中插入数据
     v2.push_back(t3);
     v2.push_back(t4);
-    //迭代器 it 相当于指针，*it 就表示尖括号里的类型 Base *
+    //迭代器 it 相当于指针，指向尖括号里的类型 Base *
     for (vector<Base *>::iterator it = v2.begin(); it != v2.end(); it++) {
         cout << (*it)->m_name << " is " << (*it)->m_age << endl;  //Q is 10 \n K is 20
     }
@@ -2061,7 +2048,7 @@ int main()
     v.push_back(v2);
     v.push_back(v3);
 
-    //迭代器 it1 相当于指针，*it1 就表示尖括号里的类型 vector<int>，是容器类型
+    //迭代器 it1 相当于指针，指向尖括号里的类型 vector<int>，是容器类型
     //(*it1).begin 指向容器v1首地址
     //it++后，(*it1).begin 指向容器v2首地址
     for (vector<vector<int>>::iterator it1 = v.begin(); it1 != v.end(); it1++) {
