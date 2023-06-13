@@ -36,7 +36,7 @@ A(socket)
 
 </center>
 
-#### <font color="1E90FF">流格式套接字（SOCK_STREAM）</font>
+#### <font color="1E90FF">流格式套接字（SOCK_STREAM）</font> {#SOCK_STREAM}
 
 流格式套接字（Stream Sockets）也叫 "面向连接的套接字" 在代码中使用`SOCK_STREAM`表示
 `SOCK_STREAM`是一种可靠的、双向的通信数据流，若数据丢失，可以重新发送，其特征为：
@@ -49,7 +49,7 @@ A(socket)
 
 流格式套接字的内部有一个缓冲区（字符数组），通过 socket 传输的数据将保存到这个缓冲区。接收端在收到数据后有可能在缓冲区被填满以后一次性地读取，也可能分成好几次读取。也就是说，不管数据分几次传送过来，接收端只需要根据自己的要求读取，不用非得在数据到达时立即读取。传送端有自己的节奏，接收端也有自己的节奏，它们是不一致的。<font color="yellow">浏览器所使用的`http`协议就基于面向连接(流格式)的套接字</font>，因为必须要确保数据准确无误，否则加载的 HTML 将无法解析
 
-#### <font color="1E90FF">数据报格式套接字（SOCK_DGRAM）</font>
+#### <font color="1E90FF">数据报格式套接字（SOCK_DGRAM）</font> {#SOCK_DGRAM}
 
 数据报格式套接字（Datagram Sockets）也叫"无连接的套接字"，在代码中使用`SOCK_DGRAM`表示
 使用数据报格式套接字时计算机只管传输数据，不作数据校验，如果数据在传输中丢失，是无法重传的。因为数据报套接字所做的校验工作少，所以在传输效率方面比流格式套接字要高
@@ -62,8 +62,11 @@ A(socket)
 - 数据的发送和接收是同步的
 
 "数据的发送和接收是同步的"；换句话说，接收次数应该和发送次数相同
+
 总之，数据报套接字是一种不可靠的、不按顺序传递的、以追求速度为目的的套接字
-数据报套接字也使用 IP 协议作路由，但是它使用 UDP 协议（User Datagram Protocol，用户数据报协议）
+
+数据报套接字也使用 IP 协议作路由，但是它<font color="yellow">使用 UDP 协议</font>（User Datagram Protocol，用户数据报协议）
+
 QQ 视频聊天就使用 SOCK_DGRAM 来传输数据，因为首先要保证通信的效率，尽量减小延迟，而数据的正确性是次要的
 
 #### <font color="1E90FF">面向连接和无连接套接字的区别</font>
@@ -128,11 +131,113 @@ socket 编程是基于 TCP 和 UDP 协议的，它们的层级关系如下图所
 
 <div align=center><img src="img/2023-06-09-12-23-50.png" width="30%"></div>
 
+### <font color="1E90FF">1.5 socket 示例</font>
+
+server.cpp
+
+```C++
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+int main(){
+    //创建套接字。AF_INET表示使用IPv4地址，SOCK_STREAM表示使用面向连接的套接字，IPPROTO_TCP表示使用TCP协议
+    int serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    //创建sockaddr_in结构体（服务器的IP地址和端口都保存在该结构体中）
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr, 0, sizeof(serv_addr));           //每个字节都用0填充
+    serv_addr.sin_family = AF_INET;                     //使用IPv4地址
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); //服务器的IP地址
+    serv_addr.sin_port = htons(1234);                   //服务器的端口号
+    //将套接字serv_sock和sockaddr_in结构体绑定，即套接字和IP、端口绑定
+    bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+
+    //让套接字进入被动监听状态。即套接字处于睡眠中，等待客户端发起请求才会被唤醒
+    listen(serv_sock, 20);
+
+    //创建sockaddr_in结构体（客户端发起请求后，客户端的IP地址和端口都保存在该结构体中）
+    struct sockaddr_in clnt_addr;
+    socklen_t clnt_addr_size = sizeof(clnt_addr);
+    /* accept() 函数用来接收客户端的请求。此程序运行到 accept() 函数就会被阻塞，直到客户端发起请求后，
+    从套接字serv_sock中读取客户端的IP和端口号，保存到clnt_addr中，并返回新创建的套接字文件描述符(用来代指客户端) */
+    int clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+
+    //向客户端发送数据
+    char str[] = "http://c.biancheng.net/socket/";
+    write(clnt_sock, str, sizeof(str));
+   
+    //关闭套接字
+    close(clnt_sock);
+    close(serv_sock);
+    
+    return 0;
+}
+/* 服务器中分别要创建服务器和客户端的套接字文件描述局，sockaddr_in结构体*/
+```
+
+client.cpp
+
+```C++
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+int main(){
+    //创建套接字。AF_INET表示使用IPv4地址，SOCK_STREAM表示使用面向连接的套接字，IPPROTO_TCP表示使用TCP协议
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    //创建sockaddr_in结构体（服务器的IP地址和端口都保存在该结构体中）
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr, 0, sizeof(serv_addr));           //每个字节都用0填充
+    serv_addr.sin_family = AF_INET;                     //使用IPv4地址
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); //服务器的IP地址
+    serv_addr.sin_port = htons(1234);                   //服务器的端口号
+    /* 客户端通过 connect() 函数向服务器发起请求，处于监听状态的服务器被激活，执行accept()函数，接受客户端的请求，
+    然后执行write()函数向客户端传回数据。客户端接收到数据后，connect()就运行结束了，然后使用read()将数据读取出来 */
+    connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+   
+    //读取服务器传回的数据
+    char buffer[40];
+    read(sock, buffer, sizeof(buffer)-1);
+   
+    printf("Message form server: %s\n", buffer);
+   
+    //关闭套接字
+    close(sock);
+    
+    return 0;
+}
+```
+
+### <font color="1E90FF">1.6 socket( )函数用法详解</font>
 
 
 
+socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：
 
 
+`int socket(int af, int type, int protocol);`
+
+- `af` 为地址族（Address Family），也就是 IP 地址类型。`AF_INET` 表示 IPv4 地址，例如 127.0.0.1；`AF_INET6` 表示 IPv6 地址，例如 1030::C9B4:FF12:48AA:1A2B
+- `type` 为数据传输方式或套接字类型，常用的有 [SOCK_STREAM](#SOCK_STREAM) 和 [SOCK_DGRAM](#SOCK_DGRAM)
+- `protocol` 表示传输协议，常用的有`IPPROTO_TCP`和`IPPTOTO_UDP`，分别表示 TCP 传输协议和 UDP 传输协议
+>1. `127.0.0.1`是一个特殊IP地址，表示本机地址
+>1. PF_INET 等价于 AF_INET
+
+一般情况下有了 af 和 type ，操作系统会自动推演出协议类型，除非遇到有两种不同的协议支持同一种地址类型和数据传输类型。如果我们不指明使用哪种协议，操作系统没办法自动推演
+
+如果地址类型为 AF_INET，数据传输方式为 SOCK_STREAM ，那么满足这两个条件的协议只有 TCP，这种套接字称为 TCP 套接字。
+如果地址类型为 AF_INET，数据传输方式为 SOCK_DGRAM ，那么满足这两个条件的协议只有 UDP，这种套接字称为 UDP 套接字。
+
+上面两种情况都只有一种协议满足条件，可以将`protocol`的值设为 0，系统会自动推演出应该使用什么协议
 
 ___
 

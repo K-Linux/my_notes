@@ -1945,11 +1945,10 @@ int main()
     //利用构造函数向容器v3中添加3个6
     vector<int> v3(3, 6);
 
-
 //三、容器数据读取
     //创建一个迭代器，迭代器相当于指针。每个容器都有自己的迭代器，通过迭代器访问容器中的数据
     //v1.begin()指向容器第一个元素，v1.end()指向容器最后一个元素的下一个位置
-    //迭代器 it 相当于指针，指向尖括号里的类型 int
+    //迭代器 it 相当于尖括号里的指针，即int *
 
     //利用迭代器访问容器
     for (vector<int>::iterator it = v1.begin(); it != v1.end(); it++)
@@ -1970,9 +1969,9 @@ int main()
     cout << v1.back() << endl;
 
 //四、容器其它属性
-    //重新指定容器总容量，新增元素初始化为0。若容量变小，则删除末尾超出部分
+    //重新指定容器大小为15。若大小变大，则容量变大且新增元素初始化为0。若大小变小，则容量不变且删除末尾超出部分
     v1.resize(15);
-    //重新指定容器总容量，新增元素初始化为8。若容量变小，则删除末尾超出部分
+    //重新指定容器大小为17。若大小变大，则容量变大且新增元素初始化为8。若大小变小，则容量不变且删除末尾超出部分
     v1.resize(17, 8);
 
     //删除v1中所有的元素，此时v1的长度变为0
@@ -1981,14 +1980,11 @@ int main()
     //empty()判断容器是否为空
     if (!v1.empty()) {}
 
-    //打印容器总容量个数
+    //打印容器容量（总容量个数）
     cout << v1.capacity() << endl;
 
-    //打印容器已使用元素个数
+    //打印容器大小（已使用元素个数）
     cout << v1.size() << endl;
-
-    //重新调整v1的大小为20，并存储20个-1
-    v1.resize(20, -1);
 
     //删除末尾最后一个元素
     v1.pop_back();
@@ -2002,6 +1998,48 @@ int main()
     //删除迭代器所指向的元素
     v1.erase(v1.begin());
 
+
+    return 0;
+}
+```
+
+#### <font color="1E90FF">swap 容器互换</font>
+
+```C++
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void print_vector(vector<int> &v) {
+    for (vector<int>::iterator it = v.begin(); it != v.end(); it++)
+        cout << *it << " ";
+    cout << endl;
+}
+
+int main()
+{
+    vector<int> v1;
+    vector<int> v2;
+
+    for (int i = 0, j = 15; i < 15; i++, j--) {
+        v1.push_back(i);
+        v2.push_back(j);
+    }
+//一、利用swap()交换容器数据
+    v1.swap(v2);
+
+//二、利用swap()收缩内存
+    cout << v1.capacity() << endl;  //容量为16
+    cout << v1.size() << endl;      //大小为15
+    //重新定义容器大小为5
+    v1.resize(5);
+    cout << v1.capacity() << endl;  //容量为16（不变）
+    cout << v1.size() << endl;      //大小为5
+    //容器v1的容量为16，但大小为5，多余大小11可节省
+    //定义一个容量和大小相同的临时容器(v1)，和原有容器v1互换，然后释放临时容器
+    vector<int>(v1).swap(v1);
+    cout << v1.capacity() << endl;  //容量为5（变小）
+    cout << v1.size() << endl;      //大小为5
 
     return 0;
 }
@@ -2035,7 +2073,7 @@ int main()
     v1.push_back(t1);
     v1.push_back(t2);
     //创建一个迭代器。每个容器都有自己的迭代器，通过迭代器访问容器中的数据
-    //迭代器 it 相当于指针，指向尖括号里的类型 Base
+    //迭代器 it 相当于尖括号里的指针，即Base *
     for (vector<Base>::iterator it = v1.begin(); it != v1.end(); it++) {
         cout << it->m_name << " is " << it->m_age << endl;  //linux is 200 \n china is 5000
     }
@@ -2047,7 +2085,7 @@ int main()
     //向容器中插入数据
     v2.push_back(t3);
     v2.push_back(t4);
-    //迭代器 it 相当于指针，指向尖括号里的类型 Base *
+    //迭代器 it 相当于尖括号里的指针，即Base **
     for (vector<Base *>::iterator it = v2.begin(); it != v2.end(); it++) {
         cout << (*it)->m_name << " is " << (*it)->m_age << endl;  //Q is 10 \n K is 20
     }
@@ -2085,7 +2123,7 @@ int main()
     v.push_back(v2);
     v.push_back(v3);
 
-    //迭代器 it1 相当于指针，指向尖括号里的类型 vector<int>，是容器类型
+    //迭代器 it1 相当于尖括号里的指针，即 vector<int> *，是容器指针类型
     //(*it1).begin 指向容器v1首地址
     //it++后，(*it1).begin 指向容器v2首地址
     for (vector<vector<int>>::iterator it1 = v.begin(); it1 != v.end(); it1++) {
@@ -2098,6 +2136,7 @@ int main()
     return 0;
 }
 ```
+
 
 ___
 
