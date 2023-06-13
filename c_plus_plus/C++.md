@@ -1912,10 +1912,13 @@ STL 就是借助模板把常用的数据结构及其算法都实现了一遍，�
 
 #### <font color="1E90FF">STL序列式容器</font>
 
-STL 标准库中所有的序列式容器包括 array、vector、deque、list 和 forward_list 容器
 STL序列式容器的特点是不会对存储的元素进行排序，元素排列的顺序取决于存储它们的顺序
 
-vector容器的迭代器是支持随机访问的迭代器
+vector可以动态扩展，即开辟更大的内存空间，然后将原数据拷贝到该内存，然后释放原空间
+
+vector容器的迭代器是随机访问迭代器
+
+<div align=center><img src="img/2023-06-13-22-21-28.png" width="70%"></div>
 
 ```C++
 #include <iostream>
@@ -2003,7 +2006,7 @@ int main()
 }
 ```
 
-#### <font color="1E90FF">swap 容器互换</font>
+#### <font color="1E90FF">swap容器互换</font>
 
 ```C++
 #include <iostream>
@@ -2137,6 +2140,53 @@ int main()
 }
 ```
 
+#### <font color="1E90FF">预留空间</font>
+
+
+vector 可以动态扩展。当执行push_back()时，若容量不够，则会开辟更大的内存，然后将原有数据拷贝到该内存中，且会预留多余空间，然后释放原有空间。例如，第一次 push_back(1) 时，容量为8，大小为1。第二次 push_back(9) 时，容量为16，大小为10
+
+
+```C++
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main()
+{
+    vector<int> v1; //此时容器的容量和大小都是0
+    int num1 = 0;
+    int *p1 = NULL;
+    for (int i = 0; i < 1000; i++) {
+        v1.push_back(i);
+        //开辟新内存时，地址会变，以此来判断开辟内存的次数
+        if (p1 != &v1[0]) {
+            p1 = &v1[0];
+            num1++;
+        }
+    }
+    cout << num1 << endl; // 打印11，即容器开辟了11次内存
+
+
+    vector<int> v2;
+    //预留1000个元素，但不初始化，所以不能访问（resize会初始化，可以访问）
+    //reserve和resize的区别仅仅为，是否初始化和访问权限
+    v2.reserve(1000);
+    int num2 = 0;
+    int *p2 = NULL;
+
+    for (int i = 0; i < 1000; i++) {
+        v2.push_back(i);
+        //开辟新内存时，地址会变，以此来判断开辟内存的次数
+        if (p2 != &v2[0]) {
+            p2 = &v2[0];
+            num2++;
+        }
+    }
+    cout << num2 << endl; // 打印1，即容器开辟了1次内存，节省开辟
+
+    return 0;
+}
+```
 
 ___
 

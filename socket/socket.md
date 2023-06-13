@@ -17,7 +17,7 @@ ___
 
 - socket 的典型应用就是 Web 服务器和浏览器：浏览器获取用户输入的 URL，向服务器发起请求，服务器分析接收到的 URL，将对应的网页内容返回给浏览器，浏览器再经过解析和渲染，就将文字、图片、视频等元素呈现给用户。
 
-### <font color="1E90FF">1.1 socket 套接字的类型</font>
+### <font color="1E90FF">socket 套接字的类型</font>
 
 世界上有很多种套接字，这里只讲 Internet 套接字，它是最经典最常用的。以后提及套接字，指的都是 Internet 套接字
 
@@ -78,7 +78,7 @@ QQ 视频聊天就使用 SOCK_DGRAM 来传输数据，因为首先要保证通�
 
 <font color="yellow">无连接的套接字</font>，每个数据包可以选择不同的路径，但是会发生意外情况，比如：第一个数据包选择了路径ABDE，但是路由器B突然断电了。第二个数据包选择了路径ABE，虽然路不远，但是太拥堵，以至于它等待的时间太长，路由器把它丢弃了
 
-### <font color="1E90FF">1.2 OSI网络七层模型简明</font>
+### <font color="1E90FF">OSI网络七层模型简明</font>
 
 OSI 是 Open System Interconnection 的缩写，译为"开放式系统互联"。OSI 模型把网络通信的工作分为7层，它的缺点是分层太多且复杂，后来人们简化后，只保留了4层，从下到上分别是接口层、网络层、传输层和应用层，每一层都包含了若干协议，<font color="yellow">这就是大名鼎鼎的 TCP/IP 模型</font>
 
@@ -97,7 +97,7 @@ OSI 是 Open System Interconnection 的缩写，译为"开放式系统互联"。
 1. 数据只能逐层传输，不能跃层。
 1. 每一层可以使用下层提供的服务，并向上层提供服务。
 
-### <font color="1E90FF">1.3 TCP/IP协议族</font>
+### <font color="1E90FF">TCP/IP协议族</font>
 
 协议（Protocol）就是网络通信过程中的约定或者合同。协议有很多种，通信双方必须使用同一协议才能通信。协议仅仅是一种规范，例如，如何建立连接，如何相互识别等。这些规范必须由代码来实现。例如 IP 协议规定了如何找到目标计算机，那么程序员在开发软件时就必须遵守该协议，不能另起炉灶
 
@@ -107,7 +107,7 @@ socket 编程是基于 TCP 和 UDP 协议的，它们的层级关系如下图所
 
 <div align=center><img src="img/2023-06-09-11-21-54.png" width="45%"></div>
 
-### <font color="1E90FF">1.4 IP、MAC和端口号</font>
+### <font color="1E90FF">IP、MAC和端口号</font>
 
 在互联网中要找到一台计算机需要具备三个要素：IP 地址、MAC 地址和端口号。IP 地址定位一个局域网，MAC 地址定位一台计算机，端口号定位一个网络程序。一个数据包中会附带对方的 IP 地址和 MAC 地址
 
@@ -131,7 +131,7 @@ socket 编程是基于 TCP 和 UDP 协议的，它们的层级关系如下图所
 
 <div align=center><img src="img/2023-06-09-12-23-50.png" width="30%"></div>
 
-### <font color="1E90FF">1.5 socket 示例</font>
+### <font color="1E90FF">socket 示例</font>
 
 server.cpp
 
@@ -217,14 +217,9 @@ int main(){
 }
 ```
 
-### <font color="1E90FF">1.6 socket( )函数用法详解</font>
+### <font color="1E90FF">socket( )函数详解</font>
 
-
-
-socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：
-
-
-`int socket(int af, int type, int protocol);`
+socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：`int socket(int af, int type, int protocol);`
 
 - `af` 为地址族（Address Family），也就是 IP 地址类型。`AF_INET` 表示 IPv4 地址，例如 127.0.0.1；`AF_INET6` 表示 IPv6 地址，例如 1030::C9B4:FF12:48AA:1A2B
 - `type` 为数据传输方式或套接字类型，常用的有 [SOCK_STREAM](#SOCK_STREAM) 和 [SOCK_DGRAM](#SOCK_DGRAM)
@@ -238,6 +233,61 @@ socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：
 如果地址类型为 AF_INET，数据传输方式为 SOCK_DGRAM ，那么满足这两个条件的协议只有 UDP，这种套接字称为 UDP 套接字。
 
 上面两种情况都只有一种协议满足条件，可以将`protocol`的值设为 0，系统会自动推演出应该使用什么协议
+
+### <font color="3E90FF">bind( )函数详解</font>
+
+bind( ) 函数的原型为：`int bind(int sock, struct sockaddr *addr, socklen_t addrlen);`
+
+#### <font color="3E90FF">sockaddr_in 结构体</font>
+
+```C
+struct sockaddr_in{
+    sa_family_t     sin_family;   //地址族（Address Family）（即地址类型）
+    uint16_t        sin_port;     //16位的端口号
+    struct in_addr  sin_addr;     //32位IP地址
+    char            sin_zero[8];  //不使用，一般用0填充
+};
+```
+
+
+- `sin_family` 表示地址族（实质是 unsigned short 类型）
+- `sin_port` 为端口号。uint16_t 的长度为两个字节，理论上端口号的取值范围为 0~65536，但 0~1023 的端口一般由系统分配给特定的服务程序，例如 Web 服务的端口号为 80，所以我们的程序要尽量在 1024~65536 之间分配端口号
+- `sin_addr` 是 `struct in_addr` 结构体类型的变量（详解见下一标题）
+- `sin_zero[8]` 没有用的8个字节。一般先用 memset() 将结构体的全部字节填充为 0，再给前3个成员赋值，剩下的 sin_zero 自然就是 0 了。
+
+>端口号需要用 htons() 函数转换
+
+#### <font color="3E90FF">in_addr 结构体</font>
+
+```C
+struct in_addr{
+    in_addr_t  s_addr;  //32位的IP地址，等价于unsigned long
+};
+```
+
+`in_addr_t`在头文件`<netinet/in.h>`中定义，长度为4个字节，是一个整数，而IP地址是一个字符串，所以需要 inet_addr() 函数进行整数和大小端转换，例如：
+
+```C
+unsigned long ip = inet_addr("127.0.0.1");  // 7F.0.0.1
+printf("%ld\n", ip);                        // 打印16777343
+printf("%#x\n", ip);                        // 打印0x100007f，即01.00.00.7F
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ___
 
