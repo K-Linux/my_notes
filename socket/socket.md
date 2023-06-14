@@ -217,6 +217,23 @@ int main(){
 }
 ```
 
+启动一个shell终端，先编译 server.cpp 并运行：
+
+```shell
+[admin@localhost ~]$ g++ server.cpp -o server
+[admin@localhost ~]$ ./server
+正常情况下，程序运行到 accept() 函数就会被阻塞，等待客户端发起请求。
+```
+
+再启动一个shell终端，编译 client.cpp 并运行：
+
+```shell
+[admin@localhost ~]$ g++ client.cpp -o client
+[admin@localhost ~]$ ./client
+Message form server: http://c.biancheng.net/socket/
+```
+
+
 ### <font color="1E90FF">socket( )函数详解</font>
 
 socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：`int socket(int af, int type, int protocol);`
@@ -227,24 +244,25 @@ socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：`int socket(
 >1. `127.0.0.1`是一个特殊IP地址，表示本机地址
 >1. PF_INET 等价于 AF_INET
 
-一般情况下有了 af 和 type ，操作系统会自动推演出协议类型，除非遇到有两种不同的协议支持同一种地址类型和数据传输类型。如果我们不指明使用哪种协议，操作系统没办法自动推演
+一般情况下有了 af 和 type ，操作系统会自动推演出传输协议类型，除非遇到有两种不同的协议支持同一种地址类型和数据传输类型
 
-如果地址类型为 AF_INET，数据传输方式为 SOCK_STREAM ，那么满足这两个条件的协议只有 TCP，这种套接字称为 TCP 套接字。
-如果地址类型为 AF_INET，数据传输方式为 SOCK_DGRAM ，那么满足这两个条件的协议只有 UDP，这种套接字称为 UDP 套接字。
+如果地址族为 AF_INET，数据传输方式为 SOCK_STREAM ，那么满足这两个条件的协议只有 TCP，这种套接字称为 TCP 套接字
+如果地址族为 AF_INET，数据传输方式为 SOCK_DGRAM ，那么满足这两个条件的协议只有 UDP，这种套接字称为 UDP 套接字
 
-上面两种情况都只有一种协议满足条件，可以将`protocol`的值设为 0，系统会自动推演出应该使用什么协议
+> 上面两种情况都只有一种协议满足条件，可以将`protocol`的值设为 0，系统会自动推演出应该使用什么协议
 
-### <font color="3E90FF">bind( )函数详解</font>
+### <font color="1E90FF">bind( )函数详解</font>
 
 bind( ) 函数的原型为：`int bind(int sock, struct sockaddr *addr, socklen_t addrlen);`
 
-#### <font color="3E90FF">sockaddr_in 结构体</font>
+#### <font color="1E90FF">sockaddr_in 结构体</font>
 
 ```C
+ //sockaddr_in 结构体用来存放地址族、IP地址和端口号
 struct sockaddr_in{
-    sa_family_t     sin_family;   //地址族（Address Family）（即地址类型）
-    uint16_t        sin_port;     //16位的端口号
-    struct in_addr  sin_addr;     //32位IP地址
+    sa_family_t     sin_family;   //地址族（Address Family）（unsigned shot 类型）
+    uint16_t        sin_port;     //16位的端口号            （unsigned shot 类型）
+    struct in_addr  sin_addr;     //32位IP地址              （unsigned long 类型）
     char            sin_zero[8];  //不使用，一般用0填充
 };
 ```
@@ -255,9 +273,9 @@ struct sockaddr_in{
 - `sin_addr` 是 `struct in_addr` 结构体类型的变量（详解见下一标题）
 - `sin_zero[8]` 没有用的8个字节。一般先用 memset() 将结构体的全部字节填充为 0，再给前3个成员赋值，剩下的 sin_zero 自然就是 0 了。
 
->端口号需要用 htons() 函数转换
+>端口号需要用 htons() 函数转换（host to net short）
 
-#### <font color="3E90FF">in_addr 结构体</font>
+**in_addr 结构体**
 
 ```C
 struct in_addr{
@@ -272,6 +290,40 @@ unsigned long ip = inet_addr("127.0.0.1");  // 7F.0.0.1
 printf("%ld\n", ip);                        // 打印16777343
 printf("%#x\n", ip);                        // 打印0x100007f，即01.00.00.7F
 ```
+
+#### <font color="1E90FF">sockaddr 结构体</font>
+
+bind() 第二个参数的类型为 sockaddr，而代码中却使用 sockaddr_in，然后再强制转换为 sockaddr，这是为什么呢？
+
+```C
+struct sockaddr{
+    sa_family_t  sin_family;   //地址族（Address Family），也就是地址类型
+    char         sa_data[14];  //IP地址和端口号
+};
+```
+
+<center>sockaddr_in 与 sockaddr（括号内表示所占用的字节数）</center>
+
+<div align=center><img src="img/2023-06-14-12-08-50.png" width="50%"></div>
+
+sockaddr_in 和 sockaddr 的长度都是16字节，所以使用 sockaddr_in 强制转换类型成 sockaddr 时不会丢失字节。可以认为，sockaddr 是一种通用的结构体，可以用来保存多种类型的IP地址和端口号。例如， sockaddr_in 是用来保存 IPv4 地址的结构体。sockaddr_in6 是用来保存 IPv6 地址的结构体
+
+```C
+//IPv6
+struct sockaddr_in6 { 
+    sa_family_t sin6_family;    //(2)地址类型(地址族)，取值为AF_INET6
+    in_port_t sin6_port;        //(2)16位端口号
+    uint32_t sin6_flowinfo;     //(4)IPv6流信息
+    struct in6_addr sin6_addr;  //(4)具体的IPv6地址
+    uint32_t sin6_scope_id;     //(4)接口范围ID
+};
+```
+
+### <font color="1E90FF">connect( ) 函数</font>
+
+connect() 函数用来建立连接，它的原型为：`int connect(int sock, struct sockaddr *serv_addr, socklen_t addrlen);`
+
+> 各个参数都和 bind() 相同，不再赘述。
 
 
 
