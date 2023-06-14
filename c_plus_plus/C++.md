@@ -2195,7 +2195,7 @@ int main()
 
 deque容器被称为双端数组，可以对头端和尾端进行插入/删除操作。头部插入/删除时`deque`容器快，访问元素时`vector`容器块。deque容器的迭代器也支持随机访问
 
->头部插入/删除`vector`容器时，需要将元素都往后/前移动一个位置，效率低
+>头部插入/删除 vector 容器时，需要将元素都往后/前移动一个位置，效率低
 
 <div align=center><img src="img/2023-06-14-07-33-43.png" width="70%"></div>
 
@@ -2203,7 +2203,7 @@ deque内部的中控器记录着每段缓冲区的地址，内存不够时再开
 
 <div align=center><img src="img/2023-06-14-07-57-18.png" width="70%"></div>
 
-deque容器没有`capacity()`函数，因为其容量是无限的
+deque容器没有`capacity()`函数，因为其容量是无限的，其它用法和vector差不多
 
 ```C++
 #include <iostream>
@@ -2237,6 +2237,21 @@ int main()
 
     print_deque(d3);
 
+//容器数据读取
+    //利用迭代器访问容器
+    for (vector<int>::iterator it = d1.begin(); it != d1.end(); it++)
+        cout << *it << endl;        // 9   3
+    //利用for_each算法遍历容器。实质是将容器中每个元素依次作为实参传给print()函数执行
+    for_each(d1.begin(), d1.end(), print);    //9   3
+    //利用数组下标[]来访问容器元素
+    cout << d1[0] << endl;
+    //利用at(i)来访问容器元素（i表示数组下标）
+    cout << d1.at(0) << endl;
+    //利用front()来访问容器首元素
+    cout << d1.front() << endl;
+    //利用back()来访问容器尾元素
+    cout << d1.back() << endl;
+
 
 //容器其它属性
     //重新指定容器大小为15。若大小变大，则容量变大且新增元素初始化为0。若大小变小，则容量不变且删除末尾超出部分
@@ -2268,6 +2283,82 @@ int main()
     return 0;
 }
 ```
+
+#### <font color="1E90FF">deque容器的头尾插删</font>
+
+```C++
+#include <iostream>
+#include <deque>
+using namespace std;
+
+void print_deque(const deque<int> &d) {
+    for (deque<int>::const_iterator it = d.begin(); it != d.end(); it++)
+        cout << *it << " ";
+    cout << endl;
+}
+
+int main()
+{
+    deque<int> d1;
+
+    //尾插
+    d1.push_back(1);
+    d1.push_back(2);
+    //头插
+    d1.push_front(8);
+    d1.push_front(9);
+    print_deque(d1);    //9 8 1 2
+
+    //尾删
+    d1.pop_back();      //9 8 1
+    //头删
+    d1.pop_front();     //8 1
+    print_deque(d1);    //8 1
+
+    deque<int>::iterator it = d1.begin();
+    it++;               //迭代器往后移动一个位置
+    d1.erase(it);       //删除迭代器所指向的位置
+    print_deque(d1);    //8
+
+    return 0;
+}
+```
+
+
+#### <font color="1E90FF">deque容器的排序</font>
+
+```C++
+#include <iostream>
+#include <deque>
+#include <algorithm>
+using namespace std;
+
+void print_deque(const deque<int> &d) {
+    for (deque<int>::const_iterator it = d.begin(); it != d.end(); it++)
+        cout << *it << " ";
+    cout << endl;
+}
+
+int main()
+{
+    deque<int> d1;
+
+    d1.push_back(7);
+    d1.push_back(4);
+    d1.push_front(3);
+    d1.push_front(9);
+
+    //sort()默认进行升序排序（随机访问迭代器都可以用sort算法）
+    sort(d1.begin(), d1.end());
+    print_deque(d1);    //3 4 7 9
+
+    return 0;
+}
+
+```
+
+
+
 
 ___
 
