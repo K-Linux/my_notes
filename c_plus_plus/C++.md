@@ -2357,6 +2357,82 @@ int main()
 
 ```
 
+#### <font color="1E90FF">容器使用案例</font>
+
+```C++
+#include <iostream>
+#include <deque>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include <ctime>
+using namespace std;
+
+class Person {
+public:
+    string m_name;
+    int m_score;
+    Person(string n, int s = 0);
+
+};
+Person::Person(string n, int s):m_name(n), m_score(s) {
+    this->m_name = n;
+    this->m_score = s;
+}
+
+//初始化5名选手
+void create_person(vector<Person> &v) {
+    string num = "ABCDE";
+    for (int i = 0; i < 5; i++) {
+        string name = "player-";
+        name += num[i];
+        Person p(name);
+        v.push_back(p);
+    }
+}
+//打分
+void set_score(vector<Person> &v) {
+    //十个评委给5个选手打分
+    for (vector<Person>::iterator it = v.begin(); it != v.end(); it++) {
+        //将十个评委的分数放入到deque容器中
+        deque<int> d;
+        for (int i = 0; i < 10; i++) {
+            int score = 60 + rand() % 40; //分数60~99
+            d.push_back(score);
+        }
+        //排序
+        sort(d.begin(), d.end());
+        //去除最高分和最低分
+        d.pop_back();
+        d.pop_front();
+        //取平均分
+        int sum = 0;
+        for (deque<int>::iterator dit = d.begin(); dit != d.end(); dit++) {
+            sum += *dit;    //累加每个评委的分数
+        }
+        int avg = sum / d.size();
+        //将平均分赋值在选手
+        it->m_score = avg;
+    }
+}
+//打印分数
+void show_score(const vector<Person> &v) {
+    for (vector<Person>::const_iterator it = v.begin(); it != v.end(); it++) {
+        cout << it->m_name << " score is " << it->m_score << endl;
+    }
+}
+
+int main()
+{
+    srand((unsigned int)time(NULL));
+    vector<Person> v;   //存放5名选手的容器
+    create_person(v);
+    set_score(v);
+    show_score(v);
+
+    return 0;
+}
+```
 
 
 

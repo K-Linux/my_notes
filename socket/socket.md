@@ -236,7 +236,10 @@ Message form server: http://c.biancheng.net/socket/
 
 ### <font color="1E90FF">socket( )函数详解</font>
 
-socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：`int socket(int af, int type, int protocol);`
+socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：
+```C
+int socket(int af, int type, int protocol); 
+```
 
 - `af` 为地址族（Address Family），也就是 IP 地址类型。`AF_INET` 表示 IPv4 地址，例如 127.0.0.1；`AF_INET6` 表示 IPv6 地址，例如 1030::C9B4:FF12:48AA:1A2B
 - `type` 为数据传输方式或套接字类型，常用的有 [SOCK_STREAM](#SOCK_STREAM) 和 [SOCK_DGRAM](#SOCK_DGRAM)
@@ -253,7 +256,11 @@ socket( )函数包含在`<sys/socket.h>` 头文件中，原型为：`int socket(
 
 ### <font color="1E90FF">bind( )函数详解</font>
 
-bind( ) 函数的原型为：`int bind(int sock, struct sockaddr *addr, socklen_t addrlen);`
+bind( ) 函数的原型为：
+
+```C
+int bind(int sock, struct sockaddr *addr, socklen_t addrlen);
+```
 
 #### <font color="1E90FF">sockaddr_in 结构体</font>
 
@@ -321,20 +328,98 @@ struct sockaddr_in6 {
 
 ### <font color="1E90FF">connect( ) 函数</font>
 
-connect() 函数用来建立连接，它的原型为：`int connect(int sock, struct sockaddr *serv_addr, socklen_t addrlen);`
+connect() 函数用来建立连接，它的原型为：
 
-> 各个参数都和 bind() 相同，不再赘述。
+```C
+int connect(int sock, struct sockaddr *serv_addr, socklen_t addrlen);
+```
+
+> connect() 的各个参数都和 bind() 相同，此处不再赘述
+
+### <font color="1E90FF">listen( ) 函数</font>
+
+对于服务器端程序，使用 bind() 绑定套接字后，还需要使用 listen() 函数让套接字进入被动监听状态，再调用 accept() 函数，就可以随时响应客户端的请求了。它的原型为：
+
+```C
+int listen(int sock, int backlog);
+```
+
+- `sock` 为需要进入监听状态的套接字
+- `backlog` 为请求队列的最大长度。
+
+<font color="yellow">监听状态</font>：是指让套接字处于睡眠状态，只有当接收到客户端请求时，套接字才会被唤醒，来响应请求
+
+<font color="yellow">请求队列</font>：当套接字正在处理客户端请求时，如果有新的请求进来，它们就按照先后顺序在缓冲区中排队，直到缓冲区满。这个缓冲区，就称为请求队列（Request Queue）。请求队列的长度（能存放客户端请求的个数）可以通过 backlog 参数指定
+
+> 注意：listen() 只是让套接字处于监听状态，并没有接收请求。接收请求需要使用 accept() 函数
+
+### <font color="1E90FF">accept( ) 函数</font>
+
+当套接字处于监听状态时，可以通过 accept() 函数来接收客户端请求。其参数与 bind() 和 connect() 是相同的，原型为：
+
+```C
+int accept(int sock, struct sockaddr *addr, socklen_t *addrlen);
+```
+
+当接收到客户端请求时，客户端的IP地址和端口号会保存在 addr 中，并返回一个新的套接字来和客户端通信，而 sock 是服务器端的套接字，后面和客户端通信时，要使用这个新生成的套接字，而不是原来服务器端的套接字，注意区分
+
+> listen() 只是让套接字进入监听状态，并没有真正接收客户端请求，listen() 后面的代码会继续执行，直到遇到 accept() 后，会阻塞程序执行（后面代码不能被执行），直到收到客户端的请求
+
+### <font color="1E90FF">read()和write()函数</font>
+
+两台计算机之间的通信相当于两个套接字之间的通信。Linux 不区分套接字文件和普通文件，使用 read() 和 write() 可以向套接字中读取和写入数据
+
+**write() 的原型为：**
+
+```C
+ssize_t write(int fd, const void *buf, size_t nbytes);
+```
+
+- `fd` 为要写入的文件描述符，`buf` 为要写入的数据缓冲区地址，`nbytes` 为要写入的数据的字节数
+- `size_t` 是 typedef 声明的 `unsigned int` 类型；`ssize_t` 是 typedef 声明的 `signed int` 类型
+- write() 函数会将缓冲区 buf 中的 nbytes 个字节写入文件 fd，成功则返回写入的字节数，失败则返回 -1
+
+**read() 的原型为：**
+
+```C
+ssize_t read(int fd, void *buf, size_t nbytes);
+```
+
+`fd` 为要读取的文件描述符，`buf` 为要接收数据的缓冲区地址，`nbytes` 为要读取的数据的字节数
+
+### <font color="1E90FF">socket实现回声客户端</font>
+
+server.cpp
+
+```C
+int client_socket = accept(server_socket, (struct sockaddr *)& client_addr, &client_addr_size);
+//read()新创建的套接字，可以获取客户端发来的数据
+//write()新创建的套接字，可以发送客户端发来的数据
+char buf[64];
+read(client_socket, buf, sizeof(buf));      //接收客户端发来的数据
+write(client_socket, buf, sizeof(buf));     //将数据原样返回
+```
+
+client.cpp
+
+```C
+connect(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
+//将数据write()到自己的套接字，服务器就会收到数据
+write(server_socket, "Linux China", 12);    //将数据发送给服务器
+char buffer[50];
+//read()自己的套接字，可以读取到服务器发来的数据
+read(server_socket, buffer, sizeof(buffer));//接收服务器发来的数据
+//打印
+printf("%s\n", buffer);
+```
+
+### <font color="1E90FF">服务器端持续监听客户端</font>
 
 
 
 
 
-
-
-
-
-
-
+> 需要注意的是：server.cpp 中调用 closesocket() 不仅会关闭服务器端的 socket，还会通知客户端连接已断开，客户端也会清理 socket 相关资源，所以 client.cpp 中需要将 socket() 放在 while 循环内部，这样每次请求完毕都会清理 socket，下次发起请求时需要重新创建
 
 
 
