@@ -111,19 +111,19 @@ socket 编程是基于 TCP 和 UDP 协议的，它们的层级关系如下图所
 
 在互联网中要找到一台计算机需要具备三个要素：IP 地址、MAC 地址和端口号。IP 地址定位一个局域网，MAC 地址定位一台计算机，端口号定位一个网络程序。一个数据包中会附带对方的 IP 地址和 MAC 地址
 
-#### <font color="1E90FF">IP地址</font>
+**<font size="4" color="1E90FF">IP地址</font>**
 
 - IP地址是 Internet Protocol Address 的缩写，译为"网际协议地址"。目前大部分软件使用 IPv4 地址
 - 一个局域网可以拥有一个独立的 IP 地址（对外就好像只有一台计算机），一台计算机也可以拥有一个独立的 IP 地址。但是目前广泛使用 IPv4 地址，它的资源是非常有限的，<font color="yellow">一台计算机一个 IP 地址是不现实的，往往是一个局域网才拥有一个 IP 地址</font>
 - 在因特网上进行通信时，必须要知道对方的 IP 地址。实际上数据包中已经附带了 IP 地址，把数据包发送给路由器以后，路由器会根据 IP 地址找到对方的地理位置，完成一次数据的传递
 
-#### <font color="1E90FF">MAC地址</font>
+**<font size="4" color="1E90FF">MAC地址</font>**
 
 - MAC 地址是 Media Access Control Address 的缩写，直译为“媒体访问控制地址”，也称为局域网地址（LAN Address），以太网地址（Ethernet Address）或物理地址（Physical Address）
 - 现实的情况是，一个局域网往往才能拥有一个独立的 IP；换句话说，IP 地址只能定位到一个局域网，无法定位到具体的一台计算机。然而，<font color="yellow">真正能唯一标识一台计算机的是 MAC 地址</font>，每张网卡出厂的时候 MAC 地址已经被写死了，且每个 MAC 地址在全世界都是独一无二的。（局域网中的路由器/交换机会记录每台计算机的 MAC 地址）
 - 数据包中除了会附带对方的 IP 地址，还会附带对方的 MAC 地址，当数据包达到局域网以后，<font color="yellow">路由器/交换机会根据数据包中的 MAC 地址找到对应的计算机</font>，然后把数据包转交给它，这样就完成了数据的传递。
 
-#### <font color="1E90FF">端口号</font>
+**<font size="4" color="1E90FF">端口号</font>**
 
 - 一台计算机可以同时提供多种网络服务，例如 Web 服务（网站）、FTP 服务（文件传输服务）、SMTP 服务（邮箱服务）等，仅有 IP 地址和 MAC 地址，计算机虽然可以正确接收到数据包，但是却不知道要将数据包交给哪个网络程序来处理，所以通信失败。
 - 为了区分不同的网络程序，计算机会为每个网络程序分配一个独一无二的端口号（Port Number），例如，Web 服务的端口号是 80，FTP 服务的端口号是 21，SMTP 服务的端口号是 25。
@@ -208,7 +208,7 @@ int main(){
     char buffer[40];
     read(sock, buffer, sizeof(buffer)-1);
    
-    printf("Message form server: %s\n", buffer);
+    printf("Message from server: %s\n", buffer);
    
     //关闭套接字
     close(sock);
@@ -261,6 +261,8 @@ bind( ) 函数的原型为：
 ```C
 int bind(int sock, struct sockaddr *addr, socklen_t addrlen);
 ```
+
+socklen_t 实质是 unsigned int 类型
 
 #### <font color="1E90FF">sockaddr_in 结构体</font>
 
@@ -334,6 +336,7 @@ connect() 函数用来建立连接，它的原型为：
 int connect(int sock, struct sockaddr *serv_addr, socklen_t addrlen);
 ```
 
+> socklen_t 实质是 unsigned int 类型
 > connect() 的各个参数都和 bind() 相同，此处不再赘述
 
 ### <font color="1E90FF">listen( ) 函数</font>
@@ -355,7 +358,7 @@ int listen(int sock, int backlog);
 
 ### <font color="1E90FF">accept( ) 函数</font>
 
-当套接字处于监听状态时，可以通过 accept() 函数来接收客户端请求。其参数与 bind() 和 connect() 是相同的，原型为：
+当套接字处于监听状态时，可以通过 accept() 函数来接收客户端请求。其参数与 bind() 和 connect() 是相同的，除了 addrlen 是指针类型。其原型为：
 
 ```C
 int accept(int sock, struct sockaddr *addr, socklen_t *addrlen);
@@ -415,11 +418,157 @@ printf("%s\n", buffer);
 
 ### <font color="1E90FF">服务器端持续监听客户端</font>
 
+server.cpp
+
+```C
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+
+#define BUF_SIZE 100
+
+int main() {
+    //创建套接字。AF_INET表示使用IPv4地址，SOCK_STREAM表示使用面向连接的套接字，IPPROTO_TCP表示使用TCP协议
+    int serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    //创建sockaddr_in结构体（服务器的IP地址和端口都保存在该结构体中）
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr, 0, sizeof(serv_addr));           //每个字节都用0填充
+    serv_addr.sin_family = AF_INET;                     //使用IPv4地址
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); //服务器的IP地址
+    serv_addr.sin_port = htons(1234);                   //服务器的端口号
+    //将套接字serv_sock和sockaddr_in结构体绑定，即套接字和IP、端口绑定
+    bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+
+    //让套接字进入被动监听状态。即套接字处于睡眠中，等待客户端发起请求才会被唤醒
+    listen(serv_sock, 20);
+
+    //创建sockaddr_in结构体（客户端发起请求后，客户端的IP地址和端口都保存在该结构体中）
+    struct sockaddr_in clnt_addr;
+    socklen_t clnt_addr_size = sizeof(clnt_addr);
+    char buffer[BUF_SIZE] = {0};
+
+    while (1) {
+        /*accept() 函数用来接收客户端的请求。此程序运行到 accept() 函数就会被阻塞，直到客户端发起请求后，
+        从套接字serv_sock中读取客户端的IP和端口号，保存到clnt_addr中，并返回新建的套接字(用来和客户端通信)*/
+        int clnt_sock = accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+
+        read(clnt_sock, buffer, sizeof(buffer));    //读取客户端发来的数据
+        write(clnt_sock, buffer, sizeof(buffer));   //将数据原样返回
+        
+        memset(buffer, 0, sizeof(buffer));
+        close(clnt_sock);                           //完成一次通信后关闭与客户端连接的套接字
+    }
+   
+    //关闭套接字
+    close(serv_sock);
+    
+    return 0;
+}
+```
+
+client.cpp
+
+```C
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+
+#define BUF_SIZE 100
+
+int main() {
+    //创建sockaddr_in结构体（服务器的IP地址和端口都保存在该结构体中）
+    struct sockaddr_in serv_addr;
+    memset(&serv_addr, 0, sizeof(serv_addr));           //每个字节都用0填充
+    serv_addr.sin_family = AF_INET;                     //使用IPv4地址
+    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); //服务器的IP地址
+    serv_addr.sin_port = htons(1234);                   //服务器的端口号
+
+    char buffer[BUF_SIZE] = {0};
+
+    while (1) {
+        //创建套接字。AF_INET表示使用IPv4地址，SOCK_STREAM表示使用面向连接的套接字，IPPROTO_TCP表示使用TCP协议
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        /*客户端通过connect()函数向服务器发起请求，处于监听状态的服务器被激活，执行accept()函数，接受客户端的请求，
+        然后执行write()函数向客户端传回数据。客户端接收到数据后，connect()就运行结束了，然后用read()将数据读取出来*/
+        connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
+    
+        //将数据发送给服务器
+        scanf("%s", buffer);
+        write(sock, buffer, sizeof(buffer));
+
+        //读取服务器传回的数据
+        memset(buffer, 0, sizeof(buffer));
+        read(sock, buffer, sizeof(buffer));
+    
+        printf("Message from server: [%s]\n", buffer);
+    
+        //完成一次通信后关闭与服务器连接的套接字
+        memset(buffer, 0, sizeof(buffer));
+        close(sock);
+    }
+    
+    return 0;
+}
+```
+
+>server.cpp 中调用 close() 不仅会关闭服务器端的 socket，还会通知客户端连接已断开，客户端也会清理 socket 相关资源，所以 client.cpp 中需要将 socket() 放在 while 循环内部，因为每次请求完毕都会清理 socket，下次发起请求时需要重新创建
+
+
+### <font color="1E90FF">socket缓冲区以及阻塞模式</font>
+
+**<font size="4" color="1E90FF">缓冲区</font>**
+
+每个 socket 被创建后，都会分配两个缓冲区，输入缓冲区和输出缓冲区。
+
+write()/send() 并不立即向网络中传输数据，而是先将数据写入缓冲区中，再由TCP协议将数据从缓冲区发送到目标机器。一旦将数据写入到缓冲区，函数就可以成功返回，不管它们何时被发送到网络以及是否到达目标机器，这些都是 TCP 协议负责的事情
+
+TCP协议独立于 write()/send() 函数，数据有可能刚被写入缓冲区就发送到网络，也可能在缓冲区中不断积压，然后一次性发送到网络，这取决于当时的网络情况、当前线程是否空闲等诸多因素，不由程序员控制
+
+read()/recv() 函数也是如此，也从输入缓冲区中读取数据，而不是直接从网络中读取
+
+<div align=center><img src="img/2023-06-16-11-33-28.png" width="80%"></div>
+
+这些I/O缓冲区特性可整理如下：
+
+- 创建TCP套接字时会自动生成单独存在的 I/O 缓冲区
+- 即使关闭套接字，输出缓冲区也会继续传送遗留的数据
+- 如果关闭套接字，输入缓冲区的数据将被丢失
+- 输入输出缓冲区的默认大小一般都是 8K
+
+输入输出缓冲区的默认大小一般都是 8K，可以通过 getsockopt() 函数获取：
+
+```C
+unsigned optVal;
+int optLen = sizeof(int);
+getsockopt(servSock, SOL_SOCKET, SO_SNDBUF, (char*)&optVal, &optLen);
+printf("Buffer length: %d\n", optVal);
+```
+
+运行结果：
+Buffer length: 8192
+
+
+**<font size="4" color="1E90FF">阻塞模式</font>**
 
 
 
 
-> 需要注意的是：server.cpp 中调用 closesocket() 不仅会关闭服务器端的 socket，还会通知客户端连接已断开，客户端也会清理 socket 相关资源，所以 client.cpp 中需要将 socket() 放在 while 循环内部，这样每次请求完毕都会清理 socket，下次发起请求时需要重新创建
+
+
+
+
+
+
+
+
 
 
 
@@ -427,6 +576,11 @@ printf("%s\n", buffer);
 
 
 ___
+
+## <font color="1E90FF">二、Websocket</font>
+
+- [websocket](https://www.ruanyifeng.com/blog/2017/05/websocket.html)
+
 
 ## <font color="1E90FF">杂项</font>
 
