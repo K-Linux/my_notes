@@ -2119,7 +2119,7 @@ int main()
     vector<int> v1;
     vector<int> v2;
     vector<int> v3;
-    //重新调整str的大小为5，并存储5个n
+    //重新调整容器的大小为5，并存储5个n
     v1.resize(5, 1);
     v2.resize(5, 2);
     v3.resize(5, 3);
@@ -2143,10 +2143,10 @@ int main()
 }
 ```
 
-#### <font color="1E90FF">预留空间</font>
+#### <font color="1E90FF">reserve预留空间</font>
 
 
-vector 可以动态扩展。当执行push_back()时，若容量不够，则会开辟更大的内存，然后将原有数据拷贝到该内存中，且会预留多余空间，然后释放原有空间。例如，第一次 push_back(1) 时，容量为8，大小为1。第二次 push_back(9) 时，容量为16，大小为10
+vector 可以动态扩展。当执行push_back()时，若容量不够，则会开辟更大的内存，然后将原有数据拷贝到该内存中，且会预留多余空间，然后释放原有空间。例如，第一次 push_back(2) 时，容量为8，大小为1。第二次 push_back(9) 时，容量为16，大小为10
 
 
 ```C++
@@ -2284,7 +2284,7 @@ int main()
 }
 ```
 
-#### <font color="1E90FF">deque容器的头尾插删</font>
+#### <font color="1E90FF">vector和deque容器的头尾插删</font>
 
 ```C++
 #include <iostream>
@@ -2357,7 +2357,7 @@ int main()
 
 ```
 
-#### <font color="1E90FF">容器使用案例</font>
+### <font color="1E90FF">容器使用案例</font>
 
 ```C++
 #include <iostream>
@@ -2437,6 +2437,50 @@ int main()
 
 
 ___
+
+
+
+### <font color="1E90FF">3.3 stack容器</font>
+
+stack 是先进后出（First In Last Out，FILO）的数据结构。栈中只有顶端的元素才可以被使用，因此栈不可以遍历
+
+<div align=center><img src="img/2023-06-17-08-28-03.png" width="50%"></div>
+
+```C++
+#include <iostream>
+#include <stack>
+using namespace std;
+
+int main()
+{
+    stack<int> s;
+
+    //入栈/压栈
+    s.push(10);
+    s.push(20);
+    s.push(30);
+
+    cout << s.size() << endl;   // 3
+
+    while (!s.empty()) {
+        //打印栈顶元素
+        cout << s.top() << endl;
+        //出栈
+        s.pop();
+    }
+    //栈的大小
+    cout << s.size() << endl;   // 0 
+
+    return 0;
+}
+```
+
+### <font color="1E90FF">3.4 queue容器</font>
+
+
+
+
+
 
 ## <font color="1E90FF">四、C++11</font>
 
