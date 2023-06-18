@@ -2148,6 +2148,7 @@ int main()
 
 vector 可以动态扩展。当执行push_back()时，若容量不够，则会开辟更大的内存，然后将原有数据拷贝到该内存中，且会预留多余空间，然后释放原有空间。例如，第一次 push_back(2) 时，容量为8，大小为1。第二次 push_back(9) 时，容量为16，大小为10
 
+reserve和resize的区别仅仅为，是否初始化，即访问权限
 
 ```C++
 #include <iostream>
@@ -2316,9 +2317,10 @@ int main()
     print_deque(d1);    //8 1
 
     deque<int>::iterator it = d1.begin();
-    it++;               //迭代器往后移动一个位置
-    d1.erase(it);       //删除迭代器所指向的位置
-    print_deque(d1);    //8
+    d1.insert(++it, 7); //移动迭代器并插入
+    print_deque(d1);    //8 7 1
+    d1.erase(it);       //此时迭代器指向元素7
+    print_deque(d1);    //8 1
 
     return 0;
 }
@@ -2357,7 +2359,7 @@ int main()
 
 ```
 
-### <font color="1E90FF">容器使用案例</font>
+### <font color="1E90FF">vector和deque容器使用案例</font>
 
 ```C++
 #include <iostream>
@@ -2442,7 +2444,7 @@ ___
 
 ### <font color="1E90FF">3.3 stack容器</font>
 
-stack 是先进后出（First In Last Out，FILO）的数据结构。栈中只有顶端的元素才可以被使用，因此栈不可以遍历
+stack 栈是先进后出（First In Last Out，FILO）的数据结构。栈中只有顶端的元素才可以被使用，因 stack 栈不提供遍历功能，也不提供迭代器
 
 <div align=center><img src="img/2023-06-17-08-28-03.png" width="50%"></div>
 
@@ -2463,22 +2465,276 @@ int main()
     cout << s.size() << endl;   // 3
 
     while (!s.empty()) {
-        //打印栈顶元素
+        //获取栈顶元素
         cout << s.top() << endl;
         //出栈
         s.pop();
     }
-    //栈的大小
+    //获取栈的大小
     cout << s.size() << endl;   // 0 
 
     return 0;
 }
 ```
 
-### <font color="1E90FF">3.4 queue容器</font>
+### <font color="1E90FF">3.4 queue队列容器</font>
+
+queue是一种先进先出（First In First Out，FIFO）的数据结构。队列容器和排队买票一样，只允许从一端入队push，从另一端出队pop。队列中只有队头和队尾可以被外界使用，因此不可以有遍历行为
+
+<div align=center><img src="img/2023-06-18-14-54-49.png" width="60%"></div>
+
+```C++
+#include <iostream>
+#include <queue>
+#include <string>
+using namespace std;
+
+class Person {
+public:
+    string m_name;
+    int m_age;
+    Person(string n);
+};
+Person::Person(string n):m_name(n) {}
+
+int main()
+{
+    queue<Person> q;
+    Person p1("linux");
+    Person p2("china");
+    Person p3("bhlk");
+    //入队
+    q.push(p1);
+    q.push(p2);
+    q.push(p3);
+
+    cout << q.size() << endl;
+    while (!q.empty()) {
+        //获取队头元素
+        cout << q.front().m_name << endl;
+        //获取队尾元素
+        cout << q.back().m_name << endl;
+        //对头元素出队
+        q.pop();
+        cout << endl;
+    }
+    cout << q.size() << endl;
+
+    return 0;
+}
+```
 
 
 
+### <font color="1E90FF">3.5 list容器</font>
+
+list 是双向循环链表，其结点由数据域和指针域组成。由于链表的存储方式不是连续的内存空间，因此list中的迭代器只支持前移和后移，属于双向迭代器
+
+list使用的是双向迭代器，所以不能使用数组下标来访问元素(这是随机访问迭代器的属性)，只能遍历
+
+list插入和删除操作都不会造成原有迭代器的失效。例如，当vector使用resize()改变容量时，内存地址会变动，此时原有迭代器仍然指向原来的地址。而list链表则没有这个问题
+
+<div align=center><img src="img/2023-06-18-15-36-15.png" width="60%"></div>
+
+```C++
+#include <iostream>
+#include <list>
+using namespace std;
+
+int main()
+{
+    list<int> l1;
+
+    //容器赋值（容器间赋值用拷贝构造和赋值号，其它类型赋值都用push_back）
+    //使用成员函数push_back()向容器插入数据
+    l1.push_back(10);       //尾插
+    l1.push_front(20);      //头插
+    //利用构造函数容器v2拷贝容器l1
+    list<int> l2(l1);
+    //使用 = 号赋值
+    l2 = l1;
+    //利用构造函数向容器v3中添加3个6
+    list<int> l3(3, 6);
+
+    //访问第一个元素和最后一个元素
+    cout << l1.front() << endl;
+    cout << l1.back() << endl;
+
+    //l1和l3交换
+    l1.swap(l3);
+
+    //容器其它属性
+    //重新指定容器大小为15。若大小变大，则容量变大且新增元素初始化为0。若大小变小，则容量不变且删除末尾超出部分
+    l1.resize(15);
+    //重新指定容器大小为17。若大小变大，则容量变大且新增元素初始化为8。若大小变小，则容量不变且删除末尾超出部分
+    l1.resize(17, 8);
+
+    //删除l1中所有的元素，此时l1的长度变为0
+    l1.clear();
+
+    //empty()判断容器是否为空
+    if (!l1.empty()) {}
+
+    //打印容器大小（已使用元素个数）
+    cout << l1.size() << endl;
+
+    //删除末尾最后一个元素
+    l1.pop_back();
+
+    //在迭代器的指向前插入数值99
+    l1.insert(l1.begin(), 99);
+
+    //在迭代器的指向前插入3个99
+    l1.insert(l1.begin(), 3, 99);
+
+    //删除迭代器所指向的元素
+    l1.erase(l1.begin());
+
+    return 0;
+}
+```
+
+#### <font color="1E90FF">list容器的插入和删除</font>
+
+```C++
+#include <iostream>
+#include <list>
+using namespace std;
+
+void print_list(const list<int> &l) {
+    for (list<int>::const_iterator it = l.begin(); it != l.end(); it++) {
+        cout << *it << " ";
+    }
+    cout << endl;
+}
+
+int main()
+{
+    list<int> l1;
+
+    //尾插
+    l1.push_back(1);
+    l1.push_back(2);
+    //头插
+    l1.push_front(8);
+    l1.push_front(9);
+    print_list(l1);    //9 8 1 2
+
+    //尾删
+    l1.pop_back();      //9 8 1
+    //头删
+    l1.pop_front();     //8 1
+    print_list(l1);     //8 1
+
+    //迭代器移动位置进行insert和erase操作
+    list<int>::iterator it = l1.begin();
+    l1.insert(++it, 7); //此时迭代器指向元素1
+    print_list(l1);     //8 7 1
+
+    l1.erase(it);       //此时迭代器指向元素1
+    print_list(l1);     //8 7
+
+    //移除所有相同数据
+    l1.push_back(99);
+    l1.push_back(99);
+    l1.remove(99);
+    print_list(l1);     //8 7
+
+    return 0;
+}
+```
+
+#### <font color="1E90FF">list排序</font>
+
+```C++
+#include <iostream>
+#include <list>
+#include <algorithm>
+using namespace std;
+
+//自定义排序回调函数
+//返回false为升序，true为降序
+//第一个元素和每个元素对比（冒泡排序），返回false则交换，true则不变
+bool my_sort(int a, int b) {
+    return a > b;   //降序
+    // return a < b;   //升序
+}
+
+int main()
+{
+    list<int> l1;
+
+    l1.push_back(20);
+    l1.push_back(10);
+    l1.push_back(40);
+    l1.push_back(30);
+
+    //只有支持随机访问迭代器的容器才能用全局标准算法
+    // sort(l1.begn(), l1.end());  //错误
+    //不支持随机访问迭代器的容器，会提供成员函数算法
+    l1.sort();          //默认是升序
+    l1.sort(my_sort);   //手动降序
+    //前后反转
+    l1.reverse();
+
+    return 0;
+}
+```
+
+```C++
+#include <iostream>
+#include <list>
+#include <algorithm>
+using namespace std;
+
+class Person {
+public:
+    Person(string n, int a, int h);
+    string m_name;
+    int m_age;
+    int m_height;
+};
+Person::Person(string n, int a, int h):m_name(n), m_age(a), m_height(h) {}
+
+void print_list(const list<Person> &l) {
+    for (list<Person>::const_iterator it = l.begin(); it != l.end(); it++) {
+        cout << it->m_name << " is " << it->m_age << " , " << it->m_height << endl;
+    }
+}
+//第一个元素和每个元素对比（冒泡排序），返回false则交换，true则不变
+bool my_compare(Person &p1, Person &p2) {
+    if (p1.m_age == p2.m_age)
+        //若年龄相同则用身高来判断是否要交换（排序）
+        return p1.m_height < p2.m_height;
+    else
+        return p1.m_age < p2.m_age;
+}
+
+int main()
+{
+    list<Person> l1;
+    Person p1("linus", 56, 170);
+    Person p2("Mrqkh", 27, 175);
+    Person p3("hong.", 25, 165);
+    Person p4("Mr.zh", 27, 168);
+
+    l1.push_back(p1);
+    l1.push_back(p2);
+    l1.push_back(p3);
+    l1.push_back(p4);
+
+    l1.sort(my_compare);
+    print_list(l1);
+    /*
+    hong. is 25 , 165
+    Mr.zh is 27 , 168
+    Mrqkh is 27 , 175
+    linus is 56 , 170
+    */
+
+    return 0;
+}
+```
 
 
 
