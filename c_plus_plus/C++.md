@@ -2038,12 +2038,12 @@ int main()
     cout << v1.capacity() << endl;  //容量为16
     cout << v1.size() << endl;      //大小为15
     //重新定义容器大小为5
-    v1.resize(5);
+*    v1.resize(5);
     cout << v1.capacity() << endl;  //容量为16（不变）
     cout << v1.size() << endl;      //大小为5
     //容器v1的容量为16，但大小为5，多余大小11可节省
     //定义一个容量和大小相同的临时容器(v1)，和原有容器v1互换，然后释放临时容器
-    vector<int>(v1).swap(v1);
+*    vector<int>(v1).swap(v1);
     cout << v1.capacity() << endl;  //容量为5（变小）
     cout << v1.size() << endl;      //大小为5
 
@@ -2084,10 +2084,10 @@ int main()
         cout << it->m_name << " is " << it->m_age << endl;  //linux is 200 \n china is 5000
     }
 
-    Base *t3 = new Base("Q", 10);
-    Base *t4 = new Base("K", 20);
     //创建容器
     vector<Base *> v2;
+    Base *t3 = new Base("Q", 10);
+    Base *t4 = new Base("K", 20);
     //向容器中插入数据
     v2.push_back(t3);
     v2.push_back(t4);
@@ -2130,8 +2130,8 @@ int main()
     v.push_back(v3);
 
     //迭代器 it1 相当于尖括号里的指针，即 vector<int> *，是容器指针类型
-    //(*it1).begin 指向容器v1首地址
-    //it++后，(*it1).begin 指向容器v2首地址
+    //it1是 v 的迭代器，(*it1).begin 是元素v1的迭代器
+    //it1++后，(*it1).begin 指向容器v2首地址
     for (vector<vector<int>>::iterator it1 = v.begin(); it1 != v.end(); it1++) {
         for (vector<int>::iterator it2 = (*it1).begin(); it2 != (*it1).end(); it2++) {
             cout << *it2 << " ";
@@ -2148,7 +2148,7 @@ int main()
 
 vector 可以动态扩展。当执行push_back()时，若容量不够，则会开辟更大的内存，然后将原有数据拷贝到该内存中，且会预留多余空间，然后释放原有空间。例如，第一次 push_back(2) 时，容量为8，大小为1。第二次 push_back(9) 时，容量为16，大小为10
 
-reserve和resize的区别仅仅为，是否初始化，即访问权限
+reserve 和 resize 的区别仅仅为，是否初始化，即访问权限
 
 ```C++
 #include <iostream>
@@ -2194,7 +2194,9 @@ int main()
 
 ### <font color="1E90FF">3.2 deque容器</font>
 
-deque容器被称为双端数组，可以对头端和尾端进行插入/删除操作。头部插入/删除时`deque`容器快，访问元素时`vector`容器块。deque容器的迭代器也支持随机访问
+deque容器被称为双端数组，可以对头端和尾端进行插入/删除操作
+
+头部插入/删除元素时`deque`容器快，访问元素时`vector`容器块。deque容器的迭代器也支持随机访问
 
 >头部插入/删除 vector 容器时，需要将元素都往后/前移动一个位置，效率低
 
@@ -2285,7 +2287,7 @@ int main()
 }
 ```
 
-#### <font color="1E90FF">vector和deque容器的头尾插删</font>
+#### <font color="1E90FF">deque容器的头尾插删</font>
 
 ```C++
 #include <iostream>
@@ -2317,7 +2319,7 @@ int main()
     print_deque(d1);    //8 1
 
     deque<int>::iterator it = d1.begin();
-    d1.insert(++it, 7); //移动迭代器并插入
+    d1.insert(++it, 7); //移动迭代器并插入7
     print_deque(d1);    //8 7 1
     d1.erase(it);       //此时迭代器指向元素7
     print_deque(d1);    //8 1
@@ -2374,7 +2376,7 @@ class Person {
 public:
     string m_name;
     int m_score;
-    Person(string n, int s = 0);
+    Person(string n, int s = 0);    //默认形参只能在声明或定义中赋值
 
 };
 Person::Person(string n, int s):m_name(n), m_score(s) {
@@ -2436,15 +2438,9 @@ int main()
 }
 ```
 
-
-
-___
-
-
-
 ### <font color="1E90FF">3.3 stack容器</font>
 
-stack 栈是先进后出（First In Last Out，FILO）的数据结构。栈中只有顶端的元素才可以被使用，因 stack 栈不提供遍历功能，也不提供迭代器
+stack 栈是先进后出（First In Last Out，FILO）的数据结构。栈中只有顶端的元素才可以被使用，因此 stack 栈不提供遍历功能，也不提供迭代器
 
 <div align=center><img src="img/2023-06-17-08-28-03.png" width="50%"></div>
 
@@ -2462,6 +2458,7 @@ int main()
     s.push(20);
     s.push(30);
 
+    //获取栈的大小
     cout << s.size() << endl;   // 3
 
     while (!s.empty()) {
@@ -2470,7 +2467,6 @@ int main()
         //出栈
         s.pop();
     }
-    //获取栈的大小
     cout << s.size() << endl;   // 0 
 
     return 0;
@@ -2503,7 +2499,7 @@ int main()
     Person p1("linux");
     Person p2("china");
     Person p3("bhlk");
-    //入队
+    //从尾部入队
     q.push(p1);
     q.push(p2);
     q.push(p3);
@@ -2514,7 +2510,7 @@ int main()
         cout << q.front().m_name << endl;
         //获取队尾元素
         cout << q.back().m_name << endl;
-        //对头元素出队
+        //从头部出队
         q.pop();
         cout << endl;
     }
@@ -2735,6 +2731,68 @@ int main()
     return 0;
 }
 ```
+
+### <font color="1E90FF">3.6 set/multiset容器</font>
+
+set/multiset 属于关联式容器。关联式容器的特点是元素在插入时自动排序
+
+set 和 multiset 的区别：set不允许容器中有重复的元素，而multiset允许
+
+```C++
+#include <iostream>
+#include <set>
+using namespace std;
+
+void printf_set(const set<int> &s) {
+    for (set<int>::const_iterator it = s.begin(); it != s.end(); it++) {
+        cout << *it << " ";
+    }
+    cout << endl;
+}
+
+int main()
+{
+    set<int> s1;
+
+    //使用insert插入数据，且会自动排序（不能用push_back）
+    s1.insert(30);
+    s1.insert(40);
+    s1.insert(20);
+    s1.insert(50);
+
+    set<int> s2(s1);
+    s2 = s1;
+    
+    if (!s1.empty());
+        cout << s1.size() << endl; //（不能使用resize）
+
+    //删除指定元素
+    s1.erase(s1.begin());   //删除20
+    s1.erase(30);           //删除30
+
+    //find(key)会查找key是否存在，存在则返回该键的元素的迭代器，不存在则返回set.end()
+    set<int>::iterator it = s1.find(40);
+    if (it != s1.end())
+        cout << *it << endl;
+
+    //count(key)统计key元素的个数（因set容器没有相同元素，故会返回0或1）
+    cout << s1.count(40) << endl;
+
+    //交换
+    s1.swap(s2);
+    //清除
+    s1.clear();
+
+    return 0;
+}
+```
+
+
+
+
+
+
+
 
 
 
