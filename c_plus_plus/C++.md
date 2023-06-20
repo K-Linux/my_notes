@@ -2787,7 +2787,7 @@ int main()
 }
 ```
 
-#### <font color="1E90FF">set容器的排序</font>
+#### <font color="1E90FF">set容器的内置类型排序</font>
 
 ```C++
 #include <iostream>
@@ -2815,7 +2815,7 @@ int main()
         cout << *it1 << " ";
     cout << endl;
 
-    //set的第二个类型参数是仿函数（重载()符号的函数叫仿函数）
+    //set的第二个类型参数是仿函数，用来定义排序规则（重载()符号的类的函数叫仿函数）
     set<int, my_compare> s2;
     s2.insert(20);
     s2.insert(10);
@@ -2830,10 +2830,58 @@ int main()
 }
 ```
 
+#### <font color="1E90FF">set容器的自定义类型排序</font>
 
+set 容器存放自定义数据类型时一定要指定排序规则
 
+```C++
+#include <iostream>
+#include <set>
+#include <string>
+using namespace std;
 
+class Person {
+public:
+    string m_name;
+    int m_age;
+    Person(string n, int a);
+};
+Person::Person(string n, int a):m_name(n), m_age(a) {}
 
+class compare_person {
+public:
+    bool operator()(const Person &p1, const Person &p2) {
+        return p1.m_age > p2.m_age;
+    }
+};
+
+int main()
+{
+    //set容器存放自定义数据类型时一定要指定排序规则
+    //set的第二个类型参数是仿函数，用来定义排序规则（重载()符号的类的函数叫仿函数）
+    set<Person, compare_person> s;
+
+    Person p1("linus", 24);
+    Person p2("Mrqkh", 27);
+    Person p3("Ms.he", 15);
+    Person p4("Ms.zh", 21);
+
+    s.insert(p1);
+    s.insert(p2);
+    s.insert(p3);
+    s.insert(p4);
+
+    for (set<Person, compare_person>::iterator it = s.begin(); it != s.end(); it++)
+        cout << it->m_name << " is " << it->m_age << endl;
+
+// Mrqkh is 27
+// linus is 24
+// Ms.zh is 21
+// Ms.he is 15
+
+    return 0;
+}
+```
 
 ### <font color="1E90FF">3.7 pair对组容器</font>
 
@@ -2856,6 +2904,58 @@ int main()
     return 0;
 }
 ```
+
+### <font color="1E90FF">3.8 map/multimap容器</font>
+
+map中所有元素都是pair，属于关联式容器
+pair中第一个元素为键值key，起到索引作用，第二个元素为实值value
+所有元素都会根据键值key自动排序
+map 和 multimap 的区别：map不允许容器中有重复的key值，而multimap允许（value值都可以重复）
+
+```C++
+#include <iostream>
+#include <map>
+using namespace std;
+
+void print_map(const map<int, int> &m) {
+    for (map<int, int>::const_iterator it = m.begin(); it != m.end(); it++)
+        cout << "key:" << (*it).first << " value:" << it->second << endl;
+}
+
+int main()
+{
+    map<int, int> m1;
+    //第一个元素为key，第二个元素为value
+    m1.insert(pair<int, int>(1, 10));
+    m1.insert(pair<int, int>(3, 30));
+    m1.insert(pair<int, int>(4, 40));
+    m1.insert(pair<int, int>(2, 20));
+
+    //判断空
+    if (!m1.empty())
+        //获取大小
+        cout << m1.size() << endl;  //打印4
+
+    //拷贝构造
+    map<int, int> m2(m1);
+    //直接赋值
+    m2 = m1;
+
+    //交换
+    m1.swap(m2);
+
+    print_map(m2);
+// key:1 value:10
+// key:2 value:20
+// key:3 value:30
+// key:4 value:40
+
+//需要继续添加
+
+    return 0;
+}
+```
+
 
 
 
