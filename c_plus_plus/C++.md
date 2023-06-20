@@ -2787,12 +2787,75 @@ int main()
 }
 ```
 
+#### <font color="1E90FF">set容器的排序</font>
+
+```C++
+#include <iostream>
+#include <set>
+using namespace std;
+
+class my_compare {
+public:
+    //重载()
+    bool operator()(int v1, int v2);
+};
+bool my_compare::operator()(int v1, int v2) {
+    return v1 > v2;
+}
+
+int main()
+{
+    set<int> s1;
+    s1.insert(20);
+    s1.insert(10);
+    s1.insert(30);
+    s1.insert(40);
+    //set容器自动默认为升序排序
+    for (set<int>::const_iterator it1 = s1.begin(); it1 != s1.end(); it1++)
+        cout << *it1 << " ";
+    cout << endl;
+
+    //set的第二个类型参数是仿函数（重载()符号的函数叫仿函数）
+    set<int, my_compare> s2;
+    s2.insert(20);
+    s2.insert(10);
+    s2.insert(30);
+    s2.insert(40);
+    //降序
+    for (set<int>::const_iterator it2 = s2.begin(); it2 != s2.end(); it2++)
+        cout << *it2 << " ";
+    cout << endl;
+
+    return 0;
+}
+```
 
 
 
 
 
 
+### <font color="1E90FF">3.7 pair对组容器</font>
+
+pair对组是成对出现的数据，用来保存两个元素的数组
+
+```C++
+//对组没有头文件
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    pair<string, int> t1("Tom", 20);
+    //first是第一个元素，second是第二个元素
+    cout << t1.first << " is " << t1.second << endl;
+
+    pair<string, int> t2 = make_pair("Jerry", 30);
+    cout << t2.first << " is " << t2.second << endl;
+
+    return 0;
+}
+```
 
 
 
