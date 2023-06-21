@@ -1355,7 +1355,7 @@ int main(){
     int a[5] = { 1, 2, 3, 4, 5 };
     int b[5] = { 10, 20, 30, 40, 50 };
     //数组名作为实参会自动转化为数组指针
-    //sizeof只能通过数组名求得数组长度，不能通过数组指针求得数组长度
+    //sizeof只能通过数组名求得数组长度，不能通过数组指针求得数组长度，所以要先sizeof数组长度再做形参
     int len = sizeof(a) / sizeof(int);  //数组长度
     Swap(a, b, len);  //匹配模板2
     printArray(a, len);
@@ -1681,7 +1681,7 @@ class Base {
 class Derive1:public Base<int> {    //此时m是int类型
 };
 
-//当基类是一个类模板时，若派生类不指定基类T的类型，则派生类也必须是类模板
+//当基类是一个类模板时，派生类要指定基类T的类型
 template<typename T1, typename T2>
 class Derive2:public Base<T2> {     //此时m是T2类型
     T1 obj;
@@ -1697,7 +1697,7 @@ int main()
 
 #### <font color="1E90FF">类模板的友元</font>
 
-全局函数作友元，类内实现
+**<font size="4" color="1E90FF">全局函数作友元，类内实现</font>**
 
 ```C++
 #include <iostream>
@@ -1732,7 +1732,7 @@ int main()
 }
 ```
 
-全局模板函数作友元，类外实现
+**<font size="4" color="1E90FF">全局模板函数作友元，类外实现</font>**
 
 ```C++
 #include <iostream>
@@ -1822,7 +1822,7 @@ template<typename T> void Swap(T &a, T &b){
     a = b;
     b = temp;
 }
-int main(){
+int main() {
     int n1 = 1, n2 = 2, n3 = 3, n4 = 4;
     string str1 = "Linux", str2 = "China";
    
@@ -1877,7 +1877,7 @@ int main()
 
 ### <font color="1E90FF">2.5 将模板应用于多文件编程</font>
 
-工程中一般会包含两个源文件和一个头文件，`func.cpp`中定义函数和类，`func.h`中声明函数和类，`main.cpp`中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，如果`main.cpp`只声明了`func.h`文件，则在编译的时候不会生成模板函数和模板类的实体，这样在链接的时候就会链接报错，只有将`func.cpp`包含到`main.cpp`中才正确。所以我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的定义`func.cpp`和声明`func.h`都放到头文件`.hpp`中。</font>`.hpp`默认表示的是模板的头文件
+工程中一般会包含两个源文件和一个头文件，`func.cpp`中定义函数和类，`func.h`中声明函数和类，`main.cpp`中调用函数和类，这是典型的将函数的声明和实现分离的编程模式，达到「模块化编程」的目的。 但是模板并不是真正的函数或类，它仅仅是用来生成函数或类的一张"图纸"，如果`main.cpp`只声明了`func.h`文件，则在编译的时候不会生成模板函数和模板类的实体，这样在链接的时候就会链接报错，只有将`func.cpp`包含到`main.cpp`中才正确。所以我们不能将模板的声明和定义分散到多个文件中，<font color="yellow">我们应该将模板的定义`func.cpp`和声明`func.h`都放到头文件`.hpp`中。和结构体一样。</font>`.hpp`默认表示的是模板的头文件
 
 ___
 
@@ -2148,7 +2148,7 @@ int main()
 
 vector 可以动态扩展。当执行push_back()时，若容量不够，则会开辟更大的内存，然后将原有数据拷贝到该内存中，且会预留多余空间，然后释放原有空间。例如，第一次 push_back(2) 时，容量为8，大小为1。第二次 push_back(9) 时，容量为16，大小为10
 
-reserve 和 resize 的区别仅仅为，是否初始化，即访问权限
+reserve 和 resize 的区别仅仅为，是否初始化，即访问权限，且reserve只能用于扩张
 
 ```C++
 #include <iostream>
@@ -2475,7 +2475,7 @@ int main()
 
 ### <font color="1E90FF">3.4 queue队列容器</font>
 
-queue是一种先进先出（First In First Out，FIFO）的数据结构。队列容器和排队买票一样，只允许从一端入队push，从另一端出队pop。队列中只有队头和队尾可以被外界使用，因此不可以有遍历行为
+queue是一种先进先出（First In First Out，FIFO）的数据结构，没有迭代器。队列容器和排队买票一样，只允许从一端入队push，从另一端出队pop。队列中只有队头和队尾可以被外界使用，因此不可以有遍历行为
 
 <div align=center><img src="img/2023-06-18-14-54-49.png" width="60%"></div>
 
@@ -2504,7 +2504,7 @@ int main()
     q.push(p2);
     q.push(p3);
 
-    cout << q.size() << endl;
+    cout << q.size() << endl;   //3
     while (!q.empty()) {
         //获取队头元素
         cout << q.front().m_name << endl;
@@ -2514,7 +2514,7 @@ int main()
         q.pop();
         cout << endl;
     }
-    cout << q.size() << endl;
+    cout << q.size() << endl;   //0
 
     return 0;
 }
@@ -2649,8 +2649,8 @@ int main()
 using namespace std;
 
 //自定义排序回调函数
-//返回false为升序，true为降序
-//第一个元素和每个元素对比（冒泡排序），返回false则交换，true则不变
+//返回true为升序，false为降序
+//第一个元素和每个元素对比（冒泡排序），返回true则不变，false则交换
 bool my_sort(int a, int b) {
     return a > b;   //降序
     // return a < b;   //升序
@@ -2697,10 +2697,10 @@ void print_list(const list<Person> &l) {
         cout << it->m_name << " is " << it->m_age << " , " << it->m_height << endl;
     }
 }
-//第一个元素和每个元素对比（冒泡排序），返回false则交换，true则不变
+//第一个元素和每个元素对比（冒泡排序），返回true则不变，false则交换
 bool my_compare(Person &p1, Person &p2) {
     if (p1.m_age == p2.m_age)
-        //若年龄相同则用身高来判断是否要交换（排序）
+        //若年龄相同则用身高来判断返回true还是false（排序）
         return p1.m_height < p2.m_height;
     else
         return p1.m_age < p2.m_age;
@@ -2799,6 +2799,8 @@ public:
     //重载()
     bool operator()(int v1, int v2);
 };
+//返回true为升序，false为降序
+//第一个元素和每个元素对比（冒泡排序），返回true则不变，false则交换
 bool my_compare::operator()(int v1, int v2) {
     return v1 > v2;
 }
@@ -2848,6 +2850,8 @@ public:
 };
 Person::Person(string n, int a):m_name(n), m_age(a) {}
 
+//返回true为升序，false为降序
+//第一个元素和每个元素对比（冒泡排序），返回true则不变，false则交换
 class compare_person {
 public:
     bool operator()(const Person &p1, const Person &p2) {
@@ -2928,8 +2932,8 @@ int main()
     //第一个元素为key，第二个元素为value
     m1.insert(pair<int, int>(1, 10));
     m1.insert(pair<int, int>(3, 30));
-    m1.insert(pair<int, int>(4, 40));
-    m1.insert(pair<int, int>(2, 20));
+    m1.insert(make_pair(4, 40));
+    m1.insert(make_pair(2, 20));
 
     //判断空
     if (!m1.empty())
@@ -2940,9 +2944,19 @@ int main()
     map<int, int> m2(m1);
     //直接赋值
     m2 = m1;
+    //数组下标用来访问value值（也可以用来赋值但不推荐）
+    cout << m1[4] << endl;
 
     //交换
     m1.swap(m2);
+
+    //通过find()和key值查找对组
+    map<int, int>::iterator it = m1.find(2);
+    if (it != m1.end()) //不等于末尾说明找到了
+        cout << "key is " << (*it).first << " value is " << (*it).second << endl;
+
+    //通过count()统计key值的数量（返回1或0，因map的key值不重复）
+    cout << m1.count(2) << endl;
 
     print_map(m2);
 // key:1 value:10
@@ -2950,11 +2964,51 @@ int main()
 // key:3 value:30
 // key:4 value:40
 
-//需要继续添加
+    m1.erase(m1.begin());
+    m1.erase(2);    //删除kay为3的对组
+    m1.clear();
 
     return 0;
 }
 ```
+
+
+#### <font color="1E90FF">map容器的自定义类型排序</font>
+
+```C++
+#include <iostream>
+#include <map>
+using namespace std;
+
+class my_compare {
+public:
+    //返回true为升序，false为降序
+    //第一个元素和每个元素对比（冒泡排序），返回true则不变，false则交换
+    bool operator()(int v1, int v2) {
+        return v1 > v2; // false 交换
+    }
+};
+
+int main() 
+{
+    //map容器存放自定义数据类型时要指定排序规则
+    //map的第三个类型参数是仿函数，用来定义排序规则（重载()符号的类的函数叫仿函数）
+    map<int, int, my_compare> m;
+
+    //默认是通过key值升序排序
+    m.insert(make_pair(1, 10));
+    m.insert(make_pair(2, 10));
+    m.insert(make_pair(3, 10));
+
+    for (map<int, int, my_compare>::iterator it = m.begin(); it != m.end(); it++)
+        cout << (*it).first << endl;
+
+    return 0;
+}
+```
+
+
+
 
 
 
