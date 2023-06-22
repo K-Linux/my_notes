@@ -1130,7 +1130,7 @@ int main()
 }
 ```
 
-#### <font color="1E90FF">函数调用运算符重载</font>
+#### <font color="1E90FF">函数调用运算符重载（仿函数）</font>
 
 由于函数调用运算符重载后的使用方式和普通函数很像，因此称为仿函数
 
@@ -3007,15 +3007,301 @@ int main()
 }
 ```
 
+### <font color="1E90FF">3.9 函数对象</font>
+
+当一个类重载了函数调用操作符，这个类的对象称为函数对象
+函数对象调用重载的()符号时，和普通函数调用一样，所以也叫仿函数
+<font color="yellow">函数对象（仿函数）的本质是一个类</font>
+
+```C++
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Add {
+public:
+    int count;
+    Add();
+    void operator()(string s) {
+        cout << s << endl;
+        this->count++;
+    }
+};
+Add::Add():count(0) {}
+
+int main() 
+{
+    Add my_add;
+    //函数调用运算符重载和普通函数用法相同，因此又称仿函数
+    my_add("linux");
+    my_add("linux");
+    //记录函数被调用的次数
+    cout << "number of calls is " << my_add.count << endl;
+
+    return 0;
+}
+```
+
+### <font color="1E90FF">3.10 谓词</font>
+
+返回bool类型的仿函数，称为谓词 Pred。若仅有一个形参叫一元谓词，两个形参叫二元谓词
+
+<center>一元谓词</center>
+
+```C++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+//返回bool类型且仅有一个形参的仿函数，称为一元谓词
+class Greater_one {
+public:
+    //若值大于1则返回true
+    bool operator()(int val) {
+        return val > 1;
+    }
+};
+int main() 
+{
+    vector<int> v;
+    Greater_one greater;
+
+    v.push_back(1);
+    v.push_back(3);
+    v.push_back(2);
+
+    //find_if算法会找到容器中第一个大于n的数字，并返回其迭代器（第三个参数是函数对象仿函数）
+    vector<int>::iterator it1 = find_if(v.begin(), v.end(), greater);
+    if (it1 != v.end())
+        cout << *it1 << endl;   // 3
+
+    //Greater_one()表示匿名的函数对象/仿函数（可以不用创建类对象而直接调用仿函数）
+    vector<int>::iterator it2 = find_if(v.begin(), v.end(), Greater_one());
+    if (it2 != v.end())
+        cout << *it2 << endl;   // 3
+
+    return 0;
+}
+```
+
+<center>二元谓词</center>
+
+```C++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+//返回bool类型且仅有两个形参的仿函数，称为二元谓词
+class My_compare {
+public:
+    //返回true则不变，返回false则交换v1和v2
+    bool operator()(int v1, int v2) {
+        return v1 > v2;
+    }
+};
+int main() 
+{
+    vector<int> v;
+
+    v.push_back(1);
+    v.push_back(3);
+    v.push_back(2);
+
+    //sort排序算法默认是升序
+    sort(v.begin(), v.end());
+    //使用函数对象/仿函数改变sort排序为降序（第三个参数是函数对象/仿函数）
+    sort(v.begin(), v.end(), My_compare()); //匿名仿函数
+    for (vector<int>::iterator it = v.begin(); it != v.end(); it++)
+        cout << *it << " ";     // 3 2 1
+    cout << endl;
+
+    return 0;
+}
+```
+
+### <font color="1E90FF">3.11 内建函数对象</font>
+
+内建函数对象，是 STL 内部建立的一些函数对象/仿函数，<font color="yellow">其本质是类模版重载了运算符</font>。其头文件为 `<functional>`
+
+<center>算术仿函数</center>
+
+```C++
+#include <iostream>
+#include <functional>
+using namespace std;
+
+int main() 
+{
+    //算术仿函数
+
+    //加法仿函数
+    plus<int> p;
+    cout << p(6, 5) << endl; //11
+    //减法仿函数
+    minus<int> m;
+    cout << m(6, 5) << endl; //1
+    //乘法仿函数
+    multiplies<int> mul;
+    cout << mul(6, 5) << endl; //30
+    //除法仿函数
+    divides<int> d;
+    cout << d(10, 5) << endl; //2
+    //取模仿函数
+    modulus<int> modul;
+    cout << modul(10, 5) << endl; //0
+    //取反仿函数
+    negate<int> n;
+    cout << n(-10) << endl;  //10
+
+    return 0;
+}
+```
+
+<center>关系仿函数</center>
+
+```C++
+#include <iostream>
+#include <vector>
+#include <functional>
+#include <algorithm>
+using namespace std;
+
+//返回bool类型且仅有两个形参的仿函数，称为二元谓词
+class My_compare {
+public:
+    //返回true则不变，返回false则交换v1和v2
+    bool operator()(int v1, int v2) {
+        return v1 > v2;
+    }
+};
+int main() 
+{
+    vector<int> v;
+
+    v.push_back(1);
+    v.push_back(3);
+    v.push_back(2);
+
+    //sort排序算法默认是升序
+    sort(v.begin(), v.end());
+
+    //使用自定义的函数对象/仿函数改变sort排序为降序（第三个参数是函数对象/仿函数）
+    sort(v.begin(), v.end(), My_compare()); //匿名仿函数
+    for (vector<int>::iterator it = v.begin(); it != v.end(); it++)
+        cout << *it << " ";     // 3 2 1
+    cout << endl;
+
+    //使用内建的函数对象/仿函数改变sort排序为降序（其内部和My_compare是一样的）
+    sort(v.begin(), v.end(), greater<int>());
+    for (vector<int>::iterator it = v.begin(); it != v.end(); it++)
+        cout << *it << " ";     // 3 2 1
+    cout << endl;
+
+    return 0;
+}
+```
+___
+
+## <font color="1E90FF">四、常用算法</font>
+
+算法主要是由头文件`<algorithm>` `<functional>` `<numeric>`组成
+
+### <font color="1E90FF">4.1 遍历算法 for_each</font>
+
+```C++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+void print1(int val) {
+    cout << val << " ";
+}
+
+class print2 {
+public:
+    void operator()(int val) {
+        cout << val << " ";
+    }
+};
+int main() 
+{
+    vector<int> v;
+
+    for (int i = 0; i < 10; i++)
+        v.push_back(i);
+
+    //开始迭代器，结束迭代器，函数
+    for_each(v.begin(), v.end(), print1);
+    cout << endl;
+    //开始迭代器，结束迭代器，函数对象（匿名）
+    for_each(v.begin(), v.end(), print2());
+
+    return 0;
+}
+```
+
+### <font color="1E90FF">4.2 遍历算法 transform</font>
+
+transform算法可将源容器的数据经过仿函数运算后赋值给目标容器
+
+```C++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+class Transform {
+public:
+    //transform算法会将v1的每个元素当作实参，经过此函数运算后返回给v2
+    int operator()(int v) {
+        return v + 10;
+    }
+};
+
+class print {
+public:
+    void operator()(int val) {
+        cout << val << " ";
+    }
+};
+
+int main() 
+{
+    //原容器起始迭代器，原容器结束迭代器，目标容器起始迭代器，函数或函数对象
+    vector<int> v1;
+    for (int i = 0; i < 10; i++)
+        v1.push_back(i);
+
+    vector<int> v2;
+    //使用transform时需要提前给v2开辟空间
+    v2.resize(v1.size());
+    //transform可将v1的数据经过仿函数运算后赋值给v2
+    //原容器起始迭代器，原容器结束迭代器，目标容器起始迭代器，函数或函数对象
+    transform(v1.begin(), v1.end(), v2.begin(), Transform());
+
+    //10 11 12 13 14 15 16 17 18 19
+    for_each(v2.begin(), v2.end(), print());
+
+    return 0;
+}
+```
+
+### <font color="1E90FF">4.3 遍历算法 find</font>
+
+按值查找元素，并返回该值的迭代器，未找到则返回结束迭代器
 
 
 
 
 
+___
 
-## <font color="1E90FF">四、C++11</font>
+## <font color="1E90FF">五、C++11</font>
 
-### <font color="1E90FF">4.1 auto</font>
+### <font color="1E90FF">5.1 auto</font>
 
 在`C++11`之前的版本`C++98`中，定义变量或者声明变量之前都必须指明它的类型，比如`int`、`char` 等；`auto`关键字用来指明变量的存储类型，它和 static 关键字是相对的。auto 表示变量是自动存储的，这也是编译器的默认规则，所以写不写都一样，这使得 auto 关键字的存在变得非常鸡肋。为了让编译器（或者解释器）自己去推导数据类型，让编码更加方便，在`C++11`中使用`auto`关键字后，编译器会在编译期间做自动类型推导
 
