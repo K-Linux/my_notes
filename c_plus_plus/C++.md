@@ -2004,7 +2004,6 @@ int main()
     //删除迭代器所指向的元素
     v1.erase(v1.begin());
 
-
     return 0;
 }
 ```
@@ -2254,7 +2253,6 @@ int main()
     cout << d1.front() << endl;
     //利用back()来访问容器尾元素
     cout << d1.back() << endl;
-
 
 //容器其它属性
     //重新指定容器大小为15。若大小变大，则容量变大且新增元素初始化为0。若大小变小，则容量不变且删除末尾超出部分
@@ -3291,7 +3289,56 @@ int main()
 
 ### <font color="1E90FF">4.3 遍历算法 find</font>
 
-按值查找元素，并返回该值的迭代器，未找到则返回结束迭代器
+find算法会遍历各元素，并和输入的元素对比，若找到相等的元素则返回该元素的迭代器，未找到则返回结束迭代器
+
+```C++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+using namespace std;
+
+//find算法实质是遍历并对比各元素，所以查找自定义类型数据时需要重载==
+class Person {
+public:
+    string m_name;
+    int m_age;
+    Person(string n, int a):m_name(n), m_age(a) {}
+    bool operator==(const Person &p) {
+        if (this->m_name == p.m_name)
+            return true;
+        else
+            return false;
+    }
+};
+
+int main() 
+{
+    //find查找整型（内置默认）
+    vector<int> v1;
+    for (int i = 0; i < 10; i++)
+        v1.push_back(i);
+    
+    vector<int>::iterator it1 = find(v1.begin(), v1.end(), 5);
+    cout << *it1 << endl;    // 5
+
+    //find查找自定义类型数据
+    vector<Person> v2;
+    Person p1("linux", 200);
+    Person p2("china", 5000);
+    Person p3("qkh", 26);
+
+    v2.push_back(p1);
+    v2.push_back(p2);
+    v2.push_back(p3);
+
+    Person p4("linux", 200);
+    vector<Person>::iterator it2 = find(v2.begin(), v2.end(), p4);
+    cout << it2->m_name << endl;    //linux
+
+    return 0;
+}
+```
 
 
 

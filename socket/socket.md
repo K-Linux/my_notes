@@ -682,23 +682,154 @@ TCP 是面向连接的传输方式，必须保证数据能够正确到达目标�
 
 数据包在网络中是有生存时间的，超过这个时间还未到达目标主机就会被丢弃，并通知源主机。这称为报文最大生存时间（MSL，Maximum Segment Lifetime）。TIME_WAIT 要等待 2MSL 才会进入 CLOSED 状态。ACK 包到达服务器需要 MSL 时间，服务器重传 FIN 包也需要 MSL 时间，2MSL 是数据包往返的最大时间，如果 2MSL 后还未收到服务器重传的 FIN 包，就说明服务器已经收到了 ACK 包。
 
+### <font color="1E90FF">socket实现文件传输功能</font>
+
+未做详细笔记
+
+server.cpp中使用
+
+```C++
+//多次读取fp文件中的数据到buffer中，并将数据发送到sock套接字
+while((read(fp, buffer, BUF_SIZE)) > 0) {
+    write(sock, buffer, BUF_SIZE);
+}
+//文件读取完毕，断开输出流，向客户端发送FIN包
+shutdown(client_sock, SHUT_WR); //shutdown会断开连接，但缓冲区数据还会继续发送（参数2是固定宏）
+read(client_sock, buffer, BUF_SIZE);  //阻塞，等待客户端接收完毕
+fclose(fp);
+closesocket(client_sock);
+closesocket(server_sock);
+```
+
+client.cpp中使用
+
+```C++
+//多次读取sock套接字的数据到buffer中，并将数据保存到fp文件描述符中
+while((read(sock, buffer, BUF_SIZE)) > 0) {
+    write(fp, buffer, BUF_SIZE);
+}
+//文件接收完毕后直接关闭套接字，无需调用shutdown()
+fclose(fp);
+closesocket(sock);
+```
+
+### <font color="1E90FF">网络数据传输时的大小端</font>
+
+**<font size="4" color="1E90FF">大端序和小端序</font>**
+
+CPU 向内存保存数据的方式有两种：
+
+- 大端序（Big Endian）：高位字节存放到低位地址（高位字节在前）
+- 小端序（Little Endian）：高位字节存放到高位地址（低位字节在前）
+
+假设从地址 0x20 开始保存一个 int 型数据 0x12345678，大端序和小端序 CPU 保存方式如下图所示：
+
+<center>大端序</center>
+
+<div align=center><img src="img/2023-06-23-10-34-57.png" width="50%"></div>
+
+<center>小端序</center>
+
+<div align=center><img src="img/2023-06-23-10-37-19.png" width="50%"></div>
 
 
+对于大端序，最高位字节 0x12 存放到低位地址 0x20，最低位字节 0x78 存放到高位地址 0x23
+对于小端序，最高位字节 0x12 存放到高位地址 0x23，最低位字节 0x78 存放到低位地址 0x20
+
+不同 CPU 保存和解析数据的方式不同（主流的 Intel 系列 CPU 为小端序），小端序系统和大端序系统通信时要在发送数据前将数据转换为统一的大端序格式——<font color="yellow">网络字节序</font>（Network Byte Order）
+
+主机 A 先把数据转换成大端序再进行网络传输，主机 B 收到数据后先转换为自己的格式再解析
+
+**<font size="4" color="1E90FF">网络字节序转换函数</font>**
+
+常见的网络字节转换函数有：
+
+- `htons()`：host to network short，将 short 类型数据从主机字节序转换为网络字节序（转为大端）
+- `ntohs()`：network to host short，将 short 类型数据从网络字节序转换为主机字节序
+- `htonl()`：host to network long，将 long 类型数据从主机字节序转换为网络字节序（转为大端）
+- `ntohl()`：network to host long，将 long 类型数据从网络字节序转换为主机字节序
+
+通常，以`s`为后缀的函数用于端口号转换；以`l`为后缀的函数用于 IP 地址转换。
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <arpa/inet.h>
+
+int main(){
+    unsigned short net_port, host_port = 0x1234;
+    unsigned long net_addr, host_addr = 0x12345678;
+
+    net_port = htons(host_port);    //端口号大小端转换
+    net_addr = htonl(host_addr);    //IP地址大小端转换
+
+    printf("Host ordered port: %#x\n", host_port);          //0x1234;
+    printf("Network ordered port: %#x\n", net_port);        //0x3412;
+    printf("Host ordered address: %#lx\n", host_addr);      //0x12345678;
+    printf("Network ordered address: %#lx\n", net_addr);    //0x78563412;
+
+    return 0;
+}
+```
+
+**<font size="4" color="1E90FF">inet_addr转换函数</font>**
+
+IP地址一般使用<font color="yellow">点分十进制</font>来表示。例如`"127.0.0.1"` ，它是一个字符串，因此需要将其转换为4字节的整型，再进行网络字节序转换。`inet_addr()` 函数就可以同时完成这种转换
+
+`inet_addr()` 可以把 IP 地址转换为 32 位整型和网络字节序转换，同时还可以检测 IP 地址是否有效
+
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+int main() {
+
+//IP地址转换为整型和网络字节序转换
+    char *addr1 = "1.2.3.4";    //有效IP地址
+    unsigned long convert_addr1 = inet_addr(addr1);
+
+    if(convert_addr1 == INADDR_NONE)
+        puts("Error occured!");
+    else
+        printf("Network ordered integer addr: %#lx\n", convert_addr1);  //0x4030201
+
+//检测IP地址有效性
+    char *addr2 = "1.2.3.256";  //无效IP地址
+    unsigned long convert_addr2 = inet_addr(addr2);
+
+    convert_addr2 = inet_addr(addr2);
+    if(convert_addr2 == INADDR_NONE)
+        puts("Error occured!");     //打印此处
+    else
+        printf("Network ordered integer addr: %#lx\n", convert_addr2);
+
+    return 0;
+}
+```
+
+> 注意：通过 write() 发送的数据， TCP 协议会自动转换为网络字节序
 
 
+### <font color="1E90FF">socket编程中使用域名</font>
+
+未做笔记
+
+### <font color="1E90FF">基于UDP的服务器端和客户端</font>
+
+未做笔记
 
 ___
 
 ## <font color="1E90FF">二、Websocket</font>
 
+WebSocket 是一种网络通信协议
+
+
+
+## <font color="1E90FF">参考</font>
+
+- [C语言中文网](http://c.biancheng.net/socket/)
 - [websocket](https://www.ruanyifeng.com/blog/2017/05/websocket.html)
-
-
-## <font color="1E90FF">杂项</font>
-
-填充
-填充
-填充
-填充
-填充
-填充
