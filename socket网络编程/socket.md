@@ -682,36 +682,6 @@ TCP 是面向连接的传输方式，必须保证数据能够正确到达目标�
 
 数据包在网络中是有生存时间的，超过这个时间还未到达目标主机就会被丢弃，并通知源主机。这称为报文最大生存时间（MSL，Maximum Segment Lifetime）。TIME_WAIT 要等待 2MSL 才会进入 CLOSED 状态。ACK 包到达服务器需要 MSL 时间，服务器重传 FIN 包也需要 MSL 时间，2MSL 是数据包往返的最大时间，如果 2MSL 后还未收到服务器重传的 FIN 包，就说明服务器已经收到了 ACK 包。
 
-### <font color="1E90FF">socket实现文件传输功能</font>
-
-未做详细笔记
-
-server.cpp中使用
-
-```C++
-//多次读取fp文件中的数据到buffer中，并将数据发送到sock套接字
-while((read(fp, buffer, BUF_SIZE)) > 0) {
-    write(sock, buffer, BUF_SIZE);
-}
-//文件读取完毕，断开输出流，向客户端发送FIN包
-shutdown(client_sock, SHUT_WR); //shutdown会断开连接，但缓冲区数据还会继续发送（参数2是固定宏）
-read(client_sock, buffer, BUF_SIZE);  //阻塞，等待客户端接收完毕
-fclose(fp);
-closesocket(client_sock);
-closesocket(server_sock);
-```
-
-client.cpp中使用
-
-```C++
-//多次读取sock套接字的数据到buffer中，并将数据保存到fp文件描述符中
-while((read(sock, buffer, BUF_SIZE)) > 0) {
-    write(fp, buffer, BUF_SIZE);
-}
-//文件接收完毕后直接关闭套接字，无需调用shutdown()
-fclose(fp);
-closesocket(sock);
-```
 
 ### <font color="1E90FF">网络数据传输时的大小端</font>
 
@@ -744,9 +714,9 @@ CPU 向内存保存数据的方式有两种：
 
 常见的网络字节转换函数有：
 
-- `htons()`：host to network short，将 short 类型数据从主机字节序转换为网络字节序（转为大端）
+- `htons()`：host to network short，将 short 类型数据从主机字节序转换为网络字节序，返回uint16_t（转为大端）
 - `ntohs()`：network to host short，将 short 类型数据从网络字节序转换为主机字节序
-- `htonl()`：host to network long，将 long 类型数据从主机字节序转换为网络字节序（转为大端）
+- `htonl()`：host to network long，将 long 类型数据从主机字节序转换为网络字节序，返回uint32_t（转为大端）
 - `ntohl()`：network to host long，将 long 类型数据从网络字节序转换为主机字节序
 
 通常，以`s`为后缀的函数用于端口号转换；以`l`为后缀的函数用于 IP 地址转换。
@@ -812,6 +782,46 @@ int main() {
 
 > 注意：通过 write() 发送的数据， TCP 协议会自动转换为网络字节序
 
+### <font color="1E90FF">点分十进制</font>
+
+IP地址是由32位二进制构成的即一个整型数据，而在人机交互中通常使用字符串点分十进制方式显示
+
+|    |||
+|:---:|:---:|:---:|
+|**二进制**|0xFFFFFFFF|0xC0A80166|
+|**二进制**|FF . FF . FF . FF|C0 . A8 . 01 . 66|
+|**点分十进制**|255.255.255.255|192.168.1.102|
+
+### <font color="1E90FF">socket实现文件传输功能</font>
+
+未做详细笔记
+
+server.cpp中使用
+
+```C++
+//多次读取fp文件中的数据到buffer中，并将数据发送到sock套接字
+while((read(fp, buffer, BUF_SIZE)) > 0) {
+    write(sock, buffer, BUF_SIZE);
+}
+//文件读取完毕，断开输出流，向客户端发送FIN包
+shutdown(client_sock, SHUT_WR); //shutdown会断开连接，但缓冲区数据还会继续发送（参数2是固定宏）
+read(client_sock, buffer, BUF_SIZE);  //阻塞，等待客户端接收完毕
+fclose(fp);
+closesocket(client_sock);
+closesocket(server_sock);
+```
+
+client.cpp中使用
+
+```C++
+//多次读取sock套接字的数据到buffer中，并将数据保存到fp文件描述符中
+while((read(sock, buffer, BUF_SIZE)) > 0) {
+    write(fp, buffer, BUF_SIZE);
+}
+//文件接收完毕后直接关闭套接字，无需调用shutdown()
+fclose(fp);
+closesocket(sock);
+```
 
 ### <font color="1E90FF">socket编程中使用域名</font>
 
@@ -825,11 +835,19 @@ ___
 
 ## <font color="1E90FF">二、Websocket</font>
 
-WebSocket 是一种网络通信协议
+WebSocket 是一种网络通信协议。我们已经有了 HTTP 协议，为什么还需要 websocket 协议？答案很简单，因为 <font color="yellow">HTTP 协议的缺陷是 "通信只能由客户端发起"</font>。HTTP 协议做不到服务器主动向客户端推送信息
+
+这种单向请求的特点，客户端要获知服务器的状态变化就非常麻烦。我们只能使用轮询：每隔一段时候，就发出一个询问，了解服务器有没有新的信息。轮询的效率低，非常浪费资源（因为必须不停连接，或者 HTTP 连接始终打开）。因此，工程师们一直在思考，有没有更好的方法。WebSocket 就是这样发明的
 
 
 
-## <font color="1E90FF">参考</font>
+
+
+
+
+
+
+## <font color="1E90FF">参考资料</font>
 
 - [C语言中文网](http://c.biancheng.net/socket/)
 - [websocket](https://www.ruanyifeng.com/blog/2017/05/websocket.html)

@@ -3334,14 +3334,72 @@ int main()
 
     Person p4("linux", 200);
     vector<Person>::iterator it2 = find(v2.begin(), v2.end(), p4);
-    cout << it2->m_name << endl;    //linux
+    if (it2 != v2.end())
+        cout << it2->m_name << endl;    //linux
 
     return 0;
 }
 ```
 
+### <font color="1E90FF">4.4 查找算法 find_if</font>
 
+find_if 按条件查找元素，第3个参数为函数或谓词（返回bool类型的仿函数）
 
+```C++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <string>
+using namespace std;
+
+class Greater_five {
+public:
+    bool operator()(int val) {
+        return val > 5;
+    }
+};
+
+class Person {
+public:
+    string m_name;
+    int m_age;
+    Person(string n, int a):m_name(n), m_age(a) {}
+};
+class Greater_20 {
+public:
+    bool operator()(Person &p) {
+        return p.m_age > 20;
+    }
+};
+
+int main() 
+{
+//find_if查找整型（内置默认）
+    vector<int> v1;
+    for (int i = 0; i < 10; i++)
+        v1.push_back(i);
+    
+    //find_if按条件查找，若找到大于5的元素则返回其迭代器
+    vector<int>::iterator it1 = find_if(v1.begin(), v1.end(), Greater_five());
+    cout << *it1 << endl;    // 6
+
+//find_if查找自定义类型数据
+    vector<Person> v2;
+    Person p1("linux", 20);
+    Person p2("china", 50);
+    Person p3("qkh", 30);
+
+    v2.push_back(p1);
+    v2.push_back(p2);
+    v2.push_back(p3);
+
+    //find_if按条件查找，若找到大于20的元素则返回其迭代器
+    vector<Person>::iterator it2 = find_if(v2.begin(), v2.end(), Greater_20());
+    cout << it2->m_name << endl;    // china
+
+    return 0;
+}
+```
 
 
 ___
