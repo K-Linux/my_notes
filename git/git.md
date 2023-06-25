@@ -79,7 +79,7 @@ ___
 
 由于本地Git仓库和GitHub仓库之间的传输是通过SSH加密的，故要先将本地秘钥给远程仓库才能正确连接：
 
-1. [创建本地SSH Key]()。在宿主目录下执行`ssh-keygen -t rsa -C "qkh@bhlk.com"`，然后一直回车。会在宿主目录中创建 id_rsa 私钥和 id_rsa.pub 公钥（注：windowns公钥在`/C/Users/丘康辉/.ssh/id_rsa`中）
+1. [创建本地SSH Key]()。在宿主目录下执行`ssh-keygen -t rsa -C "qkh@bhlk.com"`，然后一直回车。会在宿主目录中创建 id_rsa 私钥和 id_rsa.pub 公钥（注：windowns公钥在`/C/Users/丘康辉/.ssh/id_rsa.pub`中）
 2. [Github加入公钥]()。打开Github在`settings——SSH`中加入id_rsa.pub公钥
 
 创建远程仓库并使用SSH连接到本地：

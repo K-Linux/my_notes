@@ -220,6 +220,10 @@ printf("Linux\n");
 1. 上标，例如:X^2^
 2. 下标，例如:H~2~O
 
+## 25.脚注
+
+这里有一个脚注[^脚注]
+
 ___________________;
 
 ## MARKDOWN教程网址
@@ -251,3 +255,8 @@ A[方形]-->B(圆角)-->C(dfasf)-->E{条件}
 graph TD
 A[方形]-->B(圆角)-->C(dfasf)-->E{条件}
 ```
+
+
+
+
+[^脚注]:[此处是脚注的文本内容](https://www.imooc.com/wiki/markdownlesson/markdownfootnote.html)
