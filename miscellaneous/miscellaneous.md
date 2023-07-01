@@ -78,6 +78,35 @@ MCU-LCD屏它与RGB-LCD屏量示数据传输模式也有差别：
 参考：<https://blog.csdn.net/vrk731/article/details/85221189>
 ___
 
+## <font color="1E90FF">上拉电阻</font>
+
+上拉电阻就是接一个电阻后再接到VCC上，从而将a点拉成高电平。若按键开启，则a点为低电平。这样就可以确定a点的电平高低了。
+
+<div align=center><img src="img/2023-06-30-21-37-37.png" width="30%"></div>
+
+___
+
+## <font color="1E90FF">三极管</font>
+
+<div align=center><img src="img/2023-06-30-21-45-19.png" width="40%"></div>
+
+NPN是基极电压大于(击穿)发射极时流通
+PNP是发射极电压大于(击穿)基极时流通
+基极 + 集电极 = 发射极
+P：positive 正极
+N：negative 负极
+
+<div align=center><img src="img/2023-06-30-21-46-18.png" width="60%"></div>
+
+___
+
+## <font color="1E90FF">万用表</font>
+
+V 为测电压
+Ω 为测电阻。压下换色按键，若电阻为 0 则万用表报警，说明电路是接通的
+
+___
+
 ## <font color="1E90FF">使用函数获取堆内存方式</font>
 
 ```C
