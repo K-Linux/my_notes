@@ -185,6 +185,15 @@ int main(int argc, char *argv[])
 
 ___
 
+## <font color="1E90FF">中断的CPSR和SPSR寄存器</font>
+
+在马上要跳转模式时，cpsr会将当前模式的数据保存给spsr，然后改变cpsr的M位，转到另一个模式。
+例如：IRQ模式下将cpsr数据保存给IRQ模式下的spsr，然后改变cpsr的M位，转到SVC模式，处理完事件后又将cpsr数据保存给SVC模式下的spsr，然后改变cpsr的M位，转到IRQ模式，然后将IRQ模式下的spsr恢复给cpsr
+
+>注意：cpsr寄存器只有唯一的一个，spsr的M[4:0]位可以任意改变模式
+
+___
+
 ## <font color="1E90FF">ubuntu</font>
 
 ### <font color="1E90FF">修改ubuntu主机名称</font>
