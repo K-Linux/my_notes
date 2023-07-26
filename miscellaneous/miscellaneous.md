@@ -8,7 +8,19 @@ ___
 
 ## <font color="1E90FF">int,short,char</font>
 
-int、short、char都是数字类型，数字范围依次减少。但是char比较特殊，不但可以给char赋值0~127的数字，也可以赋值单个字符。打印的时候不但可以用%c也可以用%d打印。例如：char a = 55 和 char a = '7' 是等价的
+int、short、char都是数字类型，数字范围依次减少。但是char比较特殊，不但可以给char赋值0~127的数字，也可以赋值单个字符。给char赋值数字那么char就是数字，给char赋值字符那么char就是字符。打印的时候不但可以用%c也可以用%d打印
+
+```C
+//char a = 55 和 char a = '7' 是等价的
+//用%d打印a是55，用%c打印a是字符7
+char a = 55;
+char b = '7';
+printf("%d\n", a)   // 55
+printf("%d\n", b)   // 55
+printf("%c\n", a)   // 7
+printf("%c\n", b)   // 7
+```
+
 ___
 
 ## <font color="1E90FF">float a = 0.0</font>
