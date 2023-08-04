@@ -199,6 +199,33 @@ int main(int argc, char *argv[])
 
 ___
 
+## <font color="1E90FF">extern</font>
+
+其它文件使用全局变量时，需要用`extern`关键字声明全局变量
+
+全局变量一定要定义在`.c`文件中
+A文件要使用该全局变量的话，就在A的头文件中用`extern`关键字声明
+或者`a.c`的全局变量，在`a.h`中用`extern`声明，然后其它文件用`include`包含`a.h`头文件
+
+```C
+// 声明不能赋值
+extern int a;
+```
+
+___
+
+## <font color="1E90FF">int 强制转化为 int *</font>
+
+当`int`类型强制转化为`int *`时，`int *`的值和`int`是一样的，值一样，仅数据类型变了
+
+```C
+int a = 0x8000;
+//相当于 (int *)0x8000
+printf("%p\n", (int *)a);   //打印0x8000
+```
+
+___
+
 ## <font color="1E90FF">中断的CPSR和SPSR寄存器</font>
 
 在马上要跳转模式时，cpsr会将当前模式的数据保存给spsr，然后改变cpsr的M位，转到另一个模式。
