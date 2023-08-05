@@ -226,6 +226,16 @@ printf("%p\n", (int *)a);   //打印0x8000
 
 ___
 
+## <font color="1E90FF">int的二进制位移</font>
+
+```C
+int a = 9;
+register = a >> 15;  /* 设置寄存器的高16位 */
+register = a << 15;  /* 设置寄存器的底16位 */
+```
+
+___
+
 ## <font color="1E90FF">中断的CPSR和SPSR寄存器</font>
 
 在马上要跳转模式时，cpsr会将当前模式的数据保存给spsr，然后改变cpsr的M位，转到另一个模式。
