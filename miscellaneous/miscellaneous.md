@@ -204,12 +204,21 @@ ___
 其它文件使用全局变量时，需要用`extern`关键字声明全局变量
 
 全局变量一定要定义在`.c`文件中
-A文件要使用该全局变量的话，就在A的头文件中用`extern`关键字声明
-或者`a.c`的全局变量，在`a.h`中用`extern`声明，然后其它文件用`include`包含`a.h`头文件
+
+B要使用A的全局变量时，就在B的头文件中用`extern`关键字声明该全局变量
+或者在`a.c`定义全局变量`int a;`，在`a.h`中用`extern int a;`声明，然后其它文件用`include`包含`a.h`头文件
+
+`extern`声明全局结构体时，要包含结构体的成员定义（声明全局结构体时extern可以省略）
 
 ```C
 // 声明不能赋值
 extern int a;
+
+// extern声明全局结构体时，需要包含结构体定义
+struct test {
+    int b;
+};
+extern struct test;
 ```
 
 ___
