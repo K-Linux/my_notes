@@ -1,5 +1,5 @@
 
-#define NUM 1
+#define NUM 2
 
 #if (NUM == 1)
 
@@ -8,7 +8,7 @@
 #include "cJSON.h"
 
 //每个结点和节点都是一个JSON结构体
-int main(int argc, char *argv)
+int main(int argc, char *argv[])
 {
 	//创建头指针
 	cJSON *cjson_test = NULL;
@@ -50,9 +50,7 @@ int main(int argc, char *argv)
     //添加true和false类型的JSON结构体
     cJSON_AddTrueToObject(cjson_test, "vip1");
     cJSON_AddFalseToObject(cjson_test, "vip2");
-    //添加true和null类型的JSON结构体
-    cJSON_AddTrueToObject(cjson_test, "vip3");
-    cJSON_AddNullToObject(cjson_test, "vip4");
+    cJSON_AddNullToObject(cjson_test, "vip3");
 
 	//将cJSON结构体结构体解析成JSON格式的字符串，在堆中开辟char *的内存并返回
 	str = cJSON_Print(cjson_test);
@@ -146,7 +144,16 @@ int main(void)
         printf("%s,", cjson_skill_item->valuestring);
     }
     printf("\b]\n");    // \b表示backspace（与\n要有空格或字符隔开）
-    //可以使用 cJSON_ArrayForEach 遍历JSON数组
+
+    //也可以使用 cJSON_ArrayForEach 遍历JSON数组
+	cJSON *temp = NULL;
+	cJSON_ArrayForEach(temp, cjson_skill) {
+		if(temp->type == cJSON_String)
+			printf("%s\n", temp->valuestring);
+		else if(temp->type == cJSON_Number)
+			printf("%d\n", temp->valueint);
+	
+	}
 
     /* 解析布尔型数据 */
     cjson_student = cJSON_GetObjectItem(cjson_test, "student");
