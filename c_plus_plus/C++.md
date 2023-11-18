@@ -506,7 +506,7 @@ int main()
 
 <div align=center><img src="img/2023-05-22-12-26-13.png" width="50%"></div>
 
-在实际开发中，我们必须将最底层的基类的析构函数声明为虚函数，否则就有内存泄露的风险
+<font color="yellow">在实际开发中，我们必须将最底层的基类的析构函数声明为虚函数，否则就有内存泄露的风险</font>
 
 >注：多继承时，只要最底层基类的析构函数声明为虚函数即可，派生类的析构函数就是重写基类的析构函数
 
@@ -592,7 +592,7 @@ int main()
 
 ### <font color="1E90FF">1.7 静态成员变量和静态成员函数（static）</font> {#1.5}
 
-1. <font color="yellow">静态成员函数</font>：**只能访问静态成员变量**（因为当有多个对象时静态函数能确定静态变量却不能确定动态变量）（注：[常对象只能调用常函数](#a2)）<a id="a1"></a>）
+1. <font color="yellow">静态成员函数</font>：**只能访问静态成员变量**（因为当有多个对象时静态函数能确定静态变量却不能确定动态变量）（注：[常对象只能调用常函数](#a2)<a id="a1"></a>）
 1. <font color="yellow">静态成员变量</font>：必须在类内声明，类外初始化（静态成员函数随意）
 1. 静态变量在编译阶段分配内存
 1. 类的成员变量存储在栈区，类的静态成员变量、函数都存储在全局区
@@ -664,7 +664,7 @@ int main()
 
 ### <font color="1E90FF">1.8 this 指针</font> {#this指针}
 
-1. 任何非静态成员函数都默认有`this`指针，且`this`指向调用该非静态成员函数的对象。例如`Person t1; t7.func(10)`。`func`内部的`this`指针指向`&t1`，`*this`表示`t1`
+1. 任何非静态成员函数都默认有`this`指针，且`this`指向调用该非静态成员函数的对象。例如`Person t1; t1.func(10)`。`func`内部的`this`指针指向`&t1`，`*this`表示`t1`
 1. 空指针可以调用不含this的成员（因为空指针没有实体，就没有this）
 
 ```C++
@@ -734,7 +734,7 @@ void func(Base &p) {
 #include <string>
 using namespace std;
 
-//给Base声明声明Derive
+//给Base声明Derive
 class Derive;
 
 class Base {
