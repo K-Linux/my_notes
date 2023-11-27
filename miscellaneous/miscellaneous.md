@@ -213,12 +213,26 @@ B要使用A的全局变量时，就在B的头文件中用`extern`关键字声明
 ```C
 // 声明不能赋值
 extern int a;
+```
 
-// extern声明全局结构体时，需要包含结构体定义
+```C
+// main.c 文件定义全局结构体
+struct test;
+// main.h 文件声明全局结构体
+#ifndef _MAIN_H_
+#define _MAIN_H_
 struct test {
     int b;
 };
+#endif
+// b.c 文件 extern 全局结构体
 extern struct test;
+// b.h文件
+#ifndef _B_H_
+#define _B_H_
+TODO
+#endif
+
 ```
 
 ___
