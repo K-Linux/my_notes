@@ -8,7 +8,7 @@ ___
 
 ## <font color="1E90FF">int，short，char</font>
 
-int、short、char都是数字类型，数字范围依次减少。但是char比较特殊，不但可以给char赋值0~127的数字，也可以赋值单个字符。<font color="yellow">当给char赋值数字时，是给ASCII的十进制赋值，当给char赋值字符时，是给ASCII的字符赋值</font>。打印的时候不但可以用%c也可以用%d打印
+int、short、char都是数字类型，数字范围依次减少。但是char比较特殊，不但可以给char赋值-128~127的数字，也可以赋值单个字符。<font color="yellow">当给char赋值数字时，是给ASCII的十进制赋值数字，当给char赋值字符时，是给ASCII的字符赋值字符</font>。打印的时候不但可以用%c也可以用%d打印
 
 ```C
 //char a = 55 和 char a = '7' 是等价的
@@ -21,6 +21,10 @@ printf("%c\n", a)   // 7
 printf("%d\n", b)   // 55
 printf("%c\n", b)   // 7
 ```
+
+有符号字符 char 值的范围是： -128 ~ 127
+无符号字符 unsigned char 值的范围是：0 ~ 255
+ASCII码值的范围是：0 ~ 127
 
 ___
 
