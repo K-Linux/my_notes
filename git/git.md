@@ -25,8 +25,8 @@ ___
 |   |<div style="width:229px">命令</div>|<div style="width:521px">解释</div>|
 |---|:---|:---|
 |**01**|git init|在当前目录初始化创建Git仓库（注：从远端克隆一个仓库也可以初始化）|
-|**01**|git --global config<br>user.name "qkh"|配置全局⽤户名|
-|**01**|git --global config<br>user.email qkh@bhlk.com|配置全局⽤户名|
+|**01**|git config --global <br>user.name "qkh"|配置全局⽤户名|
+|**01**|git config --global <br>user.email qkh@bhlk.com|配置全局⽤户名|
 |**01**|git status|显示哪些⽂件已被staged、未被staged以及未被跟踪(untracked)|
 |**02**|git add [file]|将`file`内所有修改加入到暂存区（注：`git add .`表示添加所有已修改文件(递归)）|
 |**03**|git commit -m "message"|将暂存区的文件提交到版本库|
@@ -55,7 +55,10 @@ ___
 |**07**|git merge --abort|终止合并|
 |**07**|git diff|拿工作区和暂存区比较不同，若暂存区无文件则去版本库比较|
 |**07**|git diff HEAD --[file]|拿工作区和版本库比较不同（注：无`file`则比较所有文件不同）|
-|**07**|git diff >> [filename]|比较`diff`内容并输出到指定文件|
+|**07**|git format-patch HEAD -1|格式化补丁|
+|**07**|git format-patch c7c37 -1|格式化补丁（注: 若`-2`表示格式化当前哈希值后面两个）|
+|**07**|git apply --check [file.patch]|检查补丁是否可用|
+|**07**|git apply [file.patch]|应用补丁|
 |**07**|git checkout -- [file]|从暂存区恢复文件到工作区。若暂存区无文件则从版本库恢复<br>（注：`--`后面有空格；无`file`则恢复所有修改的文件）|
 |**07**|git rm -r [file]|同时删除版本库和工作区的文件|
 |**07**|git rm -r --cached [file]|仅删除版本库文件。即停止追踪`file`文件（ 注：用`.`可以停止追踪所有文件）|
