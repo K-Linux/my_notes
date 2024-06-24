@@ -25,52 +25,52 @@ ___
 |   |<div style="width:229px">命令</div>|<div style="width:521px">解释</div>|
 |---|:---|:---|
 |**01**|git init|在当前目录初始化创建Git仓库（注：从远端克隆一个仓库也可以初始化）|
-|**01**|git config --global <br>user.name "qkh"|配置全局⽤户名|
-|**01**|git config --global <br>user.email qkh@bhlk.com|配置全局⽤户名|
-|**01**|git status|显示哪些⽂件已被staged、未被staged以及未被跟踪(untracked)|
-|**02**|git add [file]|将`file`内所有修改加入到暂存区（注：`git add .`表示添加所有已修改文件(递归)）|
-|**03**|git commit -m "message"|将暂存区的文件提交到版本库|
-|**03**|git commit -m "简述" --amend|将暂存区的文件合并到最近⼀次的commit中（注：`-m "简述"`可略）|
-|**03**|git show 7dd2|查看`commit id`所做的修改<br>（注：无`commit id`则查看HEAD的信息；加`--name-only`仅显示文件）|
-|**03**|git show df58 >> temp.diff|将`commit id`所做的修改输出到`temp.diff`中<br>（注：无`commit id`则查看HEAD的信息；加`--name-only`仅显示文件）|
-|**04**|git log<br>(--color --graph --pretty=oneline)|显示提交记录（注：`f`往前翻，`b`往后翻）|
-|**04**|git log -p [file]|显示`file`的所有提交记录。用来查看文件随时间的演变|
-|**04**|git log -n [num]|仅显示`num`行提交记录|
-|**04**|git log --oneline|提交记录显示在一行上|
-|**04**|git log --pretty=oneline|详细显示提交记录显示在一行上|
-|**04**|git reflog|显示本地repo的所有commit⽇志<br>（注：当返回到某版本时又想回去，可用来查看commit id）|
-|**05**|git reset [file]|将`file`从暂存区移除，且⼯作区不变<br>（注：无`file`则移除暂存区的所有文件）|
-|**05**|git reset --hard HEAD|HEAD即指针指向最近提交版本，HEAD^即指针指向第二个版本|
-|**06**|git reset --hard 1094a|指针指向`commit id`（注：`--hard`表示清除暂存区和工作区的修改，新增文件即未跟踪的文件不会被清除，故恢复后推荐使用`status`查看状态）|
-|**07**|git branch|列出所有本地分支|
-|**07**|git branch -r|列出所有远程分支|
-|**07**|git branch [name]|复制当前分支的文件到新建的分支|
-|**07**|git branch [name] df58|复制当前分支的`df58`哈希到新建的分支|
-|**07**|git branch -d [name]|删除分支（注：`D`为强制删除）|
-|**07**|git branch -m [a] [b]|分支a重命名为b|
-|**07**|git checkout -b [name]|新建一个分支，并切换到该分支（注：无`-b`为切换到某分支）|
-|**07**|git switch -c [name]|新建一个分支，并切换到该分支（注：无`-c`为切换到某分支）|
-|**07**|git switch -c [name] df58|新建一个哈希为`df58`的分支，并切换到该分支（注：无`-c`为切换到某分支）|
-|**07**|git merge [name]|合并指定分支到当前分支|
-|**07**|git merge --abort|终止合并|
-|**07**|git diff|拿工作区和暂存区比较不同，若暂存区无文件则去版本库比较|
-|**07**|git diff HEAD --[file]|拿工作区和版本库比较不同（注：无`file`则比较所有文件不同）|
-|**07**|git format-patch HEAD -1|格式化补丁|
-|**07**|git format-patch c7c37 -1|格式化补丁（注: 若`-2`表示格式化当前哈希值后面两个）|
-|**07**|git apply --check [file.patch]|检查补丁是否可用|
-|**07**|git apply [file.patch]|应用补丁|
-|**07**|git checkout -- [file]|从暂存区恢复文件到工作区。若暂存区无文件则从版本库恢复<br>（注：`--`后面有空格；无`file`则恢复所有修改的文件）|
-|**07**|git rm -r [file]|同时删除版本库和工作区的文件|
-|**07**|git rm -r --cached [file]|仅删除版本库文件。即停止追踪`file`文件（ 注：用`.`可以停止追踪所有文件）|
-|**07**|git stash save "简述"|储存当前工作现场<br>注：①未被追踪过的文件不会被储存，故stash之前要status查看有无新文件<br>②分支未stash时不能切换到其它分支，否则当前文件会在其它分支出现|
-|**07**|git stash list|查看stash的存储列表|
-|**07**|git stash show -p [num]|对比list number文件和当前文件的不同（注：`-p`表示详细信息）|
-|**07**|git stash pop [num]|将对应list number恢复到工作区且删除num（注：无number则恢复首个）|
-|**07**|git stash apply [num]|将对应list number恢复到工作区且不删除num|
-|**07**|git stash drop [num]|删除对应list number的数据且不恢复到工作区中|
-|**07**|git stash clear|清除stash list存储列表|
-|**07**|git cherry-pick [commit id]|复制单个提交所做的修改到当前分支（`merge`是合并某分支的所有提交）<br>（`cherry-pick`会自动做一次提交）|
-|**07**|git cherry-pick --continue|解决冲突后继续`cherry-pick`进程|
+|**02**|git config --global <br>user.name "qkh"|配置全局⽤户名|
+|**03**|git config --global <br>user.email qkh@bhlk.com|配置全局⽤户名|
+|**04**|git status|显示哪些⽂件已被staged、未被staged以及未被跟踪(untracked)|
+|**05**|git add [file]|将`file`内所有修改加入到暂存区（注：`git add .`表示添加所有已修改文件(递归)）|
+|**06**|git commit -m "message"|将暂存区的文件提交到版本库|
+|**07**|git commit -m "简述" --amend|将暂存区的文件合并到最近⼀次的commit中（注：`-m "简述"`可略）|
+|**08**|git show 7dd2|查看`commit id`所做的修改<br>（注：无`commit id`则查看HEAD的信息；加`--name-only`仅显示文件）|
+|**09**|git show df58 >> temp.diff|将`commit id`所做的修改输出到`temp.diff`中<br>（注：无`commit id`则查看HEAD的信息；加`--name-only`仅显示文件）|
+|**10**|git log<br>(--color --graph --pretty=oneline)|显示提交记录（注：`f`往前翻，`b`往后翻）|
+|**11**|git log -p [file]|显示`file`的所有提交记录。用来查看文件随时间的演变|
+|**12**|git log -n [num]|仅显示`num`行提交记录|
+|**13**|git log --oneline|提交记录显示在一行上|
+|**14**|git log --pretty=oneline|详细显示提交记录显示在一行上|
+|**15**|git reflog|显示本地repo的所有commit⽇志<br>（注：当返回到某版本时又想回去，可用来查看commit id）|
+|**16**|git reset [file]|将`file`从暂存区移除，且⼯作区不变<br>（注：无`file`则移除暂存区的所有文件）|
+|**17**|git reset --hard HEAD|HEAD即指针指向最近提交版本，HEAD^即指针指向第二个版本|
+|**18**|git reset --hard 1094a|指针指向`commit id`（注：`--hard`表示清除暂存区和工作区的修改，新增文件即未跟踪的文件不会被清除，故恢复后推荐使用`status`查看状态）|
+|**19**|git branch|列出所有本地分支|
+|**20**|git branch -r|列出所有远程分支|
+|**21**|git branch [name]|复制当前分支的文件到新建的分支|
+|**22**|git branch [name] df58|复制当前分支的`df58`哈希到新建的分支|
+|**23**|git branch -d [name]|删除分支（注：`D`为强制删除）|
+|**24**|git branch -m [a] [b]|分支a重命名为b|
+|**25**|git checkout -b [name]|新建一个分支，并切换到该分支（注：无`-b`为切换到某分支）|
+|**26**|git switch -c [name]|新建一个分支，并切换到该分支（注：无`-c`为切换到某分支）|
+|**27**|git switch -c [name] df58|新建一个哈希为`df58`的分支，并切换到该分支（注：无`-c`为切换到某分支）|
+|**28**|git merge [name]|合并指定分支到当前分支|
+|**29**|git merge --abort|终止合并|
+|**30**|git diff|拿工作区和暂存区比较不同，若暂存区无文件则去版本库比较|
+|**31**|git diff HEAD --[file]|拿工作区和版本库比较不同（注：无`file`则比较所有文件不同）|
+|**32**|git format-patch HEAD -1|格式化补丁|
+|**33**|git format-patch c7c37 -1|格式化补丁（注: 若`-2`表示格式化当前哈希值后面两个）|
+|**34**|git apply --check [file.patch]|检查补丁是否可用|
+|**35**|git apply [file.patch]|应用补丁|
+|**36**|git checkout -- [file]|从暂存区恢复文件到工作区。若暂存区无文件则从版本库恢复<br>（注：`--`后面有空格；无`file`则恢复所有修改的文件）|
+|**37**|git rm -r [file]|同时删除版本库和工作区的文件|
+|**38**|git rm -r --cached [file]|仅删除版本库文件。即停止追踪`file`文件（ 注：用`.`可以停止追踪所有文件）|
+|**39**|git stash save "简述"|储存当前工作现场<br>注：①未被追踪过的文件不会被储存，故stash之前要status查看有无新文件<br>②分支未stash时不能切换到其它分支，否则当前文件会在其它分支出现|
+|**40**|git stash list|查看stash的存储列表|
+|**41**|git stash show -p [num]|对比list number文件和当前文件的不同（注：`-p`表示详细信息）|
+|**42**|git stash pop [num]|将对应list number恢复到工作区且删除num（注：无number则恢复首个）|
+|**43**|git stash apply [num]|将对应list number恢复到工作区且不删除num|
+|**44**|git stash drop [num]|删除对应list number的数据且不恢复到工作区中|
+|**45**|git stash clear|清除stash list存储列表|
+|**46**|git cherry-pick [commit id]|复制单个提交所做的修改到当前分支（`merge`是合并某分支的所有提交）<br>（`cherry-pick`会自动做一次提交）|
+|**47**|git cherry-pick --continue|解决冲突后继续`cherry-pick`进程|
 
 `stash`使用场景：
 
