@@ -35,7 +35,7 @@ A(socket)
 
 </center>
 
-#### <font color="1E90FF">流格式套接字（SOCK_STREAM）</font> {#SOCK_STREAM}
+#### <font color="1E90FF" size="3">流格式套接字（SOCK_STREAM）</font> {#SOCK_STREAM}
 
 流格式套接字（Stream Sockets）也叫 "面向连接的套接字" 在代码中使用`SOCK_STREAM`表示
 `SOCK_STREAM`是一种可靠的、双向的通信数据流，若数据丢失，可以重新发送，其特征为：
@@ -48,7 +48,7 @@ A(socket)
 
 流格式套接字的内部有一个缓冲区（字符数组），通过 socket 传输的数据将保存到这个缓冲区。接收端在收到数据后有可能在缓冲区被填满以后一次性地读取，也可能分成好几次读取。也就是说，不管数据分几次传送过来，接收端只需要根据自己的要求读取，不用非得在数据到达时立即读取。传送端有自己的节奏，接收端也有自己的节奏，它们是不一致的。<font color="yellow">浏览器所使用的`http`协议就基于面向连接(流格式)的套接字</font>，因为必须要确保数据准确无误，否则加载的 HTML 将无法解析
 
-#### <font color="1E90FF">数据报格式套接字（SOCK_DGRAM）</font> {#SOCK_DGRAM}
+#### <font color="1E90FF" size="3">数据报格式套接字（SOCK_DGRAM）</font> {#SOCK_DGRAM}
 
 数据报格式套接字（Datagram Sockets）也叫"无连接的套接字"，在代码中使用`SOCK_DGRAM`表示
 
@@ -67,7 +67,7 @@ A(socket)
 
 QQ 视频聊天就使用 SOCK_DGRAM 来传输数据，因为首先要保证通信的效率，尽量减小延迟，而数据的正确性是次要的
 
-#### <font color="1E90FF">面向连接和无连接套接字的区别</font>
+#### <font color="1E90FF" size="3">面向连接和无连接套接字的区别</font>
 
 <div align=center><img src="img/2023-06-09-10-15-29.png" width="50%"></div>
 
@@ -264,7 +264,7 @@ int bind(int sock, struct sockaddr *addr, socklen_t addrlen);
 
 socklen_t 实质是 unsigned int 类型
 
-#### <font color="1E90FF">sockaddr_in 结构体</font>
+#### <font color="1E90FF" size="3">sockaddr_in 结构体</font>
 
 ```C
  //sockaddr_in 结构体用来存放地址族、IP地址和端口号
@@ -299,7 +299,7 @@ printf("%ld\n", ip);                        // 打印16777343
 printf("%#x\n", ip);                        // 打印0x100007f，即01.00.00.7F
 ```
 
-#### <font color="1E90FF">sockaddr 结构体</font>
+#### <font color="1E90FF" size="3">sockaddr 结构体</font>
 
 bind() 第二个参数的类型为 sockaddr，而代码中却使用 sockaddr_in，然后再强制转换为 sockaddr，这是为什么呢？
 

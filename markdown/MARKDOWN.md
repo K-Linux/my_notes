@@ -260,3 +260,10 @@ A[方形]-->B(圆角)-->C(dfasf)-->E{条件}
 
 
 [^脚注]:[此处是脚注的文本内容](https://www.imooc.com/wiki/markdownlesson/markdownfootnote.html)
+
+
+## <font color="1E90FF">参考资料</font>
+
+- [慕课](https://www.imooc.com/wiki/markdownlesson/markdowncolor.html)
+- [官网](https://markdown.com.cn)
+- [RUNOOB](https://www.runoob.com/markdown/md-tutorial.html)

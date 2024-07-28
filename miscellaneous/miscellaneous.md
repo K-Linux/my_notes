@@ -299,15 +299,24 @@ ___
 
 主机名存放在/etc/hostname文件中，修改主机名后重启系统后即可
 
-
 ### <font color="1E90FF">Alt + F7，拖动窗口</font>
-___
 
+___
 
 ## <font color="1E90FF">wps切换: ctrl+TAB</font>
 
+___
+
+## <font color="1E90FF">markdonw笔记规范</font>
+
+1. 关键词用<font color="yellow">黄色高亮</font>
+1. 两个段落之间用回车
+1. 变量用字符串 `val_string`
+1. 4 个 # 时，要调整字体大小。以下为模板
+`#### <font color="1E90FF" size="3">contains</font>`
 
 
+___
 
 
 
