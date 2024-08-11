@@ -315,9 +315,113 @@ ___
 1. 4 个 # 时，要调整字体大小。以下为模板
 `#### <font color="1E90FF" size="3">contains</font>`
 
+___
+
+## <font color="1E90FF">彩色打印</font>
+
+```C
+printf("\033[41;30mdebuglog\033[0m:%s %d [contains]\n", __FILE__, __LINE__);
+```
+
+___
+
+## <font color="1E90FF">NFS</font>
+
+NFS[^NFS]（Network File System）即网络文件系统，它允许网络中的计算机之间通过 TCP/IP 网络共享资源。在NFS的应用中，本地NFS的客户端应用可以透明地读写位于远端NFS服务器上的文件，就像访问本地文件一样。这样我们开发板在 uboot 启动时就可以访问远程 ubuntu 中的根文件系统了
+
+我们先在 ubuntu 中搭建 NFS 服务器：
+
+1. `sudo apt install nfs-kernel-server  //安装 NFS 服务端`
+1. `sudo systemctl status nfs-server    //检查nfs-server是否已经启动`
+1. `sudo mkdir -p /home/k/nfs           //在根目录下创建NFS共享目录(目录随意)`
+1. `sudo chown nobody:nogroup /home/k/nfs//权限不分组`
+1. `sudo chmod -R 777 /home/k/nfs       //给客户端分配最高权限访问该共享目录`
+1. `sudo vim /etc/exports               //编辑 /etc/exports 配置文件`
+
+```C
+/home/k/nfs 172.16.3.50(rw,sync,no_subtree_check)//设置哪些客户端IP可以访问该共享目录(可设置多个IP)
+/home/k/nfs 172.16.3.*(rw,sync,no_subtree_check)//设置一个网段的客户端可访问（推荐用这个）
+/home/k/nfs *(rw,sync,no_subtree_check)         //设置所有客户端可访问该共享目录
+//rw 表示允许读写
+//sync 表示文件同时写入硬盘和内存
+//no_subtree_check 表示即使输出目录是子目录，nfs服务器也不检查其父目录的权限，这样可以提高效率
+```
+
+7. `sudo vim /etc/default/nfs-kernel-server    //从Ubuntu17.04开始，nfs默认只支持协议3和4，kernel默认支持nfs协议2`
+
+```C
+RPCNFSDOPTS="--nfs-version 2,3,4 --debug --syslog"  //添加这句话让ubuntu支持NFS协议2、3、4版本
+```
+
+8. `sudo exportfs -rv  导出共享目录`
+9. `sudo /etc/init.d/nfs-kernel-server restart //重启NFS服务器`
+10. `showmount -e   //查看共享目录`
+
+___
+
+## <font color="1E90FF">samba</font>
+
+1. `sudo apt update`[^samba]
+1. `sudo apt install samba -y`
+1. `mkdir -p samba //创建需要共享的目录`
+1. `chmod 0777 samba`
+1. `sudo vim /etc/samba/smb.conf`
+
+```C
+//在该文件末尾配置以下信息
+[ubuntu_22]                 //共享目录名称，在网络上访问该共享目录时使用
+    comment = samba         //共享目录的简介描述
+    path = /home/k/samba    //共享实际路径
+    public = yes            //这表示该共享是否为公共共享，即是否允许匿名用户访问。       
+    writable = yes          //表示是否允许用户在共享中创建、编辑和删除文件。
+    available = yes         //表示该共享是否可用。
+    browseable = yes        //表示该共享是否在网络上可以浏览。
+    valid users = k         //当前 Ubuntu 系统的用户名
+```
+
+6. `sudo smbpasswd -a k //给k用户设置密码`
+1. `systemctl restart smbd.service // 重启 Samba 服务器`
+1. `systemctl enable smbd.service //密码验证时都是输入系统用户k的密码`
+1. `systemctl status smbd.service //查看samba服务器运行状态`
+1. 给ubuntu配置成静态IP
+1. `win+r` 并输入 ubuntu 地址 `\\192.168.10.20`
+1. 输入 samba 服务器帐号和密码
+1. 右键 samba 共享目录，点击映射网络驱动器
+1. 直接点击确定即完成 samba 配置
 
 ___
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[^NFS]:[良许搭建NFS服务器](https://www.lxlinux.net/6086.html)
+[^samba]:[Samba服务器搭建教程](https://blog.csdn.net/qq_42417071/article/details/136328807)

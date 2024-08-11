@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&lt;font color&equals;&quot;1E90FF&quot;&gt;&#x4e00;&#x3001;&#x57fa;&#x7840;&#x77e5;&#x8bc6;&lt;&sol;font&gt;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <p><font size="7"><center><strong>海思</strong></center></font></p>
+<hr>
+<p>[TOC]</p>
+<hr>
+<h2 id="一基础知识"><font color="1E90FF">一、基础知识</font></h2>
+<p>光线进入镜头，经过镜头折射进入 sensor，sensor 进行光电转换，sensor 将光信号转为模拟信号，ADC 再将模拟信号转为数字信号（二进制），此时数字信号也称为 rawRGB，最后将原始电信号数据传入主芯片，此时原始图片可能会变暗或者各种瑕疵，主芯片会将原始数据进行 ISP 处理调整，最后将处理后的图片进行编码压缩 IPC 会将编码后的视频通过网络传输到服务器，客户端从服务器下载视频流，然后将视频流解码并播放</p>
+<p>CPU 为什么要对视频流先编码再传输，而不传送源数据？
+答: sensor 收集的信息量太多了，<code>http</code> 或 <code>rtsp</code> 网络带宽不够，所以需要压缩后再传输（HI3518E的主要作用就是视频编码）</p>
+<ul>
+<li>24 帧视频即每秒钟24张图片</li>
+<li>fps (frame per second) 帧率</li>
+<li><code>MJPEG</code>也是一种压缩算法，但比较简单，压缩比低，商业使用少</li>
+<li><code>H.264</code>即视频编码格式（压缩算法）</li>
+<li>视频存储: 一般将 H.264 流打包成 MP4 格式存储</li>
+<li>图片压缩很耗 CPU，HI3518E 内置了一个 <code>DSP</code> 来专门运算处理图片</li>
+<li><font color="yellow">DSP</font>: digital signal processing 数字信号处理，用来处理<code>ISP</code></li>
+<li><font color="yellow">ISP</font>: image signal processing 图像信号处理</li>
+<li><code>hardware</code>: 硬件</li>
+<li><code>software</code>: 软件</li>
+<li><code>VB</code>: video buffer 视频缓存池</li>
+<li>视频流传输使用<code>http</code>或<code>rtsp</code></li>
+<li><code>HI3518E</code> 配置为 <code>CPU(arm9) + DSP + 内置64MB内存 + 外置16MB SPIFlash</code>（存 uboot, kernel, rootfs, app）</li>
+<li>sensor 接口用的是并行接口（mipi csi是串口）</li>
+<li>我们的开发板是在官方的开发板的基础上简化而来的（企业也是这样做的）</li>
+<li><font color="yellow">模拟信号</font>: 用电信号去模拟自然事物。优点为连续性，精度无限, 但是抗干扰能力差, 传输不便</li>
+<li><font color="yellow">数字信号</font>: 将连续的模拟信号用有限的数字表示。优点为抗干扰能力强, 便于传输, 但是精度不高</li>
+<li><code>pitch</code>: 像素间距。指相邻两个象素点中心之间的距离（我们说间距时，像素点之间是没有缝隙的）</li>
+</ul>
+<hr>
+<h2 id="二rgb"><font color="1E90FF">二、RGB</font></h2>
+<p><font color="yellow">raw</font>[rɔː] adj: 原始的</p>
+<p><font color="yellow">rawRGB</font>: 由 ADC 将模拟信号转为数字信号，此时图像数据为 rawRGB，rawRGB不能直接显示，需要经过 ISP 计算转化为 RGB 数据</p>
+<p>RGB 的本质是将一个颜色拆分为 R、G、B 三个颜色，然后用数字表示这三个颜色的亮度。例如 0x070809，07、08、09分别表示 R、G、B 的亮度</p>
+<blockquote>
+<p>注意: RGB 里面存的是颜色的亮度值，而不是色度值</p>
+</blockquote>
+<h2 id="三yuv"><font color="1E90FF">三、YUV</font></h2>
+<p>RGB 和 YUV 是两种像素格式，YUV 都要转化为 RGB 才能在设备上显示，两者可以通过固定公式来转换</p>
+<p>YUV 比 RGB 格式最大的好处是可以做到在保持图像质量降低不明显的前提下，减小文件大小。这是因为 YUV 进行了采样操作</p>
+<p><font color="yellow">YUB</font>: 本质是将一个颜色拆分为 Y、U、V 三个分量。Y 表示亮度 (灰度值)，U 和 V 表示色度 (颜色值)。</p>
+<p><font color="yellow">YCbCr</font>: <code>Y</code> 是指亮度分量，<code>Cb</code> 指蓝色色度分量，<code>Cr</code> 指红色色度分量。在 YUV 家族中，YCbCr 是在计算机系统中应用最多的成员，H264/H265、JPEG、MPEG 均采用此格式。<font color="yellow">一般人们所讲的 YUV 大多是指 YCbCr</font>。YCbCr 有许多取样格式，如 4:4:4、4:2:2、4:1:1、4:2:0</p>
+<h3 id="yuv采样方式"><font color="1E90FF">YUV采样方式</font></h3>
+<p>我们一般不会将所有 rawRGB 数据进行传输保存，而是进行部分采样。采样方式有 YUV444、YUV422、YUV420 等</p>
+<h4 id="yuv422-采样"><font color="1E90FF" size="3">YUV422 采样</font></h4>
+<p>YUV422采样可节省 1/3 存储空间和 1/3 的数据传输量。Y 分量和 UV 分量按照 2:1 的比例采样。如果水平方向有10个像素点，那么就采样10个 Y 分量，且只采样5个 UV 分量。其中，每个像素点的 Y 分量都采集，而每间隔一个像素时同时采集一对 uv 分量，这样就每2个 Y 共用一对 U/V 值。</p>
+<p>4:2:2 表示 2:1 的水平取样，垂直完全采样。每2个 Y 共用一对 U/V 值。如下图</p>
+<img src="file:///d:\桌面\my_notes\视频编解码\img\2024-07-28-14-05-00.png" width="40%">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Y50</br><font color="yellow">U80 V90</font></th>
+<th style="text-align:center">Y30</br><font color="yellow">U80 V90</font></th>
+<th style="text-align:center">Y20</br><font color="red">U60 V50</font></th>
+<th style="text-align:center">Y10</br><font color="red">U60 V50</font></th>
+<th style="text-align:center">Y11</br><font color="pink">U10 V20</font></th>
+<th style="text-align:center">Y61</br><font color="pink">U10 V20</font></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Y44</br><font color="green">U33 V32</font></strong></td>
+<td style="text-align:center"><strong>Y32</br><font color="green">U33 V32</font></strong></td>
+<td style="text-align:center"><strong>Y65</br><font color="purple">U76 V56</font></strong></td>
+<td style="text-align:center"><strong>Y81</br><font color="purple">U76 V56</font></strong></td>
+<td style="text-align:center"><strong>Y34</br><font color="white">U45 V87</font></strong></td>
+<td style="text-align:center"><strong>Y41</br><font color="white">U45 V87</font></strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Y67</br><font color="orange">U35 V37</font></strong></td>
+<td style="text-align:center"><strong>Y98</br><font color="orange">U35 V37</font></strong></td>
+<td style="text-align:center"><strong>Y45</br><font color="grey">U28 V27</font></strong></td>
+<td style="text-align:center"><strong>Y95</br><font color="grey">U28 V27</font></strong></td>
+<td style="text-align:center"><strong>Y65</br><font color="black">U64 V63</font></strong></td>
+<td style="text-align:center"><strong>Y34</br><font color="black">U64 V63</font></strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Y35</br><font color="purple">U39 V54</font></strong></td>
+<td style="text-align:center"><strong>Y76</br><font color="purple">U39 V54</font></strong></td>
+<td style="text-align:center"><strong>Y24</br><font color="green">U76 V87</font></strong></td>
+<td style="text-align:center"><strong>Y58</br><font color="green">U76 V87</font></strong></td>
+<td style="text-align:center"><strong>Y35</br><font color="red">U45 V66</font></strong></td>
+<td style="text-align:center"><strong>Y49</br><font color="red">U45 V66</font></strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>YUV422，每个格子表示一个像素，水平上每 2 个像素共用一个 UV 值</p>
+</blockquote>
+<h4 id="yuv420-采样"><font color="1E90FF" size="3">YUV420 采样</font></h4>
+<p>YUV420 采样，可节省 1/2 存储空间和 1/2 的数据传输量。YUV420 采样，并不是指只采样 U 分量而不采样 V 分量。而是指在每一行扫描时，只扫描一种色度分量（U或者V），和 Y 分量按照 2:1 的方式采样。比如，第一行扫描时，YU 按照 2:1的方式采样，那么第二行扫描时，YV 分量按照 2:1 的方式采样。对于每个色度分量来说，它的水平方向和竖直方向的采样和Y分量相比都是2:1 。</p>
+<p>4:2:0 表示 2:1 的水平取样，垂直 2:1 采样。每 4 个 Y 共用一个 U/V 值。如下图</p>
+<img src="file:///d:\桌面\my_notes\视频编解码\img\2024-07-28-15-49-34.png" width="40%">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Y50</br><font color="yellow">U80 V90</font></th>
+<th style="text-align:center">Y30</br><font color="yellow">U80 V90</font></th>
+<th style="text-align:center">Y20</br><font color="red">U60 V50</font></th>
+<th style="text-align:center">Y10</br><font color="red">U60 V50</font></th>
+<th style="text-align:center">Y11</br><font color="pink">U10 V20</font></th>
+<th style="text-align:center">Y61</br><font color="pink">U10 V20</font></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Y44</br><font color="yellow">U80 V90</font></strong></td>
+<td style="text-align:center"><strong>Y32</br><font color="yellow">U80 V90</font></strong></td>
+<td style="text-align:center"><strong>Y65</br><font color="red">U60 V50</font></strong></td>
+<td style="text-align:center"><strong>Y81</br><font color="red">U60 V50</font></strong></td>
+<td style="text-align:center"><strong>Y34</br><font color="pink">U10 V20</font></strong></td>
+<td style="text-align:center"><strong>Y41</br><font color="pink">U10 V20</font></strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Y67</br><font color="orange">U35 V37</font></strong></td>
+<td style="text-align:center"><strong>Y98</br><font color="orange">U35 V37</font></strong></td>
+<td style="text-align:center"><strong>Y45</br><font color="grey">U28 V27</font></strong></td>
+<td style="text-align:center"><strong>Y95</br><font color="grey">U28 V27</font></strong></td>
+<td style="text-align:center"><strong>Y65</br><font color="purple">U64 V63</font></strong></td>
+<td style="text-align:center"><strong>Y34</br><font color="purple">U64 V63</font></strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Y35</br><font color="orange">U35 V37</font></strong></td>
+<td style="text-align:center"><strong>Y76</br><font color="orange">U35 V37</font></strong></td>
+<td style="text-align:center"><strong>Y24</br><font color="grey">U28 V27</font></strong></td>
+<td style="text-align:center"><strong>Y58</br><font color="grey">U28 V27</font></strong></td>
+<td style="text-align:center"><strong>Y35</br><font color="purple">U64 V63</font></strong></td>
+<td style="text-align:center"><strong>Y49</br><font color="purple">U64 V63</font></strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>YUV420，每个格子表示一个像素，每相邻 4 个像素共用一个 UV 值</p>
+</blockquote>
+<h3 id="yuv存储格式"><font color="1E90FF">YUV存储格式</font></h3>
+<p>将 rawRGB 数据进行 YUV 采样后就需要将采样后的数据进行存储。YUV 存储格式可以分为两种：packed（打包）、planar（平面）。packed 将 YUV 分量存放在同一个数组中；planar 使用三个数组分开存放三个分量</p>
+<h4 id="packed"><font color="1E90FF" size="3">packed</font></h4>
+<p><font color="yellow">YUV422 packed</font> 格式又分两种：YUYV 和 UYVY。对于 8*2 像素 YUYV 的存储方式为</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">0 ~ 7</th>
+<th style="text-align:center">Y~0~</th>
+<th style="text-align:center">U~0~</th>
+<th style="text-align:center">Y~1~</th>
+<th style="text-align:center">V~0~</th>
+<th style="text-align:center">Y~2~</th>
+<th style="text-align:center">U~2~</th>
+<th style="text-align:center">Y~3~</th>
+<th style="text-align:center">V~2~</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>8 ~ 15</strong></td>
+<td style="text-align:center"><strong>Y~4~</strong></td>
+<td style="text-align:center"><strong>U~4~</strong></td>
+<td style="text-align:center"><strong>Y~5~</strong></td>
+<td style="text-align:center"><strong>V~4~</strong></td>
+<td style="text-align:center"><strong>Y~6~</strong></td>
+<td style="text-align:center"><strong>U~6~</strong></td>
+<td style="text-align:center"><strong>Y~7~</strong></td>
+<td style="text-align:center"><strong>V~6~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>16 ~ 23</strong></td>
+<td style="text-align:center"><strong>Y~8~</strong></td>
+<td style="text-align:center"><strong>U~8~</strong></td>
+<td style="text-align:center"><strong>Y~9~</strong></td>
+<td style="text-align:center"><strong>V~8~</strong></td>
+<td style="text-align:center"><strong>Y~10~</strong></td>
+<td style="text-align:center"><strong>U~10~</strong></td>
+<td style="text-align:center"><strong>Y~11~</strong></td>
+<td style="text-align:center"><strong>V~10~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>24 ~ 31</strong></td>
+<td style="text-align:center"><strong>Y~12~</strong></td>
+<td style="text-align:center"><strong>U~12~</strong></td>
+<td style="text-align:center"><strong>Y~13~</strong></td>
+<td style="text-align:center"><strong>V~12~</strong></td>
+<td style="text-align:center"><strong>Y~14~</strong></td>
+<td style="text-align:center"><strong>U~14~</strong></td>
+<td style="text-align:center"><strong>Y~15~</strong></td>
+<td style="text-align:center"><strong>V~14~</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="planar"><font color="1E90FF" size="3">planar</font></h4>
+<p><font color="yellow">YUV422P</font>，又称为 I422，采用的是平面格式进行存储，先存储所有的 Y 分量，再存储所有的 U 分量，再存储所有的 V 分量。对于 8*2 像素 YUV422p 的存储方式为</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">0 ~ 7</th>
+<th style="text-align:center">Y~0~</th>
+<th style="text-align:center">Y~1~</th>
+<th style="text-align:center">Y~2~</th>
+<th style="text-align:center">Y~3~</th>
+<th style="text-align:center">Y~4~</th>
+<th style="text-align:center">Y~5~</th>
+<th style="text-align:center">Y~6~</th>
+<th style="text-align:center">Y~7~</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>8 ~ 15</strong></td>
+<td style="text-align:center"><strong>Y~8~</strong></td>
+<td style="text-align:center"><strong>Y~9~</strong></td>
+<td style="text-align:center"><strong>Y~10~</strong></td>
+<td style="text-align:center"><strong>Y~11~</strong></td>
+<td style="text-align:center"><strong>Y~12~</strong></td>
+<td style="text-align:center"><strong>Y~13~</strong></td>
+<td style="text-align:center"><strong>Y~14~</strong></td>
+<td style="text-align:center"><strong>Y~15~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>16 ~ 23</strong></td>
+<td style="text-align:center"><strong>U~0~</strong></td>
+<td style="text-align:center"><strong>U~2~</strong></td>
+<td style="text-align:center"><strong>U~4~</strong></td>
+<td style="text-align:center"><strong>U~6~</strong></td>
+<td style="text-align:center"><strong>U~8~</strong></td>
+<td style="text-align:center"><strong>U~10~</strong></td>
+<td style="text-align:center"><strong>U~12~</strong></td>
+<td style="text-align:center"><strong>U~14~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>24 ~ 31</strong></td>
+<td style="text-align:center"><strong>V~0~</strong></td>
+<td style="text-align:center"><strong>V~2~</strong></td>
+<td style="text-align:center"><strong>V~4~</strong></td>
+<td style="text-align:center"><strong>V~6~</strong></td>
+<td style="text-align:center"><strong>V~8~</strong></td>
+<td style="text-align:center"><strong>V~10~</strong></td>
+<td style="text-align:center"><strong>V~12~</strong></td>
+<td style="text-align:center"><strong>V~14~</strong></td>
+</tr>
+</tbody>
+</table>
+<p><font color="yellow">YUV420P</font>，又称为 I420，采用的是平面格式进行存储，先存储所有的 Y 分量，再存储所有的 U 分量，再存储所有的 V 分量。对于 8*2 像素 YUV420p 的存储方式为</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">0 ~ 7</th>
+<th style="text-align:center">Y~0~</th>
+<th style="text-align:center">Y~1~</th>
+<th style="text-align:center">Y~2~</th>
+<th style="text-align:center">Y~3~</th>
+<th style="text-align:center">Y~4~</th>
+<th style="text-align:center">Y~5~</th>
+<th style="text-align:center">Y~6~</th>
+<th style="text-align:center">Y~7~</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>8 ~ 15</strong></td>
+<td style="text-align:center"><strong>Y~8~</strong></td>
+<td style="text-align:center"><strong>Y~9~</strong></td>
+<td style="text-align:center"><strong>Y~10~</strong></td>
+<td style="text-align:center"><strong>Y~11~</strong></td>
+<td style="text-align:center"><strong>Y~12~</strong></td>
+<td style="text-align:center"><strong>Y~13~</strong></td>
+<td style="text-align:center"><strong>Y~14~</strong></td>
+<td style="text-align:center"><strong>Y~15~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>16 ~ 23</strong></td>
+<td style="text-align:center"><strong>U~0~</strong></td>
+<td style="text-align:center"><strong>U~2~</strong></td>
+<td style="text-align:center"><strong>U~4~</strong></td>
+<td style="text-align:center"><strong>U~6~</strong></td>
+<td style="text-align:center"><strong>V~8~</strong></td>
+<td style="text-align:center"><strong>V~10~</strong></td>
+<td style="text-align:center"><strong>V~12~</strong></td>
+<td style="text-align:center"><strong>V~14~</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>YUV420p: [Y~0~ Y~1~ Y~2~ ... Y~15~]，[U~0~ U~2~ U~4~ U~6~]，[V~0~ V~2~ V~4~ V~6~]</p>
+</blockquote>
+<h4 id="semi-planar"><font color="1E90FF" size="3">semi-planar</font></h4>
+<p><font color="yellow">YUV422SP</font>。对于 8*2 像素的存储方式为</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">0 ~ 7</th>
+<th style="text-align:center">Y~0~</th>
+<th style="text-align:center">Y~1~</th>
+<th style="text-align:center">Y~2~</th>
+<th style="text-align:center">Y~3~</th>
+<th style="text-align:center">Y~4~</th>
+<th style="text-align:center">Y~5~</th>
+<th style="text-align:center">Y~6~</th>
+<th style="text-align:center">Y~7~</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>8 ~ 15</strong></td>
+<td style="text-align:center"><strong>Y~8~</strong></td>
+<td style="text-align:center"><strong>Y~9~</strong></td>
+<td style="text-align:center"><strong>Y~10~</strong></td>
+<td style="text-align:center"><strong>Y~11~</strong></td>
+<td style="text-align:center"><strong>Y~12~</strong></td>
+<td style="text-align:center"><strong>Y~13~</strong></td>
+<td style="text-align:center"><strong>Y~14~</strong></td>
+<td style="text-align:center"><strong>Y~15~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>16 ~ 23</strong></td>
+<td style="text-align:center"><strong>U~0~</strong></td>
+<td style="text-align:center"><strong>V~0~</strong></td>
+<td style="text-align:center"><strong>U~2~</strong></td>
+<td style="text-align:center"><strong>V~2~</strong></td>
+<td style="text-align:center"><strong>U~4~</strong></td>
+<td style="text-align:center"><strong>V~4~</strong></td>
+<td style="text-align:center"><strong>U~6~</strong></td>
+<td style="text-align:center"><strong>V~6~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>24 ~ 31</strong></td>
+<td style="text-align:center"><strong>U~8~</strong></td>
+<td style="text-align:center"><strong>V~8~</strong></td>
+<td style="text-align:center"><strong>U~10~</strong></td>
+<td style="text-align:center"><strong>V~10~</strong></td>
+<td style="text-align:center"><strong>U~12~</strong></td>
+<td style="text-align:center"><strong>V~12~</strong></td>
+<td style="text-align:center"><strong>U~14~</strong></td>
+<td style="text-align:center"><strong>V~14~</strong></td>
+</tr>
+</tbody>
+</table>
+<p><font color="yellow">YUV420SP</font>。对于 8*2 像素的存储方式为</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">0 ~ 7</th>
+<th style="text-align:center">Y~0~</th>
+<th style="text-align:center">Y~1~</th>
+<th style="text-align:center">Y~2~</th>
+<th style="text-align:center">Y~3~</th>
+<th style="text-align:center">Y~4~</th>
+<th style="text-align:center">Y~5~</th>
+<th style="text-align:center">Y~6~</th>
+<th style="text-align:center">Y~7~</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>8 ~ 15</strong></td>
+<td style="text-align:center"><strong>Y~8~</strong></td>
+<td style="text-align:center"><strong>Y~9~</strong></td>
+<td style="text-align:center"><strong>Y~10~</strong></td>
+<td style="text-align:center"><strong>Y~11~</strong></td>
+<td style="text-align:center"><strong>Y~12~</strong></td>
+<td style="text-align:center"><strong>Y~13~</strong></td>
+<td style="text-align:center"><strong>Y~14~</strong></td>
+<td style="text-align:center"><strong>Y~15~</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>16 ~ 23</strong></td>
+<td style="text-align:center"><strong>U~0~</strong></td>
+<td style="text-align:center"><strong>V~8~</strong></td>
+<td style="text-align:center"><strong>U~2~</strong></td>
+<td style="text-align:center"><strong>V~10~</strong></td>
+<td style="text-align:center"><strong>U~4~</strong></td>
+<td style="text-align:center"><strong>V~12~</strong></td>
+<td style="text-align:center"><strong>U~6~</strong></td>
+<td style="text-align:center"><strong>V~14~</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>YUV420sp: [Y~0~ Y~1~ Y~2~ ... Y~15~]，[U~0~ V~8~]，[U~2~ V~10~]，[U~4~ V~12~]，[U~6~ V~14~]</p>
+</blockquote>
+<blockquote>
+<p>后缀 p 表示 plannar，后缀 sp 表示 semi-planar</p>
+</blockquote>
+<hr>
+<h2 id="四一级标题"><font color="1E90FF">四、一级标题</font></h2>
+<h2 id="参考资料"><font color="1E90FF">参考资料</font></h2>
+<ul>
+<li><a href="https://blog.csdn.net/xkuzhang/article/details/115423061">YUV 格式详解1</a></li>
+<li><a href="https://blog.csdn.net/qq_29575685/article/details/103954096">YUV 格式详解2</a></li>
+</ul>
+
+            
+            
+        </body>
+        </html>
