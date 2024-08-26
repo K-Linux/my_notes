@@ -320,7 +320,12 @@ ___
 ## <font color="1E90FF">彩色打印</font>
 
 ```C
-printf("\033[41;30mdebuglog\033[0m:%s %d [contains]\n", __FILE__, __LINE__);
+printf("\033[41;30mdebuglog\033:[0m %s:%d [contains]\n", __FILE__, __LINE__);
+```
+
+```sh
+# shell脚本
+echo -e "\033[41;30mdebuglog:${contains}\033[0m"
 ```
 
 ___
@@ -391,7 +396,26 @@ ___
 
 ___
 
+## <font color="1E90FF">vscode排除搜索文件</font>
 
+```json
+//在工作区的顶层目录创建  .vscode\settings.json
+{
+    "editor.codeActionsOnSave": {
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/*.code-search": true,
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/Thumbs.db": true,
+    }
+}
+```
+
+___
 
 
 
