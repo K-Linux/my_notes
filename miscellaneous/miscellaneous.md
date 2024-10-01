@@ -319,13 +319,15 @@ ___
 
 ## <font color="1E90FF">彩色打印</font>
 
+[^彩色输出]
+
 ```C
 printf("\033[41;30mdebuglog\033:[0m %s:%d [contains]\n", __FILE__, __LINE__);
 ```
 
 ```sh
 # shell脚本
-echo -e "\033[41;30mdebuglog:${contains}\033[0m"
+echo -e "\033[5;33mdebuglog:${contains}\033[0m"
 ```
 
 ___
@@ -426,26 +428,6 @@ ___
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+[^彩色输出]:[printf 彩色输出](https://www.cnblogs.com/lewki/p/14343894.html)
 [^NFS]:[良许搭建NFS服务器](https://www.lxlinux.net/6086.html)
 [^samba]:[Samba服务器搭建教程](https://blog.csdn.net/qq_42417071/article/details/136328807)
