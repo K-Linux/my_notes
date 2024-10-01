@@ -25,8 +25,8 @@ ___
 |   |<div style="width:229px">命令</div>|<div style="width:521px">解释</div>|
 |---|:---|:---|
 |**01**|git init|在当前目录初始化创建Git仓库（注：从远端克隆一个仓库也可以初始化）|
-|**02**|git config --global <br>user.name "qkh"|配置全局⽤户名|
-|**03**|git config --global <br>user.email qkh@bhlk.com|配置全局⽤户名|
+|**02**|git config --global <br>user.name "qkh"|配置全局⽤户名（更换引号内容）|
+|**03**|git config --global <br>user.email "qkh@bhlk.com"|配置全局⽤户名（更换引号内容）|
 |**04**|git status|显示哪些⽂件已被staged、未被staged以及未被跟踪(untracked)|
 |**05**|git add [file]|将`file`内所有修改加入到暂存区（注：`git add .`表示添加所有已修改文件(递归)）|
 |**06**|git commit -m "message"|将暂存区的文件提交到版本库|
