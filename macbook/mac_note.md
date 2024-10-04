@@ -9,6 +9,9 @@ option setting.json编码表达方式就是alt
 粘贴 command+v(拷贝后会出现)
 剪切 command+option+v
 (option+移动 -> 拷贝)(移动文件 -> 剪切)
+command+h -> 隐藏窗口
+
+option+绿点 -> 分屏到左/右侧
 
 空格                快速预览任何文件(或者按住空格)
 com+shift+4       截图(3截全图)(自动保存在桌面)
