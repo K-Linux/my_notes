@@ -241,6 +241,40 @@ TODO
 
 ___
 
+## <font color="1E90FF">时间函数</font>
+
+```C
+int main(int argc, char *argv[])
+{
+    time_t  time_now = 0;
+    time_t  mktime_t = 0;
+    char strftime_buf[64] = {0};
+    struct tm *localtime_buf = NULL;
+    struct tm *gmtime_buf = NULL;
+    struct timeval gettimeofday_buf = {0};
+
+    time(&time_now);
+    localtime_buf = localtime(&time_now);
+    gmtime_buf = gmtime(&time_now);
+    mktime_t = mktime(localtime_buf);
+    strftime(strftime_buf, sizeof(strftime_buf), "%Y-%m-%d", gmtime_buf);
+    gettimeofday(&gettimeofday_buf, NULL);
+
+    printf("time_now:%ld\n",  time_now);
+    printf("mktime:%ld\n",  mktime_t);
+    printf("year:%d, mon:%d\n", localtime_buf->tm_year+1900, localtime_buf->tm_mon+1);
+    printf("year:%d, mon:%d\n", gmtime_buf->tm_year+1900, gmtime_buf->tm_mon+1);
+    // strftime 函数可自定义时间格式
+    printf("strftime_buf:%s\n", strftime_buf);
+    // tv_sec == time_now == mktime_t 这三个变量的值是一样的
+    printf("tv_sec:%ld, tv_usec:%ld\n", gettimeofday_buf.tv_sec, gettimeofday_buf.tv_usec);
+
+    return 0;
+}
+```
+
+___
+
 ## <font color="1E90FF">int 强制转化为 int *</font>
 
 当`int`类型强制转化为`int *`时，`int *`的值和`int`是一样的，值一样，仅数据类型变了
@@ -322,12 +356,12 @@ ___
 [^彩色输出]
 
 ```C
-printf("\033[41;30mdebuglog\033:[0m %s:%d [contains]\n", __FILE__, __LINE__);
+printf("\033[41;30mdebuglog\033[0m: %s:%d [contains]\n", __FILE__, __LINE__);
 ```
 
 ```sh
 # shell脚本
-echo -e "\033[5;33mdebuglog:${contains}\033[0m"
+echo -e "\033[5;33mdebuglog${shell_start}\033[0m:"
 ```
 
 ___

@@ -14,10 +14,10 @@ ___
 1. 变量赋值两边不能有空格（Makefile可以有）
 1. 变量解引用要用大括号（Makefile要用小括号）
 1. `/bin/bash` 会创建一个新的进程执行脚本，`source shell.sh` 或者 `./shell.sh` 会在当前进程执行脚本
-1. 反引号的内容会被识别为命令，如 cmd=\`pwd\`，则 ${cmd} 就是执行 pwd 命令
+1. 反引号的内容会被识别为命令，如 cmd=\`cd /mnt/mtd/\`，则 ${cmd} 就是执行 cd /mnt/mtd/ 命令
 1. `/dev/null` 是一个特殊的文件，被称为 "空设备文件"。这个文件会丢弃所有写入到它的数据
 
-> shell和Makefile变量赋值都不用空格，shell用大括号解引用，Makefile用小括号解引用
+> shell赋值不能有空格，大括号解引用（Makefile反之，赋值有空格，小括号解引用）
 
 
 ## <font color="1E90FF">二、命令</font>
@@ -38,21 +38,22 @@ ___
 wc命令是‌Linux系统中用于统计文件中的行数、字数、字节数的工具
 
 ‌统计文件的行数‌：`wc -l filename`
+‌统计文件的最长那一行的长度‌：`wc -L filename`
 ‌统计文件的字数‌：`wc -w filename`
 ‌统计文件的字节数‌：`wc -c filename`
 ‌统计文件的字符数‌：`wc -m filename`
-‌统计文件的最长行长度‌：`wc -L filename`
 
 ### <font color="1E90FF">echo命令</font>
 
 `echo` 命令可以带有参数
-`-n` 不换行输出（默认是换行输出）
+`-n` 不换行输出（默认末尾是会换行的）
 `-e` 解析字符串中的特殊符号
 `\t` 制表符
 `\b` 退格
 
 ```bash
-echo -n "linux"
+echo "linux\nchina"     #输出linux\nchina
+echo -e "linux\nchina"  #输出linux `换行` china
 echo -e "\033[5;33mdebuglog:contains\033[0m"
 ```
 
@@ -65,42 +66,59 @@ echo -e "\033[5;33mdebuglog:contains\033[0m"
 exec date #输出日期信息后退出
 ```
 
-## <font color="1E90FF">三、环境变量</font>
+## <font color="1E90FF">三、环境变量和内置变量</font>
 
-每个用户都有自己的环境变量配置文件 `~/.bash_profile` 或者 `~/.bashrc`
-若需要给所有用户配置环境变量则需要将变量写在 `/etc/profile`
-每次开启终端时才会加载一次环境变量
+<font color="yellow">内置变量</font>：是在当前进程（终端）中定义的变量，只在当前进程（终端）有效。可以通过`set`命令查看内置变量，并且可以用`unset`命令删除
 
-`export` 命令用于将变量导出为全局变量，使其在当前shell终端会话中可见，并且可以在其它子进程中访问
-`set` 输出当前shell会话中的所有变量（包括全局和局部变量）
-`env` 输出当前shell会话中的全局变量
+<font color="yellow">环境变量</font>：是在操作系统级别定义的变量，对所有子进程都可见。可以通过`env`命令查看环境变量，并且可以使用`export`命令将内部变量导出为环境变量。
+环境变量指的是用export命令导出的变量，例如`ls`的执行程序路径是在`PATH`变量中可找到
+
+`export name` 将name导出为环境变量，使其在所有子进程（终端）中可见
+`set` 输出当前进程（终端）中的环境变量和内置变量（即全有变量）`declare`和`set`命令是一样的
+`unset name` 删除当前进程（终端）中的 name 变量
+`env` 输出当前进程（终端）中的环境变量
+
+```shell
+var=china   #设置内置变量
+export var  #导出到环境变量（子进程可访问）
+echo $var   #打印变量
+env         #显示输出环境变量
+set         #显示输出环境变量和内置变量
+unset var   #删除var变量
+```
 
 ### <font color="1E90FF">环境变量读取顺序</font>
 
+- 每个用户都有自己的环境变量配置文件 `~/.bash_profile` 或者 `~/.bashrc`
+- 若需要给所有用户配置环境变量则需要将变量写在 `/etc/profile`
+- 每次开启终端时才会加载一次环境变量
+
+环境变量的读取顺序为
+
 1. 先读取 `/etc/profile` 加载所有用户公共的环境变量
 1. 然后读取 `~/.bash_profile` 加载当前用户的环境变量（若有相同则覆盖）
-1. 再者读取 `~/.bashrc`
-1. 最后读取 `/etc/bashrc`
+1. 再者读取 `~/.bashrc`（若有相同则覆盖）
+1. 最后读取 `/etc/bashrc`（若有相同则覆盖）
 
 
-## <font color="1E90FF">四、参数</font>
+## <font color="1E90FF">四、shell入参</font>
 
 `$0` 获取脚本文件名
 `$n` 获取脚本第n个参数
 `$#` 获取脚本参数总数（`$#`不包括脚本名，`argc`的数值包括脚本名）
-`$@` 和 `$*` 没有双引号时，都表示循环取出每个参数；有双引号时 `"$*"` 表示将所有参数输出为一行
-`$?` 返回上一次shell命令行的返回值，或者返回脚本文件`exit`退出的值
+`$@` 和 `$*` 没有双引号时，都表示将每个入参视为独立的字符串，并以列表的形式输；有双引号时 `"$*"` 表示将所有shell入参输出为一行
+`$?` 输出上一次shell命令行的返回值，或者返回脚本文件`exit`和`return`退出的值
 `$$` 输出当前脚本的进程ID（PID）
 
 ```bash
-# $@ == $* == "$@" 循环输出每个参数
 #for var in $*
 #for var in "$@"
-for var in $@
+# $@ == $* == "$@" 循环输出每个shell入参给var变量
+for var in $@   #for var in "$@"    #for var in $*   
 do
     echo $var
 done
-# "$*" 将所有参数合并为一个变量
+# "$*" 将所有shell入参合并为一个变量赋值给var变量
 for var in "$*"
 do 
     echo $var 
@@ -109,3 +127,28 @@ done
 
 >`$@` == `$*` == `"$@"` 即循环输出每个参数
 >`"$*"` 是将所有参数输出为一行，即一个变量
+
+## <font color="1E90FF">五、变量</font>
+
+|   |<div style="width:229px">命令</div>|<div style="width:521px">解释</div>|
+|---|:---|:---|
+|**00**|`var=china_linux`|定义变量`var`
+|**01**|`${var}`|返回变量的值|
+|**02**|`${#var}`|返回变量长度|
+|**03**|`${var:3}`|从变量的第3个元素开始返回后面的所有值|
+|**04**|`${var:3:1}`|从变量的第3个元素开始返回后面的1个值|
+|**05**|`${var#"linux"}`|若变量首字符是`linux`，则删除`linux`并输出|
+|**06**|`${var%"linux"}`|若变量末尾字符是`linux`，则删除`linux`并输出|
+|**07**|`${var/linux/china}`|使用`china`替换第一个匹配到的`linux`|
+|**08**|`${var//linux/china}`|使用`china`替换所有的`linux`（注意两斜杆）|
+|**09**|`${para:-${var}}`|如果变量`para`为空，则返回变量`var`的值，否则返回`para`(para变量不需要解引用)|
+
+### <font color="1E90FF">批量修改文件名</font>
+
+```shell
+#将所有后缀.jpg的文件中的linux改成china
+for var in `ls *.jpg`
+do 
+    mv $var ${var//linux/china}
+done
+```

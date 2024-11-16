@@ -146,6 +146,12 @@
 <p>光线进入镜头，经过镜头折射进入 sensor，sensor 进行光电转换，sensor 将光信号转为模拟信号，ADC 再将模拟信号转为数字信号（二进制），此时数字信号也称为 rawRGB，最后将原始电信号数据传入主芯片，此时原始图片可能会变暗或者各种瑕疵，主芯片会将原始数据进行 ISP 处理调整，最后将处理后的图片进行编码压缩 IPC 会将编码后的视频通过网络传输到服务器，客户端从服务器下载视频流，然后将视频流解码并播放</p>
 <p>CPU 为什么要对视频流先编码再传输，而不传送源数据？
 答: sensor 收集的信息量太多了，<code>http</code> 或 <code>rtsp</code> 网络带宽不够，所以需要压缩后再传输（HI3518E的主要作用就是视频编码）</p>
+<center>海思媒体处理平台内部处理流程图</center>
+<div align=center><img src="file:///d:\桌面\my_notes\视频编解码\img\2024-08-24-18-06-25.png" width="60%"></div>
+<center>典型的公共视频缓存池数据流图</center>
+<div align=center><img src="file:///d:\桌面\my_notes\视频编解码\img\2024-08-24-18-35-32.png" width="60%"></div>
+<center>VI、VPSS、GROUP关系图<font color="yellow">（每个group只能有一个输入源，dev和group可以有多个channel，但每个channel只能固定输出一路）</font></center>
+<div align=center><img src="file:///d:\桌面\my_notes\视频编解码\img\2024-08-25-00-33-59.png" width="60%"></div>
 <ul>
 <li>24 帧视频即每秒钟24张图片</li>
 <li>fps (frame per second) 帧率</li>
@@ -155,21 +161,36 @@
 <li>图片压缩很耗 CPU，HI3518E 内置了一个 <code>DSP</code> 来专门运算处理图片</li>
 <li><font color="yellow">DSP</font>: digital signal processing 数字信号处理，用来处理<code>ISP</code></li>
 <li><font color="yellow">ISP</font>: image signal processing 图像信号处理</li>
+<li><font color="yellow">WDR</font>: wide dynamic range 宽动态。将一帧照片中非常暗的区域曝光度高，非常亮的区域曝光度低，以达到画面清晰的效果</li>
 <li><code>hardware</code>: 硬件</li>
 <li><code>software</code>: 软件</li>
-<li><code>VB</code>: video buffer 视频缓存池</li>
+<li><font color="yellow">VB</font>: video buffer 视频缓存池。有A、B、C等多个内存池。A内存池中有 n 个内存块，每个块的长度等于每帧的长度</li>
 <li>视频流传输使用<code>http</code>或<code>rtsp</code></li>
 <li><code>HI3518E</code> 配置为 <code>CPU(arm9) + DSP + 内置64MB内存 + 外置16MB SPIFlash</code>（存 uboot, kernel, rootfs, app）</li>
 <li>sensor 接口用的是并行接口（mipi csi是串口）</li>
 <li>我们的开发板是在官方的开发板的基础上简化而来的（企业也是这样做的）</li>
 <li><font color="yellow">模拟信号</font>: 用电信号去模拟自然事物。优点为连续性，精度无限, 但是抗干扰能力差, 传输不便</li>
 <li><font color="yellow">数字信号</font>: 将连续的模拟信号用有限的数字表示。优点为抗干扰能力强, 便于传输, 但是精度不高</li>
-<li><code>pitch</code>: 像素间距。指相邻两个象素点中心之间的距离（我们说间距时，像素点之间是没有缝隙的）</li>
+<li><font color="yellow">pitch</font>: 像素间距。指相邻两个象素点中心之间的距离（我们说间距时，像素点之间是没有缝隙的）</li>
+<li><font color="yellow">sensor接口</font>: MIPI、LVDS、DC</li>
+<li><font color="yellow">3A</font>: <code>auto exposure</code> <code>auto white balance</code> <code>auto focus</code></li>
+<li><font color="yellow">channel</font>: 其它通道为普通通道。但是仅 VPSS GROUP 通道分为 2 种，物理通道和扩展通道。物理通道具有缩放、裁剪等功能。扩展通道具备缩放功能，它通过绑定物理通道，将物理通道输出作为自己的输入，把图像缩放成用户设置的目标分辨率输出。VPSS GROUP 的每个通道号都有其特性，需查看手册。<font color="yellow">输入通道和输出通道是两个不同的通道</font></li>
+<li><font color="yellow">GROUP</font>: VPSS 只有一个，VPSS里有多个 group，每个 GROUP 组的输入源只有一个，但可以有多个 channel 通道输出（group的输入通道和输出通道是两个不同的通道）</li>
+<li><font color="yellow">VI</font>: VI 由 dev 和 channel 组成。一个 dev 可以连接多个 channel，多个 channel 就可以输出多路不同分辨率的图像数据。离线模式是指 VI 写出数据到 DDR，然后与之绑定的模块从 DDR 读取数据。在线模式是指 VI 与VPSS 之间的在线数据流传输，VI 不会写出数据到 DDR，而是直接把数据流送给 VPSS。</li>
+<li><font color="yellow">VPSS</font>: Video Process Sub-System 视频处理子系统。支持对一幅输入图像进行统一预处理，如去噪、去隔行、翻转等，然后再对各通道分别进行缩放、锐化等处理，最后输出多种（多路）不同分辨率的图像。</li>
+<li><font color="yellow">BMP</font>: Bit Map 位图</li>
+<li><font color="yellow">码率</font>: 又称比特率Bitrate，单位为bps（bit per second），是指单位时间内传送的数据量。对于每帧都变化的场景，若图像质量稳定则编码码率波动大；若编码码率稳定则图像质量波动大</li>
+<li><font color="yellow">CBR和VBR</font>: 恒定码率和可变码率。当场景静止时CBR和VBR数值一样，当场景变化大时CBR数值jiao</li>
+<li>按包获取码流时，获取的可能不是一个完整帧（前一次API被取走一部分）</li>
+<li>按帧获取码流时，获取的是一个完整帧（多个包）
+<font color="yellow">RTSP</font>：（Real-Time Transport Streaming Protocol）实时传输流协议
+<font color="yellow">RTCP</font>：（Real-time Transport Control Protocol）实时传输控制协议
+<font color="yellow">RTP</font>：（Real-time Transport Protocol）实时传输协议</li>
 </ul>
 <hr>
 <h2 id="二rgb"><font color="1E90FF">二、RGB</font></h2>
 <p><font color="yellow">raw</font>[rɔː] adj: 原始的</p>
-<p><font color="yellow">rawRGB</font>: 由 ADC 将模拟信号转为数字信号，此时图像数据为 rawRGB，rawRGB不能直接显示，需要经过 ISP 计算转化为 RGB 数据</p>
+<p><font color="yellow">rawRGB</font>: 由 ADC 将模拟信号转为数字信号，此时图像数据为 rawRGB，rawRGB不能直接显示，需要经过 ISP 计算转化为 RGB 数据，最后将 RGB 数据转化为 YUV 存储（rgb bayer）</p>
 <p>RGB 的本质是将一个颜色拆分为 R、G、B 三个颜色，然后用数字表示这三个颜色的亮度。例如 0x070809，07、08、09分别表示 R、G、B 的亮度</p>
 <blockquote>
 <p>注意: RGB 里面存的是颜色的亮度值，而不是色度值</p>
@@ -518,8 +539,65 @@
 <blockquote>
 <p>后缀 p 表示 plannar，后缀 sp 表示 semi-planar</p>
 </blockquote>
+<h3 id="yuv大小计算"><font color="1E90FF">YUV大小计算</font></h3>
+<p>YUV422 每个像素占用的大小为 2 字节。4 个像素中有4个Y、2个U、2个V， 共占8字节，所以每个像素占用大小为8/4=2字节</p>
+<p>YUV420 每个像素占用的大小为 1.5 字节。4 个像素中有4个Y、2个U（或V）， 共占6字节，所以每个像素占用大小为6/4=1.5字节</p>
 <hr>
-<h2 id="四一级标题"><font color="1E90FF">四、一级标题</font></h2>
+<h2 id="四ortp"><font color="1E90FF">四、ORTP</font></h2>
+<p><font color="yellow">RTMP</font>：（Real Time Message Protocol）实时信息传输协议
+<font color="yellow">RTSP</font>：（Real-Time Streaming Protocol）实时流协议
+<font color="yellow">RTCP</font>：（Real-Time Transport Control Protocol）实时控制协议
+<font color="yellow">RTP</font>：（Real-Time Transport Protocol）实时传输协议
+<font color="yellow">ORTP</font>：（Open Real-Time Transport Protocol）开源实时传输协议</p>
+<p>开源库只会给调用者提供一些功能函数，只有在测试案例中才会有main函数</p>
+<h3 id="ortp库交叉编译及开发板运行"><font color="1E90FF">ORTP库交叉编译及开发板运行</font></h3>
+<p>编译ORTP库前，由于库本身的问题，需要在ORTP库中<code>avprofile.c</code>里的<code>av_profile_init()</code>添加一行<code>rtp_profile_set_payload(profile,96,&amp;payload_type_h264);</code></p>
+<p>海思应用程序调用ORTP库需要做的代码修改在<code>./file/sample_comm_venc.c</code>路径中，自行和原文件对比差异</p>
+<h4 id="ortp交叉编译"><font color="1E90FF" size="3">ORTP交叉编译</font></h4>
+<ol>
+<li>sudo apt-get install libtool*</li>
+<li>sudo apt-get install m4</li>
+<li>sudo apt-get install automake</li>
+<li>./autogen.sh</li>
+<li>./configure --prefix=/home/k/samba/ortp-master/install --host=arm-hisiv300-linux</li>
+<li>make &amp;&amp; make install</li>
+</ol>
+<h4 id="ortp开发板运行"><font color="1E90FF" size="3">ORTP开发板运行</font></h4>
+<ol>
+<li>将编译后ORTP的头文件目录拷贝到 <code>mpp/inlcude/</code> 路径下（因为是include路径，所以可以这样包含<code>#include &lt;ortp/ortp.h&gt;</code>）</li>
+<li>将编译后ORTP的lib目录拷贝到 <code>mpp/lib/rtp_lib/</code> 路径下</li>
+<li>修改<code>mpp/sample/venc/Makefile</code>，添加库名<code>-lortp</code>和库路径<code>-L../../lib/ortp_lib</code>
+Makefile编译器参数添加 ortp 头文件(编译时用到)：<code>CFLAGS += -I ../../include/ortp</code>
+Makefile链接器参数添加 ortp 库名和路径(链接时用到)：<code>LDFLAGS += -lortp -L../../lib/ortp_lib</code></li>
+<li>编译出<code>sample_venc</code>应用程序</li>
+<li>将<code>libortp.so</code> <code>libortp.so.9</code> <code>libortp.so.9.0.0</code>拷贝到开发板的<code>/usr/lib</code>目录中（这个是系统链接库）</li>
+<li>开发板中运行<code>sample_venc</code>应用程序</li>
+</ol>
+<blockquote>
+<p>注意拷贝的是一个目录，而非多个文件
+注意动态库才需要拷贝到开发板，静态库不需要，因为静态库已经编译进应用程序里了</p>
+</blockquote>
+<hr>
+<h2 id="五h264"><font color="1E90FF">五、H.264</font></h2>
+<p>图像冗余信息：空间冗余、时间冗余
+视频编码关键点：压缩比、算法复杂度、还原度
+H.264的组成：VCL 和 NAL。VCL负责视频压缩，NAL负责网络传输
+H.264编码相关信息</p>
+<ol>
+<li>像素 -&gt; 宏块 MB(macroblock) -&gt; 片(slice) -&gt; 帧 frame（I帧、P帧、B帧） -&gt; 序列 -&gt; 码流</li>
+<li>帧率</li>
+</ol>
+<p>SODB(string of data bits)纯视频数据
+RBSP(raw byte sequence payload)
+NALU(network abstraction layer units) 网络抽象单元</p>
+<p>头bit + SODB + 尾bit = RBSP
+NAL header(1 byte) + RBSP = NALU
+一段码流由一个一个的NALU序列组成</p>
+<h3 id="nal"><font color="1E90FF">NAL</font></h3>
+<p>当设置为30帧时，<font color="yellow">则一秒钟一个序列，一个序列30帧</font>，h.264会在每个30帧前增加SPS、PPS、SEI这3帧数据，这3帧数据都以<code>0x 00 00 00 01</code>作为开头标识，开头标识是无效的不属于任何部分，此后才是有效SPS、PPS、SEI数据</p>
+<p>一个序列由 1个SPS帧、1个PPS帧、1个SEI帧、1个I帧、(fps-1)个P帧、(fps-1)B帧组成，每个帧的第1字节为帧头信息, 帧头中<code>bit7</code>表示此帧是否有效即forbidden_zero_bit(0为有效果)， <code>bit5-bit6</code>表示此帧的重要性即nal_reference_idc（当需要丢帧时可将重要性低的丢弃）, <code>bit0-bit4</code>表示此帧类型即nal_unit_type（type:5 I帧；type:7 序列参数集SPS；type:8 图像参数集PPS；type:6 补充增强信息单元SEI；）</p>
+<p>SPS、PPS、SEI、描述该序列sequence的图像信息，这些信息有利于网络传输和解码</p>
+<div align=center><img src="file:///d:\桌面\my_notes\视频编解码\img\2024-10-23-23-00-08.png" width="40%"></div>
 <h2 id="参考资料"><font color="1E90FF">参考资料</font></h2>
 <ul>
 <li><a href="https://blog.csdn.net/xkuzhang/article/details/115423061">YUV 格式详解1</a></li>
