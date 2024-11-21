@@ -13,7 +13,7 @@ ___
 1. 变量不能以数字开头
 1. 变量赋值两边不能有空格（Makefile可以有）
 1. 变量解引用要用大括号（Makefile要用小括号）
-1. `/bin/bash` 会创建一个新的进程执行脚本，`source shell.sh` 或者 `./shell.sh` 会在当前进程执行脚本
+1. <font color="yellow"> `/bin/bash` 会创建一个新的进程执行脚本，`source shell.sh` 或者 `./shell.sh` 会在当前进程执行脚本</font>
 1. 反引号的内容会被识别为命令，如 cmd=\`cd /mnt/mtd/\`，则 ${cmd} 就是执行 cd /mnt/mtd/ 命令
 1. `/dev/null` 是一个特殊的文件，被称为 "空设备文件"。这个文件会丢弃所有写入到它的数据
 
