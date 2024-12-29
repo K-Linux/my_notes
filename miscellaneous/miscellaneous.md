@@ -400,6 +400,21 @@ RPCNFSDOPTS="--nfs-version 2,3,4 --debug --syslog"  //添加这句话让ubuntu�
 
 ___
 
+## <font color="1E90FF">SSH</font>
+
+开启 Ubuntu 的 SSH 服务以后我们就可以在 Windwos 下使用终端软件登陆到 Ubuntu，比如使用 SecureCRT
+
+Ubuntu 下使用如下命令开启 SSH 服务：
+`sudo apt-get install openssh-server`
+
+如果有报错，则把报错的文件都删除，例如`sudo rm /var/lib/dpkg/lock-frontend` 等等
+
+上述命令安装 ssh 服务，ssh 的配置文件为/etc/ssh/sshd_config，使用默认配置即可
+
+PC上使用Xshell执行`ssh 192.168.10.20`来连接ubuntu
+
+___
+
 ## <font color="1E90FF">samba</font>
 
 1. `sudo apt update`[^samba]
@@ -450,6 +465,92 @@ ___
     }
 }
 ```
+
+___
+
+## <font color="1E90FF">环境变量PATH</font>
+
+环境变量的含义就是系统在查找可执行程序（如gcc）时，<font color="yellow">会自动到环境变量所指定的目录搜索目标</font>。linux系统可以有很多个环境变量。其中有一部分是linux系统自带的。`PATH`就是系统自带的环境变量。输入`echo  $PATH`可打印`PATH`的内容，可知`PATH`的范围都在 `/usr` 内
+
+- `PATH`是系统可执行程序环境变量
+- `LD_LIBRARY_PATH`是系统动态链接库环境变量
+
+___
+
+## <font color="1E90FF">制作静态库和动态库</font>
+
+动/静态库都是先编译多个.o文件，然后将多个.o文件链接成一个动/静态库
+
+动/静态库起名格式为: `lib库名.a` 或者 `lib库名.so`
+
+动态库和静态库编译链接格式都是`gcc -c main.c -o main -L. -lname`。gcc会优先链接动态库，若未找到.so文件才加载.a文件。若要定义链接静态库则需要用`-static`参数来指定链接静态库，例如`gcc -c main.c -o main -L. -lname -static`
+
+<font color="1E90FF">静态库.a</font>：就是将自己的源代码经过只编译不连接 -c 形成 .o 的目标文件，然后用ar工具将.o文件归档成.a静态链接库文件。商业公司通过发布.a库文件和.h头文件来提供静态库给客户使用；客户在自己的.c文件中直接声明和调用这些库文件，用户使用候编译链接主函数时会来链接.a中相关功能函数，生成一个可执行文件。
+
+<font color="1E90FF">动态库.so</font>：现在我们一般都是使用动态库。静态库在用户链接可执行程序时就已经把调用的库中的函数的代码段链接进最终可执行程序中了，坏处是太占地方了。尤其是有多个应用程序都使用了这个库函数时，在多个应用程序最后生成的可执行程序中都各自有一份这个库函数的代码段。当这些应用程序同时在内存中运行时，实际上在内存中有多个这个库函数的代码段，这完全重复了。而动态链接库本身不将库函数的代码段链接入可执行程序，只是做个标记。然后当应用程序在内存中执行时，运行时环境发现它调用了一个动态库中的库函数时，会去加载这个动态库到内存中，然后以后不管有多少个应用程序去调用这个库中的函数都会跳转到第一次加载的地方去执行（不会重复加载）
+
+
+### <font color="1E90FF">gcc编译库参数</font>
+
+```shell
+gcc hello.c -o hello -I /home/k/include -L /home/k/lib -lapi
+#-I  i表示指定头文件路径path
+#-l  表示指定库函数名pathname。例如指定libjpeg.so库用-ljpeg，即-l是-lib的缩写
+#-L  表示指定库函数路径path
+
+#-I(i) /home/k/include  表示头文件目录寻找顺序是 /home/k/include -> /usr/include -> /usr/local/include
+#-L /home/k/lib  表示库文件目录寻找顺序是：/home/k/lib -> /lib -> /usr/lib -> /usr/local/lib
+#-lapi  表示动态库文件名libapi.so（加入 -static 表示链接静态库文件）
+```
+
+### <font color="1E90FF">静态库</font>
+
+```shell
+#a.c依赖b.c，b.c依赖c.c
+#将每个.c文件编译成.o文件，编译时若需要静/动态库则要指定静/动态库（不能将多个.c文件编译成一个.o文件）
+gcc -c a.c -o a.o $(LIBPATH) $(STATICLIB)
+gcc -c b.c -o b.o $(LIBPATH) $(STATICLIB)
+gcc -c c.c -o c.o $(LIBPATH) $(STATICLIB)
+#将多个.o文件打包成一个静态库.a文件
+ar -rcs libapi.a a.o b.o c.o
+
+#实际调用静态库
+gcc main.c -L . -lapi -static
+./a.out #程序内已经包含静态库文件，可以直接运行
+```
+
+> ar命令参数
+> -s: 重置静态库文件索引
+> -r: 将.o文件插入静态库尾（会替换库中同名.o文件）
+> -c: 创建静态库文件
+
+### <font color="1E90FF">动态库</font>
+
+```shell
+#a.c依赖b.c，b.c依赖c.c
+#将每个.c文件编译成.o文件，编译时若需要静/动态库则要指定静/动态库（不能将多个.c文件编译成一个.o文件）
+gcc -c a.c -o a.o $(LIBPATH) $(STATICLIB) -fPIC
+gcc -c b.c -o b.o $(LIBPATH) $(STATICLIB) -fPIC
+gcc -c c.c -o c.o $(LIBPATH) $(STATICLIB) -fPIC
+#将多个.o链接成一个动态库.so文件
+gcc -o libapi.so a.o b.o c.o -shared
+
+#实际调用动态库
+gcc main.c -L . -lapi
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:(动态库的路径)
+./a.out #电路板上的程序运行时需要到板子上的环境变量中加载动态库,
+        #故板子上自定义的动态库路径需要导出到环境变量，以便让程序找到
+```
+
+> `-fPIC` 表示生成位置无关码 `position independent code`
+> `-shared` 表示生成动态库.so文件，按照共享库的方式来链接
+
+程序内部包含了静态库，所以可以直接加载静态库。但是程序加载动态库时需要到环境变量中加载，将动态库导出到环境变量的方式为：
+1. 将动态库文件放到系统库目录`/usr/lib`或`/lib`
+2. 将动态库文件所在的路径导出到环境变量`LD_LIBRARY_PATH`。例如 `export  LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/mnt/mtd`
+
+> 系统链接动态库时会先去`LD_LIBRARY_PATH`环境变量所指定的路径寻找动态库，然后再去`/lib`寻找，最后去`/usr/lib`寻找
+> `PATH`是可执行程序环境变量，`LD_LIBRARY_PATH`是动态链接库环境变量 
 
 ___
 

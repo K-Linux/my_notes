@@ -13,7 +13,7 @@ ___
 1. 变量不能以数字开头
 1. 变量赋值两边不能有空格（Makefile可以有）
 1. 变量解引用要用大括号（Makefile要用小括号）
-1. <font color="yellow"> `/bin/bash` 会创建一个新的进程执行脚本，`source shell.sh` 或者 `./shell.sh` 会在当前进程执行脚本</font>
+1. <font color="yellow"> `/bin/bash` 或 `/bin/sh`会创建一个新的进程执行脚本，`source shell.sh` 或者 `./shell.sh` 会在当前进程执行脚本</font>
 1. 反引号的内容会被识别为命令，如 cmd=\`cd /mnt/mtd/\`，则 ${cmd} 就是执行 cd /mnt/mtd/ 命令
 1. `/dev/null` 是一个特殊的文件，被称为 "空设备文件"。这个文件会丢弃所有写入到它的数据
 
@@ -68,9 +68,9 @@ exec date #输出日期信息后退出
 
 ## <font color="1E90FF">三、环境变量和内置变量</font>
 
-<font color="yellow">内置变量</font>：是在当前进程（终端）中定义的变量，只在当前进程（终端）有效。可以通过`set`命令查看内置变量，并且可以用`unset`命令删除
+<font color="1E90FF">内置变量</font>：是在当前进程（终端）中定义的变量，只在当前进程（终端）有效。可以通过`set`命令查看内置变量，并且可以用`unset`命令删除
 
-<font color="yellow">环境变量</font>：是在操作系统级别定义的变量，对所有子进程都可见。可以通过`env`命令查看环境变量，并且可以使用`export`命令将内部变量导出为环境变量。
+<font color="1E90FF">环境变量</font>：是在操作系统级别定义的变量，对所有子进程都可见。可以通过`env`命令查看环境变量，并且可以使用`export`命令将内部变量导出为环境变量。
 环境变量指的是用export命令导出的变量，例如`ls`的执行程序路径是在`PATH`变量中可找到
 
 `export name` 将name导出为环境变量，使其在所有子进程（终端）中可见
@@ -84,7 +84,7 @@ export var  #导出到环境变量（子进程可访问）
 echo $var   #打印变量
 env         #显示输出环境变量
 set         #显示输出环境变量和内置变量
-unset var   #删除var变量
+unset var param   #删除var、param变量
 ```
 
 ### <font color="1E90FF">环境变量读取顺序</font>
@@ -132,7 +132,7 @@ done
 
 |   |<div style="width:229px">命令</div>|<div style="width:521px">解释</div>|
 |---|:---|:---|
-|**00**|`var=china_linux`|定义变量`var`
+|**00**|`var=china_linux`|定义变量`var`|
 |**01**|`${var}`|返回变量的值|
 |**02**|`${#var}`|返回变量长度|
 |**03**|`${var:3}`|从变量的第3个元素开始返回后面的所有值|
@@ -142,8 +142,12 @@ done
 |**07**|`${var/linux/china}`|使用`china`替换第一个匹配到的`linux`|
 |**08**|`${var//linux/china}`|使用`china`替换所有的`linux`（注意两斜杆）|
 |**09**|`${para:-${var}}`|如果变量`para`为空，则返回变量`var`的值，否则返回`para`(para变量不需要解引用)|
+|**10**|`${para:=${var}}`|如果变量`para`为空，则返回变量`var`的值，且将`var`赋值给`para`，否则返回`para`|
+|**11**|`${para:="empty error"}`|如果变量`para`为空，则返回 "empty error"，且退出shell程序|
 
-### <font color="1E90FF">批量修改文件名</font>
+### <font color="1E90FF">变量应用</font>
+
+**<font size="4" color="1E90FF">批量修改文件名</font>**
 
 ```shell
 #将所有后缀.jpg的文件中的linux改成china
@@ -151,4 +155,12 @@ for var in `ls *.jpg`
 do 
     mv $var ${var//linux/china}
 done
+```
+
+**<font size="4" color="1E90FF">查找修改时间在7天之前的文件并删除</font>**
+
+```shell
+
+find ${param:="/mnt/mtd/"} -name "*.log" -mtine +7 | xargs rm -f
+
 ```
