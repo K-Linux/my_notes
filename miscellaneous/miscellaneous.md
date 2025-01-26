@@ -148,6 +148,24 @@ H ：Hex， 十六进制
 D ：Decimal， 十进制
 ___
 
+## <font color="1E90FF">C调用C++函数</font>
+
+用C++写的函数可以被C调用，原理就是用特定的符号声明该函数，让该函数用C编译器编译
+
+```C++
+//这里是头文件，当其他.cpp文件包含该头文件时就会将 func1 和 func2 函数用C编译器编译
+#ifdef __cplusplus
+extern "C" {
+#endif
+int func1(void);
+int func2(void);
+#ifdef __cplusplus
+}
+#endif
+```
+
+___
+
 ## <font color="1E90FF">使用函数获取堆内存方式</font>
 
 ```C
