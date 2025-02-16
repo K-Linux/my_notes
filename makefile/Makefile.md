@@ -57,10 +57,17 @@ gcc -MM main.c 或 gcc -M main.c
 #################### %.o:%c 逻辑是什么 ##################
 %.o:%.c
     gcc -c $^ -o $@
-# 实际就是一条一条的循环执行 gcc
+# 实际就是循环开启一个shell并执行 gcc 命令，如下
     gcc -c 1.c -o 1.o
     gcc -c 2.c -o 2.o
     gcc -c n.c -o n.o
+# 每次都是在当前目录开启shell
+    #嵌套创建b
+    mkdir a; cd a; touch b
+    #在当前目录创建b
+    mkdir a
+    cd a
+    touch b
 
 
 
@@ -131,6 +138,8 @@ gcc -MM main.c 或 gcc -M main.c
 |-wall|显示所有警告|
 |-o2|二级编译优化|
 |-C|切换目录|
+|-MM|输出依赖文件|
+|-E|预处理|
 
 ## <font color="1E90FF">三、函数</font>
 
