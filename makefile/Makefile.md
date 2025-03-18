@@ -44,7 +44,7 @@ DIR := objs                           # 生成目录名
 OBJS := main.o a.o b.o
 OBJS := $(addprefix $(DIR)/, $(OBJS)) # 给.o文件加上目录前缀
 all: $(DIR) $(OBJS)
-$(DIR)%.o:%.c                         # 生成带目录的目标
+$(DIR)/%.o:%.c                         # 生成带目录的目标
     #这里gcc生成的 .o 文件就会在 DIR 目录中
 $(DIR):
     mkdir -p $@
@@ -215,6 +215,15 @@ $(filter $(find), $(var)) # 输出 a.c b.c
 
 $(filter-out $(find), $(var)) # 输出 a.h b.h
 #返回变量 find 以外的字符串
+```
+
+### <font color="1e90ff">call</font>
+
+```makefile
+express = a.$(1).c b.$(2).o       #变量var不能用 :=
+var := $(call express,lix,chin)   #参数之间不能用空格
+#将lix和chin带入到表达式express中展开（lix是参数1，即$(1)）
+#var的结果为 a.lix.c b.chin.o
 ```
 
 ### <font color="1e90ff">if</font>
