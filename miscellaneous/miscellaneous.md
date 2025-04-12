@@ -345,13 +345,17 @@ IP地址中32位实际包含2部分，即IP地址 = 网络(段)地址 + 主机�
 
 ___
 
-## <font color="1E90FF">ubuntu</font>
+## <font color="1E90FF">VMware/ubuntu</font>
 
-### <font color="1E90FF">修改ubuntu主机名称</font>
+**<font size="4" color="1E90FF">修改ubuntu主机名称</font>**
 
 主机名存放在/etc/hostname文件中，修改主机名后重启系统后即可
 
-### <font color="1E90FF">Alt + F7，拖动窗口</font>
+**<font size="4" color="1E90FF">Alt + F7，拖动窗口</font>**
+
+**<font size="4" color="1E90FF">ubuntu设置双网卡</font>**
+
+虚拟机——设置——添加——网络适配器——sudo dhclient(自动获取IP) 或 右上角关闭网络再打开网络
 
 ___
 

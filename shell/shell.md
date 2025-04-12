@@ -13,7 +13,8 @@ ___
 1. 变量不能以数字开头
 1. 变量赋值两边不能有空格（Makefile可以有）
 1. 变量解引用要用大括号（Makefile要用小括号）
-1. <font color="yellow"> `/bin/bash` 或 `/bin/sh`会创建一个新的进程执行脚本，`source shell.sh` 或者 `./shell.sh` 会在当前进程执行脚本</font>
+1. <font color="yellow"> `sh script.sh`会创建一个新的进程执行脚本，`source script.sh` 或者 `./script.sh` 会在当前进程执行脚本</font>
+1. <font color="yellow"> #!/bin/bash 和 #!/bin/sh 的区别时 bash 功能丰富，而 sh 是简易版</font>
 1. 反引号的内容会被识别为命令，如 cmd=\`ls m.c\`，则 ${cmd} 就是执行 ls m.c 命令
 1. `/dev/null` 是一个特殊的文件，被称为 "空设备文件"。这个文件会丢弃所有写入到它的数据
 
@@ -107,7 +108,7 @@ unset var param   #删除var、param变量
 
 `$0` 获取脚本文件名
 `$n` 获取脚本第n个参数
-`$#` 获取脚本参数总数（`$#`不包括脚本名，`argc`的数值包括脚本名）
+`$#` 获取脚本参数总数（`$#`的数值不包括脚本，`argc`的数值包括程序）
 `$@` 和 `$*` 没有双引号时，都表示将每个入参视为独立的字符串，并以列表的形式输；有双引号时 `"$*"` 表示将所有shell入参输出为一行
 `$?` 输出上一次shell命令行的返回值，或者返回脚本文件`exit`和`return`退出的值
 `$$` 输出当前脚本的进程ID（PID）
@@ -167,14 +168,17 @@ find ${param:="/mnt/mtd/"} -name "*.log" -mtine +7 | xargs rm -f
 
 ```
 
-## <font color="1E90FF">运算符</font>
+## <font color="1E90FF">六、运算符</font>
 
 ### <font color="1E90FF">|| 和 &&</font>
 
+得出结论后就终止执行
+|| 若①为真则整体为真，不执行②；若①为假则整体未知，执行②
+&& 若①为真则整体未知，执行②； 若①为假则整体为假，不执行②
+
 ```shell
-# 得出结论后就终止执行
-# || 若①为真则整体为真，不执行②；若①为假则整体未知，执行②
-# && 若①为真则整体未知，执行②； 若①为假则整体为假，不执行②
+[ 6 -eq 5 ] || echo "linux"
+#打印 linux
 ```
 
 ### <font color="1E90FF">逻辑与、逻辑或</font>
@@ -183,4 +187,53 @@ find ${param:="/mnt/mtd/"} -name "*.log" -mtine +7 | xargs rm -f
 -a 逻辑与
 
 ```shell
+if [ 5 -eq 6 -o "a" = "a" ]; then
+    echo "yes"
+else
+    echo "no"
+fi
+#打印 yes
 ```
+
+### <font color="1E90FF"> if 运算符</font>
+
+```shell
+if [ -d file.c ]; then  # 判断目录存在
+if [ -f file.c ]; then  # 判断文件存在
+if [ "li" = "ch" ]; then # 判断字符或字符串相等
+if [ -z $var ]; then    # 判断变量为空,是则返回1
+if [ 6 -eq 5 ]; then    # 判断数字相等 equal
+if [ 6 -gt 5 ]; then    # 判断数字大于 greater than
+if [ 6 -ge 5 ]; then    # 判断数字大于等于 greater or equal
+if [ 6 -lt 5 ]; then    # 判断数字小于 less than
+if [ 6 -le 5 ]; then    # 判断数字小于等于 less or equal
+    #todo
+fi
+```
+
+### <font color="1E90FF"> for/while 循环</font>
+
+```shell
+for i in 1 2 3; do
+    echo $i
+done
+
+i=0
+while [ $i -lt 3 ]; do
+    echo $i
+    i=$(($i+1))     # 即i++
+done
+```
+
+### <font color="1E90FF"> 接续创建文件 >> </font>
+
+```shell
+echo "linux" > a.c # 删除a.c文件，再创建a.c并输入打印
+echo "linux" >> a.c # 有a.c文件则接续输入，无a.c文件则创建该文件
+```
+
+
+
+
+
+
