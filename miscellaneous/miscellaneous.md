@@ -6,6 +6,22 @@ ___
 
 ___
 
+## <font color="1E90FF">C 语法</font>
+
+____________________________________
+
+## <font color="1E90FF">硬件</font>
+
+____________________________________
+
+## <font color="1E90FF">ubuntu</font>
+
+____________________________________
+
+## <font color="1E90FF">网络</font>
+
+____________________________________
+
 ## <font color="1E90FF">int，short，char</font>
 
 int、short、char都是数字类型，数字范围依次减少。但是char比较特殊，不但可以给char赋值-128~127的数字，也可以赋值单个字符。<font color="yellow">当给char赋值数字时，是给ASCII的十进制赋值数字，当给char赋值字符时，是给ASCII的字符赋值字符</font>。打印的时候不但可以用%c也可以用%d打印
@@ -39,12 +55,6 @@ ___
 int a = 0x168;
 printf("%#x", a); //打印`0x168`
 printf("%x", a);  //打印`168`
-___
-
-## <font color="1E90FF">映射网络驱动器</font>
-
-<div align=center><img src="img/2023-06-26-22-21-02.png" width="100%"></div>
-
 ___
 
 ## <font color="1E90FF">OTG</font>
@@ -357,9 +367,8 @@ ___
 
 虚拟机——设置——添加——网络适配器——sudo dhclient(自动获取IP) 或 右上角关闭网络再打开网络
 
-___
-
-## <font color="1E90FF">wps切换: ctrl+TAB</font>
+如果网络连接不上了则恢复网络设置
+windows搜索——"虚拟网络编辑器"——还原默认设置
 
 ___
 
@@ -367,9 +376,13 @@ ___
 
 1. 关键词用<font color="yellow">黄色高亮</font>
 1. 两个段落之间用回车
-1. 变量用字符串 `val_string`
-1. 4 个 # 时，要调整字体大小。以下为模板
-`#### <font color="1E90FF" size="3">contains</font>`
+1. 命令、变量、关键词、用字符串符号 `val_string`
+1. 大章节前面要加中文数字且用2个#，小章节前面要加阿拉伯数字且用3个#，小章节标题用4个#，最多用4个#且只用蓝和绿两个标题颜色，模板如下
+`## <font color="1E90FF">一、第一期 视频模块及推流实战</font>`
+`### <font color="1E90FF">1-5_开发板功能测试</font>`
+`#### <font color="008B8B">切换到 host 模式</font>`
+
+<img src="img/2025-04-17-00-42-39.png" width="25%">
 
 ___
 
@@ -576,7 +589,13 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:(动态库的路径)
 
 ___
 
+## <font color="1E90FF">vim配置</font>
 
+[vimrc.txt](attachment/vimrc "点击打开")
+
+将 vimrc.txt 拷贝并改名到 ~/.vimrc
+
+___
 
 
 

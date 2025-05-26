@@ -1,0 +1,93 @@
+call plug#begin('~/.vim/plugged')
+Plug 'easymotion/vim-easymotion'
+Plug 'morhetz/gruvbox'
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
+call plug#end()
+
+"主题相关
+set background=dark
+colorscheme gruvbox
+"let g:airline_theme='gruvbox'
+let g:airline_theme='onedark'
+
+set number				"显示行号
+set tabstop=4			"tab表示空格数
+set softtabstop=4		"退回tab的空格数
+set shiftwidth=4		"每一级缩进的长度
+set noexpandtab			"用制表符表示一个缩进
+set autoindent			"自动缩进
+set cindent				"C语言自动缩进
+set mouse=a				"使用鼠标
+set hls					"查找结果高亮
+set incsearch			"一边输入一边高亮
+syntax on				"vim默认语法高亮
+set wildmenu			"命令模式字符补全
+set ignorecase			"不区分大小写搜索
+set smartcase			"大写优先搜索
+set splitright			"左右分屏时,新窗口在右侧
+set splitbelow			"上下分屏时,新窗口在底部
+set nobackup			"关闭备份
+set noswapfile			"禁止生成临时文件
+set nowritebackup		"编辑时不需要备份文件
+set noundofile			"不创建撤销文件
+set autoread			"文件自动检测外部更改
+set cursorline			"高亮显示光标行
+"set clipboard=unnamed "Vim与系统剪切板共享内容
+set clipboard=unnamedplus "Vim与系统剪切板共享内容
+"set paste				"取消自动注释
+
+"设置空格为前缀键
+let mapleader=" "  
+
+"插入模式
+inoremap {		{}<left>
+inoremap }		{}<left>
+inoremap [ 		[]<left>
+inoremap ( 		()<left>
+inoremap " 		""<left>
+
+"普通模式
+nnoremap P				viw"0p
+nnoremap Y				vg_y
+nnoremap B				^
+nnoremap E				g_
+nnoremap K				gJ
+nnoremap <leader>w		:w<CR>
+nnoremap <leader>q		:q<CR>
+nnoremap e				7l
+nnoremap b				7h
+nnoremap z				ztkj
+nnoremap v				m6v
+nmap	 f				<space><space>s
+nnoremap ,				5<C-e>
+nnoremap .				5<C-y>
+nnoremap <				<C-f>
+nnoremap >				<C-b>
+nnoremap <C-f>			:NERDTree<CR>
+nnoremap go				<C-o>
+nnoremap gi				<C-i>
+nnoremap new			:tabnew<space>
+nnoremap <CR>			o<ESC>
+nnoremap <left>			:vertical resize-2<CR>
+nnoremap <right> 		:vertical resize+2<CR>
+nnoremap <F1>	 		:tabprevious<CR>
+nnoremap <F2>	 		:tabnext<CR>
+nnoremap  [	:nohlsearch<CR>
+nnoremap  ]	:nohlsearch<CR>
+nnoremap  t	:nohlsearch<CR>
+nnoremap  U	:nohlsearch<CR>
+nnoremap  X	:nohlsearch<CR>
+nnoremap  {	:nohlsearch<CR>
+nnoremap  }	:nohlsearch<CR>
+
+"命令模式
+"cnoremap F			\><CR>
+"可视模式
+vnoremap B			^
+vnoremap E			g_
+vnoremap e			7l
+vnoremap b			7h
+vnoremap p			"0p
+vnoremap ,			5j
+vnoremap .			5k

@@ -218,8 +218,10 @@ ___________________
 
 1. 文件——首选项——设置——搜索"Paste Image"
 2. 修改 Paste Image: Path。原本是`${currentFileDir}`，改成`${currentFileDir}/img`，即在当前目录创建img文件夹。(如果img文件夹不存在则自动创建)
+
 ![](img/2023-04-16-20-43-08.png)
-3. `ctrl+alt+v`粘贴图片
+
+3. 文件——首选项——键盘快捷方式——搜索"Paste Image"——设置粘贴图片快捷键为`ctrl+shift+v`
 
 ___________________
 
