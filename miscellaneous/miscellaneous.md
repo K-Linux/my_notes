@@ -36,6 +36,13 @@ printf("%c\n", a)   // 7
 
 printf("%d\n", b)   // 55
 printf("%c\n", b)   // 7
+
+// char 类型赋值 0 就是 '\0'
+char c[32] = {0};
+if (0 == c[6])
+    printf("c[6] == 0")   // 会打印
+if ('\0' == c[6])
+    printf("c[6] == '0'")   // 会打印
 ```
 
 有符号字符 char 值的范围是： -128 ~ 127
@@ -365,7 +372,7 @@ ___
 
 **<font size="4" color="1E90FF">ubuntu设置双网卡</font>**
 
-虚拟机——设置——添加——网络适配器——sudo dhclient(自动获取IP) 或 右上角关闭网络再打开网络
+虚拟机——设置——添加——网络适配器——桥接模式——编辑——虚拟机——更改设置——桥接连接至网卡1或网卡2——(后面步骤不要执行)(sudo dhclient(自动获取IP) 或 右上角关闭网络再打开网络)
 
 如果网络连接不上了则恢复网络设置
 windows搜索——"虚拟网络编辑器"——还原默认设置
@@ -396,7 +403,10 @@ printf("\033[41;30mdebuglog\033[0m: %s:%d [contains]\n", __FILE__, __LINE__);
 
 ```sh
 # shell脚本
-echo -e "\033[5;33mdebuglog${shell_start}\033[0m:"
+#!/bin/bash
+echo -e "\033[5;33mdebuglog\033[0m:[contains]"
+#!/bin/sh
+echo "\033[5;33mdebuglog\033[0m:[contains]"
 ```
 
 ___
@@ -503,6 +513,30 @@ ___
 
 ___
 
+## <font color="1E90FF">vscode 自定义代码补全</font>
+
+1. ctrl + shift + p
+1. 输入 `snippets`
+1. 配置代码片段（Configure Snippets）
+1. 选择需要配置的语言
+1. 输入自定义的代码补全
+
+```json
+{
+    //prefix 是代码前缀；body 是代码补全内容
+    // 注意 " 和 \ 要转义成字符
+    "debug_printf": {
+        "prefix": "debug_printf",
+        "body": [
+            "printf(\"\\033[41;30mdebuglog\\033[0m: %s:%d [contains]\\n\", __FILE__, __LINE__);"
+        ],
+        "description": "debug_printf"
+    }
+}
+```
+
+___
+
 ## <font color="1E90FF">环境变量PATH</font>
 
 环境变量的含义就是系统在查找可执行程序（如gcc）时，<font color="yellow">会自动到环境变量所指定的目录搜索目标</font>。linux系统可以有很多个环境变量。其中有一部分是linux系统自带的。`PATH`就是系统自带的环境变量。输入`echo  $PATH`可打印`PATH`的内容，可知`PATH`的范围都在 `/usr` 内
@@ -589,7 +623,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:(动态库的路径)
 
 ___
 
-## <font color="1E90FF">vim配置</font>
+## <font color="1E90FF">vim 配置</font>
 
 [vimrc.txt](attachment/vimrc "点击打开")
 
@@ -597,9 +631,42 @@ ___
 
 ___
 
+## <font color="1E90FF">Xshell 配置</font>
 
+[highlight.hls](attachment/highlight.hls "点击打开")
 
+**关键字高亮**
 
+1. 将 highlight.hls 拷贝到 C:\Users\82717\Documents\NetSarang Computer\7\Xshell\HighlightSet Files 目录中
+1. Xshell 点击`工具`—`突出显示集`—`highlight`—`设置为当前组`—`关闭`
+
+```
+highlight.hls 配置文件语法解释
+
+Keyword=(\bactive(d)?\b)|(\bsuccess(ful(ly)?|ed)?\b)|(\btrue\b)|(\bok\b)|(\bup\b)|(\brun(ning)?\b)|(\bdeployed\b)|(\bunlocked\b)|(\bstart(ed|ing)?\b)|(\bbegin(ning)?\b)|(\benable(d)?\b)|(\bcreate(d)?\b)|(\bopen\b)
+\b: 是单词边界的意思，确保匹配的是完整的单词，而不是单词的一部分
+active(d)?: 中的 (d)? 表示 "d" 这个后缀是可选的
+|: 用来连接多个括号里的规则
+successs 里是嵌套可选
+
+TermBackColor=1：终端背景色设置，具体颜色由编辑器定义。
+Underline=0：匹配文本不带下划线。
+Bold=0：不加粗。
+Strikeout=0：不删除线。
+BackColorIndex=286 和 TextColorIndex=286：颜色索引，具体颜色依编辑器而定。
+UseRegex=1：表示 Keyword 字段是正则表达式。
+Italic=0：不斜体。
+Enable=0：当前规则未启用。
+CaseSens=0：不区分大小写。
+```
+
+**复制粘贴**
+
+Xshell 点击`工具`—`选项`—`键盘和鼠标`—取消`输入/输出终端时滚到底部`—开启`按键滚动到底部`—`确定`
+
+**滚轮后界面不动**
+
+Xshell 点击`属性`—`终端`—`高级`—`编辑`—`新建`—输入需求快捷键—`类型`选项选择`菜单`—下一项选择`复制`—`确定`
 
 
 

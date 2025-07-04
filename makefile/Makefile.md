@@ -33,6 +33,9 @@ all: $(OBJS1) $(OBJS2)
 # 无论 $(OBJS1) 和 $(OBJS2) 的值是什么，都在目标 %.o 的范围内
 %.o:%.c
 
+# 目标和依赖需要同时出现通配符 %，如下是错误的
+$(OBS):%.c
+
 ############ 为什么先决条件中要加入头文件；为什么要用 $< #########
 # 添加头文件 $(INCLUDE) 是因为需要将先决条件和目标形成依赖关系，这样当改动头文件时目标才会被重新生成
 # 必须要用 $< 是因为不希望gcc编译头文件为.o文件，否则会报错
@@ -134,7 +137,7 @@ gcc -MM main.c 或 gcc -M main.c
 |-o|设置编译或链接生成的文件名|
 |-nostdlib|不使用标准库（不用标准printf）|
 |-nostdinc|不使用标准头文件|
-|-I pathname|编译包含头文件|
+|-I path|编译包含头文件目录（只能是目录）|
 |-wall|显示所有警告|
 |-o2|二级编译优化|
 |-C|切换目录|
@@ -278,4 +281,103 @@ endif
 1. `include` 包含 .mk 文件
 1. `override` 该关键词修饰的变量不会被make命令参数覆盖
 
+## <font color="1E90FF">五、模板</font>
 
+```MakefilE
+# 注意编译 .c 文件时需要改成 .cpp 后缀和编译器
+CC := g++
+RM := rm
+MKDIR := mkdir
+
+#最终程序
+DIR_EXE := exes
+EXE := app
+EXE := $(addprefix $(DIR_EXE)/, $(EXE))
+
+#.o文件
+DIR_OBJS := objs
+SRCS := $(wildcard *.cpp)
+OBJS := $(patsubst %.cpp, %.o, $(SRCS))
+OBJS := $(addprefix $(DIR_OBJS)/, $(OBJS))
+
+#目录集合
+DIRS := $(DIR_OBJS) $(DIR_EXE)
+
+#-I 参数是用来指定头文件目录的，而不是具体的头文件
+INCLUDE_DIR := -I$(shell pwd)/include   #指定头文件目录
+INCLUDE_FILE := $(shell pwd)/include/$(wildcard *.h)    #该变量用在先决条件中，目的是依赖关系，故必须是具体的头文件
+
+#静态库和动态(默认优先动态库，此处会优先静态库）
+STATIC_LIB := -static -L$(shell pwd)/lib -luv
+DYNAMIC_LIB := -L$(shell pwd)/lib -luv
+
+#编译器参数
+CFLAGS := -Wall -O2 -g
+
+all:$(DIRS) $(OBJS) $(EXE)
+
+$(EXE):$(OBJS)
+	@$(CC) $^ -o $@ $(STATIC_LIB) $(DYNAMIC_LIB)
+	@./$(EXE)
+$(DIR_OBJS)/%.o:%.cpp $(INCLUDE_FILE)
+	@$(CC) -c $< -o $@ $(INCLUDE_DIR) $(CFLAGS)
+$(DIRS):
+	@$(MKDIR) $@
+
+.PHONY:clean
+clean:
+	$(RM) -rf $(DIRS)
+
+```
+
+```Makefile
+
+CROSS_COMPILE = /usr/local/arm/arm-2009q3/bin/arm-linux-
+
+AS        = $(CROSS_COMPILE)as    
+LD        = $(CROSS_COMPILE)ld      #链接工具
+CC        = $(CROSS_COMPILE)gcc     #编译工具
+CPP       = $(CC) -E       
+AR        = $(CROSS_COMPILE)ar      #打包工具
+NM        = $(CROSS_COMPILE)nm    
+export AS LD CC CPP AR NM
+
+#编译器参数(可以不用加到all中)
+CFLAGS := -Wall -O2 -g              #编译器参数
+CFLAGS += -I $(shell pwd)/include   #指定编译器头文件
+CFLAGS += -I $(shell pwd)/../libjpeg/libjpeg/include
+CFLAGS += -I $(shell pwd)/../libpng/pnglib/include
+CFLAGS += -I $(shell pwd)/../libpng/zlib/include
+
+#链接器参数
+LDFLAGS := -L$(shell pwd)/../libjpeg/libjpeg/lib -ljpeg #libjpeg.so
+LDFLAGS += -L$(shell pwd)/../libpng/pnglib/lib -lpng    #libpng.so
+LDFLAGS += -L$(shell pwd)/../libpng/zlib/lib -lz        #libz.so
+export CFLAGS LDFLAGS   #将定义的变量导出，方便其他makefile使用
+
+TOPDIR := $(shell pwd)
+export TOPDIR                       #输出顶层目录
+
+TARGET := imageplayer               #编译后的程序名
+
+obj-y += main.o                     #顶层要生成的.o文件
+obj-y += display/                   #包含子Makefile所在目录
+obj-y += picture_manage/            #包含子Makefile所在目录
+obj-y += touchscreen/               #包含子Makefile所在目录
+all :
+    cp -r /mnt/hgfs/share/project_code/* ./
+#第一步编译,使用顶层的makefile.build进行编译生成built-in.o
+    make -C ./ -f $(TOPDIR)/Makefile.build      
+#第二步链接,将顶层built-in.o文件链接成目标文件TARGET
+    $(CC) $(LDFLAGS) -o $(TARGET) built-in.o  
+    rm -rf /home/k/nfs/root/project_code/*
+    cp -rf ../project_code  /home/k/nfs/root
+clean:
+#搜索并删除所有.o和.d文件
+    rm -f $(shell find -name "*.o")
+    rm -f $(shell find -name "*.d")
+    rm -f $(TARGET)
+invertcopy:
+    cp -rf  ../project_code  /mnt/hgfs/share/
+
+```
