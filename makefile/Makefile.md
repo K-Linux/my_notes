@@ -284,49 +284,55 @@ endif
 ## <font color="1E90FF">五、模板</font>
 
 ```MakefilE
-# 注意编译 .c 文件时需要改成 .cpp 后缀和编译器
-CC := g++
+CC := gcc
+CXX := g++
 RM := rm
 MKDIR := mkdir
 
 #最终程序
 DIR_EXE := exes
 EXE := app
-EXE := $(addprefix $(DIR_EXE)/, $(EXE))
+EXE := $(DIR_EXE)/$(EXE)
 
 #.o文件
 DIR_OBJS := objs
-SRCS := $(wildcard *.cpp)
-OBJS := $(patsubst %.cpp, %.o, $(SRCS))
-OBJS := $(addprefix $(DIR_OBJS)/, $(OBJS))
+CSRCS := $(wildcard *.c)
+COBJS := $(patsubst %.c, %.o, $(CSRCS))
+CXXSRCS := $(wildcard *.cpp)
+CXXOBJS := $(patsubst %.cpp, %.o, $(CXXSRCS))
+OBJS := $(addprefix $(DIR_OBJS)/, $(COBJS) $(CXXOBJS))
 
 #目录集合
 DIRS := $(DIR_OBJS) $(DIR_EXE)
 
 #-I 参数是用来指定头文件目录的，而不是具体的头文件
 INCLUDE_DIR := -I$(shell pwd)/include   #指定头文件目录
-INCLUDE_FILE := $(shell pwd)/include/$(wildcard *.h)    #该变量用在先决条件中，目的是依赖关系，故必须是具体的头文件
+INCLUDE_FILE := $(shell pwd)/include/$(wildcard *.h) 	#该变量在先决条件中，目的是依赖关系，故必须是具体的头文件
 
 #静态库和动态(默认优先动态库，此处会优先静态库）
-STATIC_LIB := -static -L$(shell pwd)/lib -luv
-DYNAMIC_LIB := -L$(shell pwd)/lib -luv
+STATIC_LIB := #-static -L$(shell pwd)/lib -luv
+DYNAMIC_LIB := #-L$(shell pwd)/lib -luv
 
 #编译器参数
 CFLAGS := -Wall -O2 -g
+CXXFLAGS := -Wall -O2 -g
 
 all:$(DIRS) $(OBJS) $(EXE)
 
 $(EXE):$(OBJS)
-	@$(CC) $^ -o $@ $(STATIC_LIB) $(DYNAMIC_LIB)
-	@./$(EXE)
+    @$(CXX) $^ -o $@ $(STATIC_LIB) $(DYNAMIC_LIB)
+    @./$(EXE) 
+    @$(RM) -rf $(DIRS)
+$(DIR_OBJS)/%.o:%.c $(INCLUDE_FILE)
+    @$(CC) -c $< -o $@ $(INCLUDE_DIR) $(CFLAGS)
 $(DIR_OBJS)/%.o:%.cpp $(INCLUDE_FILE)
-	@$(CC) -c $< -o $@ $(INCLUDE_DIR) $(CFLAGS)
+    @$(CXX) -c $< -o $@ $(INCLUDE_DIR) $(CXXFLAGS)
 $(DIRS):
-	@$(MKDIR) $@
+    @$(MKDIR) $@
 
 .PHONY:clean
 clean:
-	$(RM) -rf $(DIRS)
+    $(RM) -rf $(DIRS)
 
 ```
 

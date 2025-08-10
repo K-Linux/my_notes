@@ -668,7 +668,11 @@ Xshell 点击`工具`—`选项`—`键盘和鼠标`—取消`输入/输出终�
 
 Xshell 点击`属性`—`终端`—`高级`—`编辑`—`新建`—输入需求快捷键—`类型`选项选择`菜单`—下一项选择`复制`—`确定`
 
+___
 
+## <font color="1E90FF">C++在线运行网址</font>
+
+https://www.jsongj.com/compiler/cpp
 
 
 [^彩色输出]:[printf 彩色输出](https://www.cnblogs.com/lewki/p/14343894.html)

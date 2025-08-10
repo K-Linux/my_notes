@@ -101,9 +101,19 @@ int main()
 1. 拷贝构造函数中，使用赋值号直接将形参(类)的指针成员复制，叫作浅拷贝（注：默认拷贝构造函数就是这样）
 1. 拷贝构造函数中，在堆区new空间给形参(类)的指针成员，叫作深拷贝(需要手动new)
 
-<div align=center><img src="img/2023-05-03-18-32-49.png" width="50%"></div>
-.
-<div align=center><img src="img/2023-05-03-18-33-32.png" width="50%"></div>
+```C++
+//形参为引用本类的构造函数为拷贝构造函数
+Person(const Person &p) {
+    cout << "copy is" >> endl;
+}
+
+int main()
+{
+    Person s1;      //调用无参构造函数
+    Person s1(10);  //调用有参构造函数
+    Person s1(s2);  //调用拷贝构造函数(对象s3复制了对象s2)
+}
+```
 
 ### <font color="1E90FF">1.3 继承</font>
 
@@ -123,7 +133,26 @@ int main()
 
 6. 派生类以任何方式继承基类的同时，也会继承基类的全部内存大小（注：静态成员不会增加类的内存。函数以及函数内部的局部变量也不会增加类的内存，因为是运行时分配）
 
-<div align=center><img src="img/2023-05-05-22-00-57.png"></div>
+```C++
+class Base {
+public:
+    int m_a;
+protected:
+    int m_b;
+private:
+    int m_c;
+};
+class Derive:private Base {
+public:
+int m_d;
+};
+int main()
+{
+    Derive t1;
+    cout << sizeof(t1) << endl; //16字节
+    return 0;
+}
+```
 
 7. 实例化对象时会先调用基类的构造函数，再调用派生类的构造函数；结束对象时先析构派生类再析构基类
 8. 若派生类成员与基类成员同名，派生类优先级高。<font color="yellow">会屏蔽基类所有同名成员</font>(包括所有同名重载函数和同名静态成员)。只能使用作用域符号特指才能调用基类成员
@@ -192,7 +221,22 @@ int main()
 
 - 不推荐使用多继承
 
-<div align=center><img src="img/2023-05-07-18-51-59.png" width="50%"></div>
+```C++
+class Derive:public Base1, public Base2 {
+public:
+    int m_a;
+};
+int main()
+{
+    Derive t1;
+    // 同名时派生类优先级高
+    cout << t1.m_a << endl;         //0
+    // 推荐用作用域全称访问基类的成员
+    cout << t1.Base1::m_a << endl;  //10
+    cout << t1.Base2::m_a << endl;  //20
+    return 0;
+}
+```
 
 #### <font color="1E90FF">菱形继承</font>
 
@@ -248,8 +292,11 @@ int main()
 1. <font color="yellow">派生类要重写基类的虚函数</font>（注：重写即函数名和形参都要一样）
 2. <font color="yellow">基类的指针或引用执行派生类的虚函数</font>
 
->注：在函数前加`virtual`即为虚函数。例如：virtual void func()
->构造函数不能是虚函数，因为派生类不能继承基类的构造函数，将构造函数声明为虚函数没有意义
+>注：
+>1. 在函数前加`virtual`即为虚函数。例如：virtual void func()
+>2. 基类的虚函数一定要有定义内容
+>3. 派生类指针能直接赋值给基类指针，此时若想基类指针重新赋值给派生类，则需要将基类指针制类型转换为派生类指针才能赋值，操作为 Derive *d = (Derive *) m_base 
+>4. 构造函数不能是虚函数，因为派生类不能继承基类的构造函数，将构造函数声明为虚函数没有意义
 
 #### <font color="1E90FF">动态多态的原理</font>
 
@@ -541,6 +588,7 @@ using namespace std;
 //默认使用命名空间std中的cout库
 using std::cout;
 
+//限制此命名空间里的内容，只能在本文件调用
 namespace first {
     void func(void) {
         //特指使用std的endl成员
@@ -1134,6 +1182,7 @@ int main()
 #### <font color="1E90FF">函数调用运算符重载（仿函数）</font>
 
 由于函数调用运算符重载后的使用方式和普通函数很像，因此称为仿函数
+<font color="yellow">使用时将类当成函数来调用</font>
 
 ```C++
 #include <iostream>
@@ -1357,7 +1406,7 @@ int main(){
     int b[5] = { 10, 20, 30, 40, 50 };
     //数组名作为实参会自动转化为数组指针
     //sizeof只能通过数组名求得数组长度，不能通过数组指针求得数组长度，所以要先sizeof数组长度再做形参
-    int len = sizeof(a) / sizeof(int);  //数组长度
+    int len = sizeof(a) / sizeof(int);  //数组元素个数
     Swap(a, b, len);  //匹配模板2
     printArray(a, len);
     printArray(b, len);
@@ -1800,7 +1849,6 @@ private:
 
 int main()
 {
-
     //类模板实例化对象时必须指明类型参数
     //此处类型参数2存在默认类型，故可以不指明
     Base<string> t1("Linux", 100);
@@ -1959,7 +2007,13 @@ int main()
 
     //利用迭代器访问容器
     for (vector<int>::iterator it = v1.begin(); it != v1.end(); it++)
-        cout << *it << endl;        // 9   3
+    {
+        // 打印
+        // iterator[0]:9
+        // iterator[1]:3
+        cout << "iterator[" << it - v.begin() << "]:";
+        cout << *it << endl;
+    }
 
     //利用for_each算法遍历容器。实质是将容器中每个元素依次作为实参传给print()函数执行
     for_each(v1.begin(), v1.end(), print);    //9   3

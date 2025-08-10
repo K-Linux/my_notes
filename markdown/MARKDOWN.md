@@ -250,10 +250,14 @@ ___________________
 
 ### 前景色
 
-  <font color="red">英文控制颜色</font>
-  **<font color="yellow">颜色+粗体</font>**
-  <font color="rgb(100, 200, 100)">RGB值颜色</font>
-  <font color="#FF00BB">使用十六进制值颜色</font>
+<font color="red">英文控制颜色</font>
+**<font color="yellow">颜色+粗体</font>**
+<font color="rgb(100, 200, 100)">RGB值颜色</font>
+<font color="#FF00BB">使用十六进制值颜色</font>
+
+**<font color="#008B8B">好看的颜色收集</font>**
+**<font color="#F3BA4B">好看的颜色收集</font>**
+**<font color="#FF7D7D">好看的颜色收集</font>**
 
 ### 字体居中
 

@@ -603,19 +603,13 @@ socket 数据的接收和发送是无关的，read() 和 write() 的执行次数
 
 当客户端开始发起请求，即调用 connect() 函数后，通信过程如下：
 
-①
-当客户端调用 connect() 函数后，TCP协议会组建一个数据包。`Seq` 字段会用一个随机数1000填充。并置位 `SYN` 标志位，表示该数据包是用来建立同步连接的。将数据包发送给服务器后进入SYN-SEND状态
-
-②
-服务器端收到数据包后，检测到 `SYN` 标志位被置位了，就知道这是请求建立连接的数据包
+1. 当客户端调用 connect() 函数后，TCP协议会组建一个数据包。`Seq` 字段会用一个随机数1000填充。并置位 `SYN` 标志位，表示该数据包是用来建立同步连接的。将数据包发送给服务器后进入SYN-SEND状态
+1. 服务器端收到数据包后，检测到 `SYN` 标志位被置位了，就知道这是请求建立连接的数据包
 然后服务器端也会组建一个数据包，`Seq` 字段会生用一个随机数2000填充。`Ack` 字段用1001填充。并置位 `SYN` 和 `ACK` 标志位，将数据包发出后进入SYN-RECV状态。
-
-③
-客户端收到数据包后，检测到 `SYN` 和 `ACK` 标志位被置位，就会检测 `Ack` 字段的值是否为 1000+1，如果是就说明连接建立成功
+1. 客户端收到数据包后，检测到 `SYN` 和 `ACK` 标志位被置位，就会检测 `Ack` 字段的值是否为 1000+1，如果是就说明连接建立成功
 然后客户端再组建一个数据包，`Ack` 字段用2001填充，并置位 `ACK` 标志位，表示客户端正确接收了服务器发来的"确认包"。将数据包发出后进入ESTABLISED状态，告诉服务器连接已经成功建立
 
-④
-服务器端收到数据包，检测到 ACK 标志位被置位，就会检测 `Ack` 字段的值是否为 2000+1，如果是就说明连接建立成功，服务器进入ESTABLISED状态
+1. 服务器端收到数据包，检测到 ACK 标志位被置位，就会检测 `Ack` 字段的值是否为 2000+1，如果是就说明连接建立成功，服务器进入ESTABLISED状态
 
 客户端和服务器都进入了ESTABLISED状态，表示连接建立成功，接下来就可以收发数据了
 
@@ -834,15 +828,300 @@ closesocket(sock);
 
 ___
 
-## <font color="1E90FF">二、Websocket</font>
+## <font color="1E90FF">二、HTTP 协议</font>
 
-WebSocket 是一种网络通信协议。我们已经有了 HTTP 协议，为什么还需要 websocket 协议？答案很简单，因为 <font color="yellow">HTTP 协议的缺陷是 "通信只能由客户端发起"</font>。HTTP 协议做不到服务器主动向客户端推送信息。这种单向请求的特点，客户端要获知服务器的状态变化就非常麻烦。我们只能使用轮询：每隔一段时候，就发出一个询问，了解服务器有没有新的信息。轮询的效率低，非常浪费资源（因为必须不停连接，或者 HTTP 连接始终打开）。因此，工程师们一直在思考，有没有更好的方法。WebSocket 就是这样发明的
+1. URL 就是网址
+1. HTTP 头部信息是 `key:value` 的形式，用 CRLF 换行表示字段结束
+1. key 可以使用 - ，但不能使用下划线_
+
+
+<table>
+  <tr><td bgcolor=#008B8B width="0%"><font color=white>请求/响应行</td></tr>
+  <tr><td bgcolor=#1E90FF width="0%"><font color=white>请求/响应头</td></tr>
+  <tr><td width="0%"><font color=white>空格</td></tr>
+  <tr><td bgcolor=red width="0%"><font color=white>请求/响应主体</td></tr>
+</table>
+
+```http
+请求 URL      https://www.processon.com/view/link/5c97952de4b0ab74ece439cd
+请求方法      GET
+状态代码      200 OK
+远程地址      120.233.185.137:443
+引用站点策略  strict-origin-when-cross-origin
+
+HTTP/1.1 200 OK
+Server: CLOUD ELB 1.0.0
+Content-Type: text/html; charset=utf-8
+Content-Encoding: gzip
+Connection: keep-alive
+Date: Sat, 12 Jul 2025 10:09:18 GMT
+EO-LOG-UUID: 4485520768803220682
+EO-Cache-Status: MISS
+
+GET /view/link/5c97952de4b0ab74ece439cd HTTP/1.1
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: zh-CN,zh;q=0.z
+Connection: keep-alive
+Host: www.processon.com
+```
+
+```http
+请求 URL      https://www.processon.com/api/personal/view/link/v2
+请求方法      POST
+状态代码      200 OK
+远程地址      120.233.185.137:443
+引用站点策略  no-referrer
+
+HTTP/1.1 200 OK
+Server: CLOUD ELB 1.0.0
+Content-Type: application/json
+Content-Encoding: gzip
+Connection: keep-alive
+Date: Sat, 12 Jul 2025 10:09:19 GMT
+EO-LOG-UUID: 7239874992213125081
+EO-Cache-Status: MISS
+
+POST /api/personal/view/link/v2 HTTP/1.1
+Accept: */*
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: zh-CN,zh;q=0.9
+Connection: keep-alive
+Content-Length: 49
+Content-Type: application/x-www-form-urlencoded
+Host: www.processon.com
+Origin: https://www.processon.com
+```
+
+### <font color="1E90FF">请求信息</font>
+
+HTTP 请求由请求行、请求头、请求主体组成
+
+**请求行**
+
+<table>
+  <td bgcolor=#008B8B width="0%"><font color=white>method</td>
+  <td width="0%"><font color=white>空格</td>
+  <td bgcolor=#1E90FF width="0%"><font color=white>URL</td>
+  <td width="0%"><font color=white>空格</td>
+  <td bgcolor=red width="0%"><font color=white>version</td>
+</table>
+
+```http
+GET /view/link/5c97952de4b0ab74ece439cd HTTP/1.1
+```
+
+请求行按顺序依次由请求方法、请求路径（相对路基）、协议版本组成
+请求方法有 GET、POST、HEAD、PUT、DELETE、TRACE、OPTIONS
+
+**请求头**
+
+```http
+Host: www.processon.com
+```
+
+请求行之后的部分都是请求头
+请求头结尾需要一个空行，标志着头信息结束，主体信息开始
+请求头必须要有 Host。若是 post 方法，则请求头还须要有 Content-Type 和 Content-Length
+
+**请求主体**
+
+请求头之后的部分都是请求主体
+
+### <font color="1E90FF">响应信息</font>
+
+http 响应由响应行、响应头、响应主体组成
+
+**响应行**
+
+```http
+HTTP/1.1 200 OK
+```
+
+响应行按顺序依次由协议版本、状态码、状态描述
+
+**响应头**
+
+响应行之后的部分都是响应头
+响应头结尾需要一个空行，标志着头信息结束，主体信息开始
+响应头必须要有 Host。若是 post 方法，则请求头还须要有 Content-Type 和 Content-Length
+
+**响应主体**
+
+响应头之后的部分都是响应主体
+
+### <font color="1E90FF">HTTP 通信流程</font>
+
+<img src="img/2025-07-13-11-39-01.png" width="70%">
+
+1. 浏览器收到一个 URL
+1. 从 URL 中解析出域名
+1. 检查浏览器缓存中是否有这个域名对应的 IP
+1. 若浏览器缓存中无域名对应的 IP，则将域名发送到 DNS 服务器
+1. DNS 服务器返回域名对应的 IP
+1. 访问 IP 进行 TCP 三次握手，建立连接（若加密则还需要 TLS 握手）
+1. 发起 HTTP 请求，获得 HTTP 服务器响应
+1. 访问 IP 发送关闭连接请求
+
+HTTP思维导图 <https://www.processon.com/view/link/5c97952de4b0ab74ece439cd>
+
+___
+
+## <font color="1E90FF">三、Websocket 协议</font>
+
+WebSocket 是一种网络通信协议。我们已经有了 HTTP 协议，为什么还需要 websocket 协议？答案很简单，因为 <font color="yellow">HTTP 协议的缺陷是 "通信只能由客户端发起"</font>。HTTP 协议做不到服务器主动向客户端推送信息。这种单向请求的特点，客户端要获知服务器的状态变化就非常麻烦。我们只能使用轮询：每隔一段时候，就发出一个询问，了解服务器有没有新的信息。轮询的效率低，非常浪费资源（因为必须不停连接，或者 HTTP 连接始终打开）
 
 Web服务器使用的是http协议，所以通常Web服务器又称http服务器
 
 webSocket协议本质上与HTTP协议类似，webSocket是一种全双工通信的协议，是基于HTTP协议的不足提出的一种新的通信协议。任意一方都可以建立连接将数据推向另一方，webSocket只需要建立一次连接就可以一直保持。
 
-http是一种单向的应用层协议，它采用了请求响应模型，通信请求只能由客户端发起，服务端对请求做出应答处理。这样的弊端显然是很大的，只要服务器状态连续变化，客户端就必须实时响应，这样显然很麻烦，同时轮询的效率低，非常的浪费资源。
+WebSocket 是基于 TCP 的协议。WebSocket 的连接从一个标准的 HTTP 请求开始，经过一次协议升级后，建立起一个全双工的 WebSocket 连接。
+
+WebSocket 默认使用以下两个端口：
+80 端口：非加密的 WebSocket 协议，使用 ws:// 开头的 URL。
+443 端口：加密的 WebSocket 协议（通过 TLS/SSL 加密），使用 wss:// 开头的 URL。
+
+```http
+ws://host:port/path
+```
+
+WebSocket 的 URL 一共由四部分构成
+
+1. ws:// 表示 Websocket 协议
+1. host 表示服务器的域名或 IP 地址，例如 example.com 或 192.168.1.100
+1. port 表示d端口。默认端口是 80 或 443，可以省略。如果使用其他端口，则需要显式指定
+1. path 表示服务器上用于 WebSocket 连接的具体路径
+
+### <font color="1E90FF">工作原理</font>
+
+WebSocket 连接从 HTTP 请求开始，客户端通过 HTTP 升级机制请求升级协议：
+
+**<font color="#F3BA4B">客户端发起特定的 HTTP 请求，以表示希望建立 WebSocket 连接</font>**
+
+```http
+GET /chat HTTP/1.1
+Host: example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Sec-WebSocket-Version: 13
+```
+- Upgrade: websocket：表示将协议升级为 WebSocket
+- Connection: Upgrade：表示希望连接协议升级
+- Sec-WebSocket-Key：客户端生成的随机密钥，用于服务器生成握手应答的 Sec-WebSocket-Accept
+- Sec-WebSocket-Version：指定 WebSocket 的版本，当前标准版本是 13
+
+**<font color="#F3BA4B">服务器收到请求后，返回状态码，并附带确认的握手信息</font>**
+
+```http
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Accept: s3pPLMBiTxaQ9kYGzzhZRbK+xOo=
+```
+- 101 状态码
+- Switching Protocols 是对状态码的描述
+- Sec-WebSocket-Accept：由 Sec-WebSocket-Key 和特定算法生成的哈希值，用于确认握手的安全性
+
+**<font color="#F3BA4B">数据帧传输</font>**
+
+WebSocket 的数据通过帧 (frame) 进行传输，支持以下几种帧类型：
+
+1. 文本帧（Text Frame）：用于传输文本数据，通常是 UTF-8 编码的字符串。
+1. 二进制帧（Binary Frame）：用于传输二进制数据，如图片、音视频数据等。
+1. 关闭帧（Close Frame）：用于关闭连接。
+1. Ping 和 Pong 帧：用于检测连接的活跃性，Ping 由客户端或服务器发送，Pong 由对方响应。
+
+每个 WebSocket 数据帧的格式如下：
+
+```C++
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-------+-+-------------+-------------------------------+
+|F|R|R|R| opcode|M| Payload len |    Extended payload length    |
+|I|S|S|S|  (4)  |A|     (7)     |             (16/64)           |
+|N|V|V|V|       |S|             |   (if payload len==126/127)   |
+| |1|2|3|       |K|             |                               |
++-+-+-+-+-------+-+-------------+ - - - - - - - - - - - - - - - +
+|     Extended payload length continued, if payload len == 127  |
++ - - - - - - - - - - - - - - - +-------------------------------+
+|                               |Masking-key, if MASK set to 1  |
++-------------------------------+-------------------------------+
+| Masking-key (continued)       |          Payload Data         |
++-------------------------------- - - - - - - - - - - - - - - - +
+|                     Payload Data continued ...                |
++ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+|                     Payload Data continued ...                |
++---------------------------------------------------------------+
+```
+
+- <font color="#F3BA4B">FIN</font> <font color="#FF7D7D">(1bit) </font>：结束帧。如果为 1，表示这是结束帧
+- <font color="#F3BA4B">RSV1, RSV2, RSV3</font> <font color="#FF7D7D">(3bit) </font>：保留位，用于扩展协议。通常在初始实现中，这些位应设置为 0
+- <font color="#F3BA4B">Opcode</font> <font color="#FF7D7D">(4bit) </font>：用于表示帧的类型
+  - 0x0：继续帧
+  - 0x1：文本帧
+  - 0x2：二进制帧
+  - 0x3~0x7：预留给以后的非控制帧
+  - 0x8：连接关闭帧
+  - 0x9：Ping 帧
+  - 0xA：Pong 帧
+  - 0xB~0xF：预留给以后的控制帧
+- <font color="#F3BA4B">Mask</font> <font color="#FF7D7D">(1bit) </font>：表示是否对数据进行掩码处理
+  - 客户端到服务器的消息必须使用掩码
+  - 服务器到客户端的消息不需要使用掩码
+- <font color="#F3BA4B">Payload length</font> <font color="#FF7D7D">(7bit+16bit+64bit) </font>：表示数据的长度
+  - 当它的值在 0 到 125 之间时，表示有效负载的字节数
+  - 当它的值是 126（0x7E）时，表示后面将有 2 字节（16 位）来表示有效负载的真实长度（有效负载长度在 0 到 65535 之间）。
+  - 当它的值是 127（0x7F）时，则表示后面会有 8 字节（64 位）来表示有效负载的真实长度
+- <font color="#F3BA4B">Masking Key</font> <font color="#FF7D7D">(0或4字节) </font>：
+  - 所有从客户端发往服务端的数据帧都已经与一个包含在这一帧中的 32 bit 的掩码进行了异或运算
+  - 如果 Mask 标志位（1 bit）为 1，那么这个字段存在，如果标志位为 0，那么这个字段不预留，直接不存在
+- <font color="#F3BA4B">Payload data</font>：实际传输的数据，根据 <font color="#F3BA4B">Payload length</font> 字段的值来确定长度
+
+**<font color="#F3BA4B">保持连接与心跳</font>**
+
+WebSocket 在建立连接后会保持连接状态，直到一方显式关闭连接。为了防止连接由于网络问题或闲置超时而断开，WebSocket 支持通过 Ping-Pong 机制来检测连接的活跃性。客户端或服务器可以发送一个 Ping 帧，接收方必须在合理时间内响应一个 Pong 帧，确保连接仍然正常
+
+Ping-Pong 机制的示例流程:
+
+- <font color="#F3BA4B">客户端发送 Ping 帧</font>：
+  - 客户端发送一个 Ping 帧，Payload Data 可能包含当前时间戳
+  - 帧格式：`| FIN | RSV | Opcode: 0x9 | MASK=1 | Payload Length | Masking key=6 | Payload Data=时间戳 |`
+- <font color="#F3BA4B">服务器接收并响应 Pong 帧</font>：
+  - 服务器接收到 Ping 帧后，立即发送一个 Pong 帧，Payload Data 与接收到的 Ping 帧的 Payload Data 相同
+  - 帧格式：`| FIN | RSV | Opcode: 0xA | MASK=0 | Payload Length | Payload Data=时间戳 |`
+- <font color="#F3BA4B">客户端接收 Pong 帧</font>：
+  - 客户端接收到 Pong 帧后，可以确认连接仍然活跃
+  - 客户端可以根据时间戳计算往返时间（RTT），以评估网络延迟
+
+> 客户端和服务器都可以发送 Ping 帧
+> 如果发送 Ping 帧的一方在一定时间内没有收到 Pong 帧，则会关闭连接或重新连接
+> Ping 和 Pong 帧的 Payload Data 是可选的，但通常会包含一些简单的数据（如时间戳）
+
+**<font color="#F3BA4B">关闭连接</font>**
+
+WebSocket 连接关闭时，双方需要发送一个关闭帧（Close Frame）。关闭帧包含一个关闭码和关闭原因，可以用于表明连接关闭的原因。具体来说，关闭帧的格式遵循 WebSocket 协议规范，其中状态码的位置和结构如下：
+
+- <font color="#F3BA4B">FIN 位</font>: 1 bit
+- <font color="#F3BA4B">RSV 位</font>: 3 bits (保留位，一般用于扩展)
+- <font color="#F3BA4B">Opcode</font>: 4 bits (对于关闭帧，值为 0x8)
+- <font color="#F3BA4B">MASK</font>: 1 bit (指示消息是否被掩码，客户端消息必须掩码)
+- <font color="#F3BA4B">Payload length</font>: 7 bits, 7+16 bits, 或 7+64 bits (指示随后的有效负载的长度)
+- <font color="#F3BA4B">Masking key</font>: 0或4 bytes (如果 MASK 位为 1，则使用，包含用于掩码的密钥)
+- <font color="#F3BA4B">Payload data</font>: (长度通过 Payload length 指定)
+  - 关闭状态码: 在关闭帧的有效负载部分的最开始，紧接在 Payload length 字段后面。这两个字节 （未经掩码处理）表示状态码（Close Code）。
+  - 关闭原因: 状态码之后可以跟随一个可选的 UTF-8 字符串，描述关闭的原因。
+
+常见的标准关闭码有：
+1000：正常关闭
+1009：发送的消息超过了可以接收的大小
+
+示例关闭帧字节流：
+
+`| FIN:1 | RSV | Opcode:0x8 | MASK | Payload length | Close Code (2 bytes) | Close Reason (n bytes) |`
+
+
+
 
 
 
@@ -859,4 +1138,5 @@ http是一种单向的应用层协议，它采用了请求响应模型，通信�
 ## <font color="1E90FF">参考资料</font>
 
 - [C语言中文网](http://c.biancheng.net/socket/)
-- [websocket](https://www.ruanyifeng.com/blog/2017/05/websocket.html)
+- [HTTP思维导图](https://www.processon.com/view/link/5c97952de4b0ab74ece439cd)
+- [websocket](https://subingwen.cn/project/websocket/)
