@@ -225,15 +225,24 @@ while [ $i -lt 3 ]; do
 done
 ```
 
-### <font color="1E90FF"> 接续创建文件 >> </font>
+
+## <font color="1E90FF">七、命令</font>
+
+### <font color="1E90FF">mount</font>
+
+Linux中的根目录以外的文件要想被访问，需要将其挂载到根目录下的某个目录来实现，这个目录就是挂载点。挂载点的目录需要以下几个要求：
+
+1. 目录事先存在
+1. 挂载点目录不可被其他进程使用到
+1. 挂载点下原有文件将被隐藏
+
+
+### <font color="1E90FF">echo</font>
 
 ```shell
 echo "linux" > a.c # 删除a.c文件，再创建a.c并输入打印
 echo "linux" >> a.c # 有a.c文件则接续输入，无a.c文件则创建该文件
 ```
-
-
-
 
 
 

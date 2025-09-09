@@ -135,8 +135,17 @@ ___
 |**03**|git rm -r --cached filename|取消git管理追踪。已经被管理的文件要先 git rm -r --cached filename 后，才能被 .gitignore|
 >注：①在.gitignore中用`!`表示不忽略某个文件<br>②空文件(夹)会默认被git忽略
 
-<center>示例</center>
-<div align=center><img src="img/2023-04-20-20-33-49.png"></div>
+```gitignore
+#.gitignore
+#排除的文件
+*.out
+buildroot/      //忽略 buildroot 目录下的所有文件
+rootfs/*.so     //忽略 rootfs 目录下的 *.so 文件
+config          //忽略 config
+#不排除的文件
+!.gitignore
+
+```
 
 ## <font color="1E90FF">06.配置别名</font> {#配置别名}
 

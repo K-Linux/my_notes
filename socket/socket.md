@@ -1055,7 +1055,7 @@ WebSocket 的数据通过帧 (frame) 进行传输，支持以下几种帧类型�
 +---------------------------------------------------------------+
 ```
 
-- <font color="#F3BA4B">FIN</font> <font color="#FF7D7D">(1bit) </font>：结束帧。如果为 1，表示这是结束帧
+- <font color="#F3BA4B">FIN</font> <font color="#FF7D7D">(1bit) </font>：表示一帧的结束。如果为 1，表示这是结束帧
 - <font color="#F3BA4B">RSV1, RSV2, RSV3</font> <font color="#FF7D7D">(3bit) </font>：保留位，用于扩展协议。通常在初始实现中，这些位应设置为 0
 - <font color="#F3BA4B">Opcode</font> <font color="#FF7D7D">(4bit) </font>：用于表示帧的类型
   - 0x0：继续帧
@@ -1118,7 +1118,7 @@ WebSocket 连接关闭时，双方需要发送一个关闭帧（Close Frame）�
 
 示例关闭帧字节流：
 
-`| FIN:1 | RSV | Opcode:0x8 | MASK | Payload length | Close Code (2 bytes) | Close Reason (n bytes) |`
+`| FIN | RSV | Opcode:0x8 | MASK | Payload length | Close Code (2 bytes) | Close Reason (n bytes) |`
 
 
 

@@ -377,6 +377,16 @@ ___
 如果网络连接不上了则恢复网络设置
 windows搜索——"虚拟网络编辑器"——还原默认设置
 
+**<font size="4" color="1E90FF">ubuntu 设置终端颜色</font>**
+
+终端文本颜色 #FFD7AF
+终端背景颜色 #262626
+终端字体 DejaVu Sans Mono Bold, 14 号大小
+
+**<font color="0E90FF">ubuntu 复制</font>**
+
+ ctrl + shift + 左键滑动：块复制
+
 ___
 
 ## <font color="1E90FF">markdonw笔记规范</font>
@@ -457,6 +467,15 @@ Ubuntu 下使用如下命令开启 SSH 服务：
 上述命令安装 ssh 服务，ssh 的配置文件为/etc/ssh/sshd_config，使用默认配置即可
 
 PC上使用Xshell执行`ssh 192.168.10.20`来连接ubuntu
+
+___
+
+## <font color="1E90FF">两个linux服务器使用ssh连接通信</font>
+
+1. `ssh-keygen -t rsa -b 1024` (一直回车。会在 ~/.ssh/ 目录下生成ssh密钥对)
+1. `ssh-copy-id qiukanghui@192.168.19.112` (将 ~/.ssh/ 里的公钥拷贝到远程服务器 ~/.ssh/ 里。并改名为authorized_keys)
+1. `ssh qiukanghui@192.168.19.112 'rm ~/nfs/DvrServer'` (删除远程服务器的 ~/nfs/DvrServer 文件)
+1. `scp dvrmain/DvrServer qiukanghui@192.168.19.112:~/nfs` (拷贝DvrServer到远程服务器)
 
 ___
 
