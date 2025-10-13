@@ -1120,14 +1120,47 @@ WebSocket 连接关闭时，双方需要发送一个关闭帧（Close Frame）�
 
 `| FIN | RSV | Opcode:0x8 | MASK | Payload length | Close Code (2 bytes) | Close Reason (n bytes) |`
 
+## <font color="1E90FF">四、MQTT 协议</font>
 
+mosquitto 是一个开源 broker，即代理工具
+MQTT 协议原理详解：https://blog.csdn.net/qq_41867007/article/details/149707365
+windows mqtt 服务器下载：https://mosquitto.org/download/
+windows mqtt 客户端软件下载：https://mqttx.app/downloads
+linux mqtt 客户端 git 源码：https://github.com/eclipse-paho/paho.mqtt.c?tab-readme-ov-file
 
+[mqtt_client_demo.cpp mqtt API 用法示例](attachment/mqtt_client_demo.cpp "点击打开")
 
+**<font color="#F3BA4B">linux 安装 mosquitto 服务器</font>**
 
+1. `sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa`
+1. `sudo apt-get update`
+1. `sudo apt-get install mosquitto`
+1. `sudo service mosquitto status`
+1. `sudo service mosquitto start`
+1. `sudo service mosquitto stop`
 
+**<font color="#F3BA4B">linux mosquitto 配置设置</font>**
 
+1. 在 /etc/mosquitto/conf.d 目录下，新建 my_mos.conf 配置文件（mosquitto启动时加载）
+1. 输入 `allow_anonymous true` 允许匿名访问（不用账号密码）
+1. 输入 `listener 1888 0.0.0.0` 监听任何 IP 的 1888 端口
 
+**<font color="#F3BA4B">windows mosquitto 配置设置</font>**
 
+1. 在 mosquitto 目录下打开命令行
+1. 输入 `mosquitto passwd.exe -c passwdfile admin` (会创建passwdfile文件来保存密码，admin是账号)
+1. 输入密码
+1. mosquitto_passwd.exe passwdfile admin2 (创建第二个账号)
+1. mosquitto.conf 文件添加 password_file D:\mosquitto服务器所在目录\passwdfile (配置服务器读取密码路径)
+
+**<font color="#F3BA4B">linux MQTT 客户端源码编译</font>**
+
+1. 进入到 mqtt 源码顶层目录，执行 `mkdir -p build/install`
+1. cd build
+1. cmake .. -DCMAKE_INSTALL_PREFIX=/home/k/paho.mqtt/build/install -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_C_COMPILER=arm-AX620E-linux-uclibcgnueabihf-gcc -DCMAKE_CXX_COMPILER=arm-AX620E-linux-uclibcgnueabihf-g++
+1. make && make install
+1. 编译完后的库中 `*a.so` 表示异步库，`*c.so` 表示同步库
+1. CMakeLists.txt 中使用 ADD_LIBRARY 指令就可以选择构建静态和动态库
 
 
 
