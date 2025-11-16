@@ -783,8 +783,8 @@ IP地址是由32位二进制构成的即一个整型数据，而在人机交互�
 
 |    |||
 |:---:|:---:|:---:|
-|**二进制**|0xFFFFFFFF|0xC0A80166|
-|**二进制**|FF . FF . FF . FF|C0 . A8 . 01 . 66|
+|**十六进制**|0xFFFFFFFF|0xC0A80166|
+|**十六进制**|FF . FF . FF . FF|C0 . A8 . 01 . 66|
 |**点分十进制**|255.255.255.255|192.168.1.102|
 
 ### <font color="1E90FF">socket实现文件传输功能</font>
@@ -1122,45 +1122,262 @@ WebSocket 连接关闭时，双方需要发送一个关闭帧（Close Frame）�
 
 ## <font color="1E90FF">四、MQTT 协议</font>
 
-mosquitto 是一个开源 broker，即代理工具
+**Eclipse Paho C Client** 是一个 MQTT 客户端开源库
+**mosquitto** 是一个开源的 MQTT 服务器
+
+### <font color="1E90FF">资料下载网址</font>
+
 MQTT 协议原理详解：https://blog.csdn.net/qq_41867007/article/details/149707365
-windows mqtt 服务器下载：https://mosquitto.org/download/
-windows mqtt 客户端软件下载：https://mqttx.app/downloads
-linux mqtt 客户端 git 源码：https://github.com/eclipse-paho/paho.mqtt.c?tab-readme-ov-file
+windows 版 mosquitto 下载（PC搭建环境测试用）：https://mosquitto.org/download/
+windows 版 mqtt 客户端软件下载（PC搭建环境测试用）：https://mqttx.app/downloads
+Eclipse Paho C Client 源码（用于编译链接进IPC主程序）：https://github.com/eclipse-paho/paho.mqtt.c?tab-readme-ov-file
+openssl 源码（用于被 Eclipse Paho C Client 依赖）https://openssl-library.org/source/
 
-[mqtt_client_demo.cpp mqtt API 用法示例](attachment/mqtt_client_demo.cpp "点击打开")
+[mqtt_client_demo.cpp mqtt API 用法示例总结](attachment/mqtt_client_demo.cpp "点击打开")
 
-**<font color="#F3BA4B">linux 安装 mosquitto 服务器</font>**
+### <font color="1E90FF">Eclipse Paho C Client 编译</font>
 
-1. `sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa`
-1. `sudo apt-get update`
-1. `sudo apt-get install mosquitto`
-1. `sudo service mosquitto status`
-1. `sudo service mosquitto start`
-1. `sudo service mosquitto stop`
+Eclipse Paho C Client 库默认是禁用 SSL 功能的，需要我们手动开启。编译步骤如下
 
-**<font color="#F3BA4B">linux mosquitto 配置设置</font>**
+1. 执行 `dpkg -s libssl-dev`（查看服务器是否安装过 OpenSSL 开发库）
+1. 执行 `sudo apt update`
+1. 执行 `sudo apt install gcc g++ cmake make libssl-dev`（若无 OpenSSL 开发库则安装）
+1. 使用对应平台的交叉编译工具链编译 openssl 开源库
 
-1. 在 /etc/mosquitto/conf.d 目录下，新建 my_mos.conf 配置文件（mosquitto启动时加载）
-1. 输入 `allow_anonymous true` 允许匿名访问（不用账号密码）
-1. 输入 `listener 1888 0.0.0.0` 监听任何 IP 的 1888 端口
+```shell
+./Configure linux-armv4 --prefix=/home/k/openssl-1.1.1l/install \
+--cross-compile-prefix=arm-ca9-linux-gnueabihf- && make && make install
+```
 
-**<font color="#F3BA4B">windows mosquitto 配置设置</font>**
+3. 进入到 Eclipse Paho C Client 源码顶层目录，并执行 `mkdir -p build/install && cd build`
+4. 执行以下命令配置编译参数
 
-1. 在 mosquitto 目录下打开命令行
-1. 输入 `mosquitto passwd.exe -c passwdfile admin` (会创建passwdfile文件来保存密码，admin是账号)
-1. 输入密码
-1. mosquitto_passwd.exe passwdfile admin2 (创建第二个账号)
-1. mosquitto.conf 文件添加 password_file D:\mosquitto服务器所在目录\passwdfile (配置服务器读取密码路径)
+```shell
+cmake .. -DPAHO_BUILD_STATIC=ON -DPAHO_WITH_SSL=ON \
+-DCMAKE_INSTALL_PREFIX=/home/k/paho.mqtt.c-master/build/install \
+-DCMAKE_SYSTEM_NAME=Linux \
+-DCMAKE_C_COMPILER=arm-AX620E-linux-uclibcgnueabihf-gcc \
+-DCMAKE_CXX_COMPILER=arm-AX620E-linux-uclibcgnueabihf-g++ \
+-DOPENSSL_ROOT_DIR=/home/k/openssl-1.1.1l
 
-**<font color="#F3BA4B">linux MQTT 客户端源码编译</font>**
+# 注释
+# -DPAHO_BUILD_STATIC=ON        # 可选：编译静态库
+# -DPAHO_BUILD_SHARED=ON        # 可选：编译动态库
+# -DPAHO_WITH_SSL=ON            # 开启 SSL 功能
+# -DCMAKE_INSTALL_PREFIX=       # MQTT安装路径 
+# -DCMAKE_SYSTEM_NAME=          # 编译的系统
+# -DCMAKE_C_COMPILER=           # 指定gcc编译器
+# -DCMAKE_CXX_COMPILER=         # 指定g++编译器
+# -DOPENSSL_ROOT_DIR=           # openssl 源码库顶层目录路径（需要先将 openssl 库编译成功）
+```
 
-1. 进入到 mqtt 源码顶层目录，执行 `mkdir -p build/install`
-1. cd build
-1. cmake .. -DCMAKE_INSTALL_PREFIX=/home/k/paho.mqtt/build/install -DCMAKE_SYSTEM_NAME=Linux -DCMAKE_C_COMPILER=arm-AX620E-linux-uclibcgnueabihf-gcc -DCMAKE_CXX_COMPILER=arm-AX620E-linux-uclibcgnueabihf-g++
-1. make && make install
-1. 编译完后的库中 `*a.so` 表示异步库，`*c.so` 表示同步库
-1. CMakeLists.txt 中使用 ADD_LIBRARY 指令就可以选择构建静态和动态库
+5. `make && make install`
+
+```shell
+编译出的库名称中的 "3" 表示 MQTT 的版本，无实际意义；
+"a" 表示异步 API 库；"c" 表示同步 API 库；"s" 表示SSL
+例如：libpaho-mqtt3as.so 表示异步SSL库；libpaho-mqtt3c.so 表示同步非SSL库 
+```
+
+### <font color="1E90FF">mosquitto 参数配置及启动</font>
+
+**<font color="#F3BA4B">mosquitto 下载安装</font>**
+
+**windows 版 mosquitto 下载** https://mosquitto.org/download/
+
+**ubuntu 版 mosquitto** 下载步骤如下：
+
+1. `sudo apt-add-repository ppa:mosquitto-dev/mosquitto-ppa`     #添加源到软件仓库
+1. `sudo apt-get update`                                         #更新软件仓库列表
+1. `sudo apt-get install mosquitto`                              #安装 mosquitto
+1. `sudo service mosquitto status`                               #查看 mosquitto 运行状态
+1. `sudo service mosquitto start`                                #启动 mosquitto 服务
+1. `sudo service mosquitto stop`                                 #停止 mosquitto 服务
+1. `sudo service mosquitto restart`                              #重启 mosquitto 服务
+
+> IPC 使用 MQTT 协议连接到 Windows 版 mosquitto 服务器。方便测试调试 IPC 的 MQTT 协议
+
+> ubuntu 上写测试程序调用 Eclipse Paho C Client 开源库的 API，然后连接到 ubuntu 版 mosquitto。方便了解 Eclipse Paho C Client 开源库的 API
+
+**<font color="#F3BA4B">mosquitto 启动参数配置</font>**
+
+mosquitto 服务器启动时会加载 /etc/mosquitto/mosquitto.conf 中的配置。也会包含 /etc/mosquitto/conf.d 目录下的所有配置。 可以创建 /etc/mosquitto/conf.d/my_mos.conf 配置文件并输入以下内容（windows 版 mosquitto.conf 在安装目录下）
+
+```shell
+# 若 allow_anonymous false，password_file 需要注释掉
+allow_anonymous true                          # 允许匿名访问（无需账号密码也可以连接 mosquitto 服务器）
+password_file /etc/mosquitto/conf.d/MyPwdFile # 配置 mosquitto 服务器密码（配置方式在后面）
+# password_file D:\mosquitto服务器所在目录\MyPwdFile (windows版)
+
+# 配置 mqtt 协议端口
+listener 1001                                 # 配置端口 1001
+protocol mqtt                                 # 指定 1001 端口对应 mqtt(tcp) 协议
+
+# 配置 mqtts 协议端口(注意给证书和密钥读写权限)
+listener 1002                                 # 配置端口 1002
+protocol mqtt                                 # 指定 1002 端口对应 mqtt(tcp) 协议
+cafile /etc/mosquitto/ca_certificates/ca.crt  # CA 证书路径（ubuntu必须放这个路径，windos可以任意）
+certfile /etc/mosquitto/certs/server.crt      # 服务端证书路径（ubuntu必须放这个路径，windos可以任意）
+                                              # 服务端证书的 Common Name 需填服务器的IP，如"192.168.17.76"
+keyfile /etc/mosquitto/certs/server.key       # 服务端私钥路径（ubuntu必须放这个路径，windos可以任意）
+require_certificate false                     # false: 单向认证（仅服务端验证）    true: 双向认证
+tls_version tlsv1.2 tlsv1.3                   # 可选：限制可用的 TLS 版本（增强安全性）
+
+# 配置 socket 协议端口
+listener 1003                                 # 配置端口 1003
+protocol websockets                           # 指定 1003 端口对应 websocket 协议
+
+# 配置 sockets 协议端口(注意给证书和密钥读写权限)
+listener 1004                                 # 配置端口 1004
+protocol websockets                           # 指定 1004 端口对应 websockets 协议
+cafile /etc/mosquitto/ca_certificates/ca.crt  # CA 证书路径（ubuntu必须放这个路径，windos可以任意）
+certfile /etc/mosquitto/certs/server.crt      # 服务端证书路径（ubuntu必须放这个路径，windos可以任意）
+                                              # 服务端证书的 Common Name 需填服务器的IP，如"192.168.17.76"
+keyfile /etc/mosquitto/certs/server.key       # 服务端私钥路径（ubuntu必须放这个路径，windos可以任意）
+require_certificate false                     # false: 单向认证（仅服务端验证）    true: 双向认证
+tls_version tlsv1.2 tlsv1.3                   # 可选：限制可用的 TLS 版本（增强安全性）
+```
+
+**<font color="#F3BA4B">mosquitto 创建账号密码</font>**
+
+**windows 下创建 mosquitto 账号密码**
+
+1. 在 mosquitto 安装路径下打开命令行
+1. 输入 `mosquitto_passwd.exe -c MyPwdFile MyAccount` (-c MyPwdFile 表示创建的账号存储文件，MyAccount 是创建的账号名)
+1. 输入密码 && 再次确认密码
+1. `mosquitto_passwd.exe MyPwdFile2 MyAccount2` (创建第二个账号。多个账号以此类推)
+1. mosquitto.conf 配置文件添加 password_file D:\mosquitto服务器所在目录\MyPwdFile
+
+**ubuntu 下创建 mosquitto 账号密码**
+
+1. 输入 `cd /etc/mosquitto/conf.d`
+1. 输入 `mosquitto_passwd -c MyPwdFile MyAccount` (-c MyPwdFile 表示创建的账号存储文件，MyAccount 是创建的账号名)
+1. 输入密码 && 再次确认密码
+1. 输入 `mosquitto_passwd MyPwdFile2 MyAccount2` (创建第二个账号。多个账号以此类推)
+1. mosquitto.conf (或my_mos.conf) 配置文件添加 `password_file /etc/mosquitto/conf.d/MyPwdFile`
+
+>注意给 MyPwdFile 读写权限
+
+**<font color="#F3BA4B">mosquitto 服务启动命令</font>**
+
+这里以windows做示例，ubuntu同理
+
+1. 在 mosquitto 安装路径下打开命令行
+1. 输入 `mosquitto -d -v -c mosquitto.conf` 启动 mosquitto 服务
+
+```
+开启多个 mosquitto 命令行，每个命令行根据输入的命令不同，可充当服务器和客户端
+
+附加命令（比较少用）
+`mosquitto_sub -d -v -t mqtt/config -u account -P admin`
+
+发布和订阅通用参数
+-h / --host：指定 MQTT 服务器地址（默认 localhost）  示例：-h test.mosquitto.org
+-p / --port：指定服务器端口（默认 1883，SSL 连接默认 8883）  示例：-p 8883
+-u / --username：连接服务器的用户名  示例：-u "user123"
+-P / --password：连接服务器的密码  示例：-P "pass456"
+
+发布消息参数（mosquitto_pub）
+-t / --topic：指定消息发布的主题  示例：-t "sensor/temp"
+-m / --message：指定发布的消息内容  示例：-m "25.5℃"
+-q / --qos：指定 QoS 等级（0/1/2，默认 0）  示例：-q 1
+-r / --retain：设置为保留消息  示例：-r
+--clean-session：是否启用清洁会话（默认 true，断开连接后清除订阅）  示例：--clean-session false
+
+订阅消息参数（mosquitto_sub）
+-t / --topic：指定订阅的主题  -t "sensor/#"
+-q / --qos：指定订阅的 QoS 等级（默认 0）  示例：-q 2
+-v / --verbose：显示消息的主题和内容（默认只显示内容）  示例：-v
+-c / --disable-clean-session：禁用清洁会话
+
+安全参数（SSL/TLS 连接）
+--cafile：CA 证书文件路径（用于验证服务器）  示例：--cafile ca.crt
+--cert：客户端证书文件路径（双向认证时使用）  示例：--cert client.crt
+--key：客户端私钥文件路径（双向认证时使用）  示例：--key client.key
+
+发布消息到服务器
+mosquitto_pub -h test.mosquitto.org -t "demo/topic" -m "hello mqtt"
+
+订阅主题并显示详细信息
+mosquitto_sub -h test.mosquitto.org -t "demo/#" -v -q 1
+
+使用 SSL 连接并发布保留消息
+mosquitto_pub -h ssl://test.mosquitto.org -p 8883 --cafile ca.crt -t "secure/topic" -m "secret"
+```
+### <font color="1E90FF">MQTT 参数解释</font>
+
+**<font color="#F3BA4B">Retain 保留发布的主题消息</font>**
+
+1. 当客户端 A 设置 Retain 标志为 true 且发布一条消息 "mes1" 给服务器，服务器会为该主题保留这条消息。当有新的客户端 B 订阅这个主题时，服务器会立即将这条保留的消息 "mes1" 发送给客户端 B。此时客户端 A 再发布消息 "mes2" 给服务器，服务器会用 "mes2" 覆盖 "mes1"。当客户端 C 订阅这个主题时，就会收到服务器发送的消息 "mes2"。若 Retain 标志为 false，因为客户端 A 发布消息时，客户端 B 和 C 都还没订阅主题，所以 客户端 B 和 C 都不会收到消息
+1. 举个例子，在智能家居系统中，有一个主题 home/temperature 用于发布室内温度信息且设置了保留标志，每30秒发布一次温度信息。如果用户新添加了一个温度显示设备并订阅了这个主题，那么新设备一订阅就能马上获取到最后发布的温度信息，无需等待下一次发布
+1. 对于没有设置保留标志的消息，则消息一旦被服务器转发，则服务器就不再保留。而设置了保留标志的消息，会被服务器留存，直到有新的带有保留标志的消息发布覆盖它，或者手动清除（发送空消息）
+
+**<font color="#F3BA4B">clean 保留订阅的主题消息</font>**
+
+1. 当 Clean Session 值为 true 时：服务器不会保存该客户端的订阅信息，也不会缓存未被客户端接收的 QoS 1、QoS 2 级别消息。客户端断开连接后，会话相关的所有信息会被服务器清除；下次以相同 Client ID 连接时，会作为全新会话，需重新订阅主题
+1. 当 Clean Session 值为 false 时：服务器会保存该客户端的订阅信息，并缓存未被接收的 QoS 1、QoS 2 级别消息。客户端断开后再次连接（使用相同 Client ID）时，服务器会恢复之前的订阅，并推送未送达的消息
+简言之，它决定了服务器是否持久化客户端的订阅关系和未完成的消息传递，帮助开发者根据业务场景（如是否需要离线消息、订阅关系持久化）来配置会话行为。
+
+**<font color="#F3BA4B">Qos 消息可靠性</font>**
+
+1. QoS 0 最多一次：消息发送后不确认，可能数据丢失或重复发送（非重要数据，如实时温度周期性上报）
+1. QoS 1 至少一次：消息确保到达，客户端未收到接收方确认则会重发（用于重要数据，如设备状态变更）
+1. QoS 2 刚好一次：消息确保仅到达一次（通过两次握手确认）（用于关键指令，如支付控制指令）
+1. QoS 可靠性指标只针对 "发布者——服务器" 和 "服务器——订阅者"。不适用于 "发布者——订阅者"
+1. 客户端A消息发布时是 QoS2，客户端B订阅时是 QoS1，则服务器会以 QoS2 接收数据并以 QoS1 发送消息给客户端B
+
+发送端视角 Publisher
+
+<table>
+  <tr>
+    <td align="center">Qos等级</span></td>
+    <td align="center">名称</span></td>
+    <td align="center">发送端行为</span></td>
+  </tr>
+  <tr>
+    <td align="center">Qos 0</span></td>
+    <td>最多一次（At Most Once）</span></td>
+    <td>1. 发送端将消息一次性发送给服务器，不等待任何确认；</br>2. 发送后立即丢弃消息，不缓存、不重发；</br>3. 风险：消息可能丢失（如网络中断），但开销最小。</span></td>
+  </tr>
+  <tr>
+    <td align="center">Qos 1</span></td>
+    <td>至少一次（At Least Once）</span></td>
+    <td>1. 发送端发送消息后，缓存消息并等待服务器的 PUBACK 确认包；</br> 2. 若未收到 PUBACK（超时 / 网络中断），则重发消息（直到收到确认）；</br> 3. 结果：消息一定送达服务器，但可能重复发送（如确认包丢失），服务器需处理重复。</span></td>
+  </tr>
+  <tr>
+    <td align="center">Qos 2</span></td>
+    <td>恰好一次（Exactly Once）</span></td>
+    <td></span>1. 发送端通过「四次握手」确保消息仅送达一次；</br> 2. 任何步骤超时则重发对应包，确保无丢失、无重复；</br> 3. 特点：可靠性最高，但开销最大（多轮交互 + 缓存）</br></td>
+  </tr>
+</table>
+
+订阅端视角 Subscriber
+
+<table>
+  <tr>
+    <td align="center">Qos等级</span></td>
+    <td align="center">订阅端行为</span></td>
+  </tr>
+  <tr>
+    <td align="center">Qos 0</span></td>
+    <td></span>1. 接收服务器转发的消息，不向服务器发送任何确认；</br> 2. 收到后直接处理，不缓存；</br> 3. 风险：消息可能丢失（如订阅端离线、网络中断），但处理简单。</td>
+  </tr>
+  <tr>
+    <td align="center">Qos 1</span></td>
+    <td></span>1. 接收服务器转发的消息后，必须向服务器发送 PUBACK 确认包；</br> 2. 若未发送 PUBACK（超时 / 网络中断），服务器会重发消息，因此订阅端可能收到重复消息，需自行去重；</br> 3. 结果：消息一定能收到，但需处理重复。</td>
+  </tr>
+  <tr>
+    <td align="center">Qos 2</span></td>
+    <td></span>1. 接收服务器转发的消息后，通过「四次握手」确保仅处理一次：</br> 2. 服务器未收到 PUBCOMP 前会重发，订阅端通过消息 ID 去重，避免重复处理；</br> 3. 结果：消息恰好接收一次，无丢失、无重复。</td>
+  </tr>
+</table>
+
+注意事项：
+
+1. 开启 SSL 时，设备时间需要和服务器时间同步，否则可能会导致证书过期校验失败
+1. Mosquitto 服务端证书和私钥已经配置文件需要有读写权限
+1. Mosquitto 服务器证书的 Common Name (CN) 需要正确填写服务器的 IP 或域名
+1. 编译应用程序时 -lmqtt3as （编译出的mqtt库）必须放在 -lssl.a -lcryptto.a 前面（遵循依赖库放在被依赖库之前的原则）
 
 
 
