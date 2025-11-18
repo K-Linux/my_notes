@@ -1147,6 +1147,8 @@ Eclipse Paho C Client 库默认是禁用 SSL 功能的，需要我们手动开�
 ```shell
 ./Configure linux-armv4 --prefix=/home/k/openssl-1.1.1l/install \
 --cross-compile-prefix=arm-ca9-linux-gnueabihf- && make && make install
+# linux-armv4 表示编译32bit架构
+# linux-aarch64 表示编译64bit架构
 ```
 
 3. 进入到 Eclipse Paho C Client 源码顶层目录，并执行 `mkdir -p build/install && cd build`
@@ -1169,6 +1171,9 @@ cmake .. -DPAHO_BUILD_STATIC=ON -DPAHO_WITH_SSL=ON \
 # -DCMAKE_C_COMPILER=           # 指定gcc编译器
 # -DCMAKE_CXX_COMPILER=         # 指定g++编译器
 # -DOPENSSL_ROOT_DIR=           # openssl 源码库顶层目录路径（需要先将 openssl 库编译成功）
+# 其实只要 /home/k/openssl-1.1.1l/include/openssl/*,
+# /home/k/openssl-1.1.1l/lib/libcrypto.a 和 /home/k/openssl-1.1.1l/lib/libssl.a
+# 这三项存在就行，可以根据这个创建伪目录路径
 ```
 
 5. `make && make install`
@@ -1179,7 +1184,7 @@ cmake .. -DPAHO_BUILD_STATIC=ON -DPAHO_WITH_SSL=ON \
 例如：libpaho-mqtt3as.so 表示异步SSL库；libpaho-mqtt3c.so 表示同步非SSL库 
 ```
 
-### <font color="1E90FF">mosquitto 参数配置及启动</font>
+### <font color="1E90FF">mosquitto 本地服务器环境搭建</font>
 
 **<font color="#F3BA4B">mosquitto 下载安装</font>**
 
@@ -1195,13 +1200,13 @@ cmake .. -DPAHO_BUILD_STATIC=ON -DPAHO_WITH_SSL=ON \
 1. `sudo service mosquitto stop`                                 #停止 mosquitto 服务
 1. `sudo service mosquitto restart`                              #重启 mosquitto 服务
 
-> IPC 使用 MQTT 协议连接到 Windows 版 mosquitto 服务器。方便测试调试 IPC 的 MQTT 协议
+> IPC 使用 MQTT 协议连接到 Windows 版 mosquitto 服务器。方便测试调试 IPC 的 MQTT 协议是否正常
 
-> ubuntu 上写测试程序调用 Eclipse Paho C Client 开源库的 API，然后连接到 ubuntu 版 mosquitto。方便了解 Eclipse Paho C Client 开源库的 API
+> ubuntu 上写测试程序调用 Eclipse Paho C Client 开源库的 API，然后执行测试程序连接到 ubuntu 版 mosquitto。方便了解 Eclipse Paho C Client 开源库的 API
 
 **<font color="#F3BA4B">mosquitto 启动参数配置</font>**
 
-mosquitto 服务器启动时会加载 /etc/mosquitto/mosquitto.conf 中的配置。也会包含 /etc/mosquitto/conf.d 目录下的所有配置。 可以创建 /etc/mosquitto/conf.d/my_mos.conf 配置文件并输入以下内容（windows 版 mosquitto.conf 在安装目录下）
+mosquitto 服务器启动时会加载 /etc/mosquitto/mosquitto.conf 中的配置。也会包含 /etc/mosquitto/conf.d 目录下的所有配置。 可以创建 /etc/mosquitto/conf.d/my_mos.conf 配置文件并输入以下内容（windows 版的 mosquitto.conf 在安装时的目录下）
 
 ```shell
 # 若 allow_anonymous false，password_file 需要注释掉
@@ -1260,7 +1265,7 @@ tls_version tlsv1.2 tlsv1.3                   # 可选：限制可用的 TLS 版
 
 **<font color="#F3BA4B">mosquitto 服务启动命令</font>**
 
-这里以windows做示例，ubuntu同理
+这里以 windows 做示例，ubuntu 的 mosquitto 是自动启动的
 
 1. 在 mosquitto 安装路径下打开命令行
 1. 输入 `mosquitto -d -v -c mosquitto.conf` 启动 mosquitto 服务
@@ -1308,25 +1313,25 @@ mosquitto_pub -h ssl://test.mosquitto.org -p 8883 --cafile ca.crt -t "secure/top
 
 **<font color="#F3BA4B">Retain 保留发布的主题消息</font>**
 
-1. 当客户端 A 设置 Retain 标志为 true 且发布一条消息 "mes1" 给服务器，服务器会为该主题保留这条消息。当有新的客户端 B 订阅这个主题时，服务器会立即将这条保留的消息 "mes1" 发送给客户端 B。此时客户端 A 再发布消息 "mes2" 给服务器，服务器会用 "mes2" 覆盖 "mes1"。当客户端 C 订阅这个主题时，就会收到服务器发送的消息 "mes2"。若 Retain 标志为 false，因为客户端 A 发布消息时，客户端 B 和 C 都还没订阅主题，所以 客户端 B 和 C 都不会收到消息
-1. 举个例子，在智能家居系统中，有一个主题 home/temperature 用于发布室内温度信息且设置了保留标志，每30秒发布一次温度信息。如果用户新添加了一个温度显示设备并订阅了这个主题，那么新设备一订阅就能马上获取到最后发布的温度信息，无需等待下一次发布
-1. 对于没有设置保留标志的消息，则消息一旦被服务器转发，则服务器就不再保留。而设置了保留标志的消息，会被服务器留存，直到有新的带有保留标志的消息发布覆盖它，或者手动清除（发送空消息）
+- 当客户端 A 设置 Retain 标志为 true 且发布一条消息 "mes1" 给服务器，服务器会为该主题保留这条消息。当有新的客户端 B 订阅这个主题时，服务器会立即将这条保留的消息 "mes1" 发送给客户端 B。此时客户端 A 再发布消息 "mes2" 给服务器，服务器会用 "mes2" 覆盖 "mes1"。当客户端 C 订阅这个主题时，就会收到服务器发送的消息 "mes2"。若 Retain 标志为 false，因为客户端 A 发布消息时，客户端 B 和 C 都还没订阅主题，所以 客户端 B 和 C 都不会收到消息
+- 举个例子，在智能家居系统中，有一个主题 home/temperature 用于发布室内温度信息且设置了保留标志，每30秒发布一次温度信息。如果用户新添加了一个温度显示设备并订阅了这个主题，那么新设备一订阅就能马上获取到最后发布的温度信息，无需等待下一次发布
+- 对于没有设置保留标志的消息，则消息一旦被服务器转发，则服务器就不再保留。而设置了保留标志的消息，会被服务器留存，直到有新的带有保留标志的消息发布覆盖它，或者手动清除（发送空消息）
 
 **<font color="#F3BA4B">clean 保留订阅的主题消息</font>**
 
-1. 当 Clean Session 值为 true 时：服务器不会保存该客户端的订阅信息，也不会缓存未被客户端接收的 QoS 1、QoS 2 级别消息。客户端断开连接后，会话相关的所有信息会被服务器清除；下次以相同 Client ID 连接时，会作为全新会话，需重新订阅主题
-1. 当 Clean Session 值为 false 时：服务器会保存该客户端的订阅信息，并缓存未被接收的 QoS 1、QoS 2 级别消息。客户端断开后再次连接（使用相同 Client ID）时，服务器会恢复之前的订阅，并推送未送达的消息
+- 当 Clean Session 值为 true 时：服务器不会保存该客户端的订阅信息，也不会缓存未被客户端接收的 QoS 1、QoS 2 级别消息。客户端断开连接后，会话相关的所有信息会被服务器清除；下次以相同 Client ID 连接时，会作为全新会话，需重新订阅主题
+- 当 Clean Session 值为 false 时：服务器会保存该客户端的订阅信息，并缓存未被接收的 QoS 1、QoS 2 级别消息。客户端断开后再次连接（使用相同 Client ID）时，服务器会恢复之前的订阅，并推送未送达的消息
 简言之，它决定了服务器是否持久化客户端的订阅关系和未完成的消息传递，帮助开发者根据业务场景（如是否需要离线消息、订阅关系持久化）来配置会话行为。
 
 **<font color="#F3BA4B">Qos 消息可靠性</font>**
 
-1. QoS 0 最多一次：消息发送后不确认，可能数据丢失或重复发送（非重要数据，如实时温度周期性上报）
-1. QoS 1 至少一次：消息确保到达，客户端未收到接收方确认则会重发（用于重要数据，如设备状态变更）
-1. QoS 2 刚好一次：消息确保仅到达一次（通过两次握手确认）（用于关键指令，如支付控制指令）
-1. QoS 可靠性指标只针对 "发布者——服务器" 和 "服务器——订阅者"。不适用于 "发布者——订阅者"
-1. 客户端A消息发布时是 QoS2，客户端B订阅时是 QoS1，则服务器会以 QoS2 接收数据并以 QoS1 发送消息给客户端B
+- QoS 0 最多一次：消息发送后不确认，可能数据丢失或重复发送（非重要数据，如实时温度周期性上报）
+- QoS 1 至少一次：消息确保到达，客户端未收到接收方确认则会重发（用于重要数据，如设备状态变更）
+- QoS 2 刚好一次：消息确保仅到达一次（通过两次握手确认）（用于关键指令，如支付控制指令）
+- QoS 可靠性指标只针对 "发布者——服务器" 和 "服务器——订阅者"。不适用于 "发布者——订阅者"
+- 客户端A消息发布时是 Qos2，客户端B订阅时是 Qos1，则服务器会以 Qos2 接收数据并以 Qos1 发送消息给客户端B
 
-发送端视角 Publisher
+**发送端视角 Publisher**
 
 <table>
   <tr>
@@ -1336,22 +1341,22 @@ mosquitto_pub -h ssl://test.mosquitto.org -p 8883 --cafile ca.crt -t "secure/top
   </tr>
   <tr>
     <td align="center">Qos 0</span></td>
-    <td>最多一次（At Most Once）</span></td>
+    <td>最多一次</span></td>
     <td>1. 发送端将消息一次性发送给服务器，不等待任何确认；</br>2. 发送后立即丢弃消息，不缓存、不重发；</br>3. 风险：消息可能丢失（如网络中断），但开销最小。</span></td>
   </tr>
   <tr>
     <td align="center">Qos 1</span></td>
-    <td>至少一次（At Least Once）</span></td>
+    <td>至少一次</span></td>
     <td>1. 发送端发送消息后，缓存消息并等待服务器的 PUBACK 确认包；</br> 2. 若未收到 PUBACK（超时 / 网络中断），则重发消息（直到收到确认）；</br> 3. 结果：消息一定送达服务器，但可能重复发送（如确认包丢失），服务器需处理重复。</span></td>
   </tr>
   <tr>
     <td align="center">Qos 2</span></td>
-    <td>恰好一次（Exactly Once）</span></td>
+    <td>恰好一次</span></td>
     <td></span>1. 发送端通过「四次握手」确保消息仅送达一次；</br> 2. 任何步骤超时则重发对应包，确保无丢失、无重复；</br> 3. 特点：可靠性最高，但开销最大（多轮交互 + 缓存）</br></td>
   </tr>
 </table>
 
-订阅端视角 Subscriber
+**订阅端视角 Subscriber**
 
 <table>
   <tr>
@@ -1375,7 +1380,7 @@ mosquitto_pub -h ssl://test.mosquitto.org -p 8883 --cafile ca.crt -t "secure/top
 注意事项：
 
 1. 开启 SSL 时，设备时间需要和服务器时间同步，否则可能会导致证书过期校验失败
-1. Mosquitto 服务端证书和私钥已经配置文件需要有读写权限
+1. Mosquitto 服务端证书和私钥以及配置文件需要有读写权限
 1. Mosquitto 服务器证书的 Common Name (CN) 需要正确填写服务器的 IP 或域名
 1. 编译应用程序时 -lmqtt3as （编译出的mqtt库）必须放在 -lssl.a -lcryptto.a 前面（遵循依赖库放在被依赖库之前的原则）
 
