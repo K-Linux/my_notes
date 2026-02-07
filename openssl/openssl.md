@@ -7,6 +7,10 @@ ___
 
 ___
 
+## <font color="1E90FF">基础简介</font>
+
+Base64 编码是用于将二进制数据转化为 ASCII 字符串的技术
+
 ## <font color="1E90FF">一、openssl 基础</font>
 
 摘要也称哈希值，表示输入任意长度的数据，都会输出固定长度的数据。通过摘要算法（比如MDS和SHA-1）就可以得到该哈希值。
@@ -110,6 +114,44 @@ openssl rsa -in server.key -pubout -out server_public.key
 
 
 
+## <font color="1E90FF">二、现代密码学</font>
+
+### <font color="1E90FF">散列函数加密（哈希函数加密）</font>
+
+散列函数又称为哈希函数或摘要函数
+
+可将任意长度的字符串经过运算变成固定长度的数值，多应用在文件校验和数字签名中
+
+加密方式：MD5, SHA-1, SHA-256, SHA-512
+
+MD5 可以将任意长度的原文生成一个128位（16字节）的哈希值
+SHA-1 可以将任意长度的原文生成一个160位（20字节）的哈希值
+
+### <font color="1E90FF">对称加密</font>
+
+对称加密有两种： DES 加解密，AES 加解密。AES是DES的加强版
+
+核心原理：流加密(对每个字符加密)，块加密(将整体分成数个块，然后只对块加密，最后一块不够则填充)
+
+toString 和 new String
+
+加密模式：ECB CBC
+
+填充模式：NoPadding 和 PKCS5padding
+
+加密和解密用的都是同一个密钥
+
+特点：1.加密速度快 2.
+
+### <font color="1E90FF">非对称加密</font>
+
+RSA 算法和 ECC 算法
+
+数字摘要
+
+base64核心加密原则和原理
+
+数字签名和数字证书
 
 
 
